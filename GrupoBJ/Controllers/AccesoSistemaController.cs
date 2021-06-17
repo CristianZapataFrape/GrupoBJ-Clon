@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using GrupoBJ.DataBase;
 using GrupoBJ.Filters;
@@ -17,6 +18,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         #region "Constructor"
@@ -109,31 +111,34 @@ namespace GrupoBJ.Controllers
                 string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
                 List<Acceso_Sistema> liListarAccesoSistema = new List<Acceso_Sistema>();
                 //Creación de la consulta de filtro dinámica sin combo filtro
-                string consultaLike = "SELECT Sis.idSistema, Sis.Nombre, Sis.fkUsuarioCr, Sis.fechaCr, Sis.Habilitado, " +
-                    "Sis.fkEmpresa, Sis.fechaUm, Sis.fkUsuarioUm FROM Acceso_Sistema AS Sis " +
-                    "INNER JOIN Empresa AS E ON Sis.fkEmpresa = E.idEmpresa WHERE Sis.Habilitado = 1 AND ";
+                sbConsulta.Remove(0, sbConsulta.Length);
+                sbConsulta.AppendLine(" SELECT Sis.idSistema, Sis.Nombre, Sis.fkUsuarioCr, Sis.fechaCr, Sis.Habilitado, ");
+                sbConsulta.AppendLine(" Sis.fkEmpresa, Sis.fechaUm, Sis.fkUsuarioUm FROM Acceso_Sistema AS Sis ");
+                sbConsulta.AppendLine("   INNER JOIN Empresa AS E ON Sis.fkEmpresa = E.idEmpresa WHERE Sis.Habilitado = 1 AND ");
+                string consultaLike = sbConsulta.ToString();
+
 
                 if (filtroCombo == null)
                 {
-                    consultaLike = consultaLike + "(";
+                    consultaLike +=  "(";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%')";
                     }
                     liListarAccesoSistema = _context.Acceso_Sistema.FromSqlRaw(consultaLike).Include(c => c.Empresa).ToList();
                 }
                 else
                 {
-                    consultaLike = consultaLike + "fkEmpresa = " + filtroCombo + " AND (";
+                    consultaLike +=  "fkEmpresa = " + filtroCombo + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoSistema + "%')";
                     }
                     liListarAccesoSistema = _context.Acceso_Sistema.FromSqlRaw(consultaLike).Include(c => c.Empresa).ToList();
                 }
