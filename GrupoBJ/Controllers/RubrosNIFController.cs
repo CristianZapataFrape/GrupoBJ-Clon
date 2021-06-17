@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace GrupoBJ.Controllers
 {
@@ -15,6 +16,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
 
@@ -119,18 +121,21 @@ namespace GrupoBJ.Controllers
                 else
                 {
                     //Creación de la consulta de filtro dinámica
-                    string consultaLike = "SELECT RN.idRubroNIF, RN.Codigo, RN.Nombre, RN.fkNIFTipo, RN.fkNIFNivel, RN.fkUsuarioCr, " +
-                        "RN.fechaCr, RN.Habilitado, RN.fkUsuarioUm, RN.fechaUm FROM Rubros_NIF AS RN " +
-                        "INNER JOIN NIF_Nivel AS N ON RN.fkNIFNivel = N.idNIFNivel " +
-                        "INNER JOIN NIF_Tipo AS T ON RN.fkNIFTipo = T.idNIFTipo WHERE RN.Habilitado = 1 AND (";
+                    sbConsulta.Remove(0, sbConsulta.Length);
+                    sbConsulta.AppendLine("SELECT RN.idRubroNIF, RN.Codigo, RN.Nombre, RN.fkNIFTipo, RN.fkNIFNivel, RN.fkUsuarioCr, ");
+                    sbConsulta.AppendLine("RN.fechaCr, RN.Habilitado, RN.fkUsuarioUm, RN.fechaUm FROM Rubros_NIF AS RN ");
+                    sbConsulta.AppendLine("  INNER JOIN NIF_Nivel AS N ON RN.fkNIFNivel = N.idNIFNivel ");
+                    sbConsulta.AppendLine("  INNER JOIN NIF_Tipo AS T ON RN.fkNIFTipo = T.idNIFTipo WHERE RN.Habilitado = 1 AND (");
+                    string Consult = sbConsulta.ToString();
+
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
+                            Consult += asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
+                            Consult += asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
                     }
-                    liListarRubrosNIF = _context.Rubros_NIF.FromSqlRaw(consultaLike).Include(c => c.NIF_Nivel).Include(c=> c.NIF_Tipo).ToList();
+                    liListarRubrosNIF = _context.Rubros_NIF.FromSqlRaw(Consult).Include(c => c.NIF_Nivel).Include(c=> c.NIF_Tipo).ToList();
                 }
                 return PartialView("_TablaRubrosNIF", liListarRubrosNIF);
             }
