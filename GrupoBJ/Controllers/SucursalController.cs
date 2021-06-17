@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using GrupoBJ.DataBase;
 using GrupoBJ.Filters;
@@ -17,6 +18,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         #region "Constructor"
@@ -178,32 +180,35 @@ namespace GrupoBJ.Controllers
                 if (filtroCombo == null)
                 {
                     //Creación de la consulta de filtro dinámica sin combo filtro
-                    string consultaLike = "SELECT idSucursal, fkEmpresa, S.Nombre, S.Telefono, S.codigoPostal, S.Celular, S.Fax, S.Calle, S.Colonia, S.numeroInterior, " +
-                        "S.numeroExterior, S.Cardinalidad, S.fkCiudad, S.Habilitado, S.fechaCr, S.fechaUm, S.fkUsuarioCr, S.fkUsuarioUm FROM Sucursal AS S " +
-                        "INNER JOIN Empresa AS E ON S.fkEmpresa = E.idEmpresa WHERE S.Habilitado = 1 AND (";
+                    sbConsulta.AppendLine("SELECT idSucursal, fkEmpresa, S.Nombre, S.Telefono, S.codigoPostal, S.Celular, S.Fax, S.Calle, S.Colonia, S.numeroInterior, ");
+                    sbConsulta.AppendLine("S.numeroExterior, S.Cardinalidad, S.fkCiudad, S.Habilitado, S.fechaCr, S.fechaUm, S.fkUsuarioCr, S.fkUsuarioUm FROM Sucursal AS S ");
+                    sbConsulta.AppendLine("  INNER JOIN Empresa AS E ON S.fkEmpresa = E.idEmpresa WHERE S.Habilitado = 1 AND (");
+                    string consultaLike = sbConsulta.ToString();
 
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%')";
                     }
                     liListarSucursal = _context.Sucursal.FromSqlRaw(consultaLike).Include(c => c.Empresa).ToList();
                 }
                 else
                 {
-                    //Creación de la consulta de filtro dinámica sin combo filtro 
-                    string consultaLike = "SELECT idSucursal, fkEmpresa, S.Nombre, S.Telefono, S.codigoPostal, S.Celular, S.Fax, S.Calle, S.Colonia, S.numeroInterior, " +
-                        "S.numeroExterior, S.Cardinalidad, S.fkCiudad, S.Habilitado, S.fechaCr, S.fechaUm, S.fkUsuarioCr, S.fkUsuarioUm FROM Sucursal AS S " +
-                        "INNER JOIN Empresa AS E ON S.fkEmpresa = E.idEmpresa WHERE S.Habilitado = 1 AND fkEmpresa = "+filtroCombo+ " AND (";
+                    //Creación de la consulta de filtro dinámica sin combo filtro
+                    sbConsulta.AppendLine("SELECT idSucursal, fkEmpresa, S.Nombre, S.Telefono, S.codigoPostal, S.Celular, S.Fax, S.Calle, S.Colonia, S.numeroInterior, ");
+                    sbConsulta.AppendLine("S.numeroExterior, S.Cardinalidad, S.fkCiudad, S.Habilitado, S.fechaCr, S.fechaUm, S.fkUsuarioCr, S.fkUsuarioUm FROM Sucursal AS S ");
+                    sbConsulta.AppendLine("  INNER JOIN Empresa AS E ON S.fkEmpresa = E.idEmpresa WHERE S.Habilitado = 1 AND fkEmpresa = " + filtroCombo + " AND (");
+                    string consultaLike = sbConsulta.ToString();
+
 
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorSucursal + "%')";
                     }
                     liListarSucursal = _context.Sucursal.FromSqlRaw(consultaLike).Include(c => c.Empresa).ToList();
                 }                
