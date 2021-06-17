@@ -1,0 +1,34 @@
+﻿@model IEnumerable<GrupoBJ.Models.Acceso_Permiso_Perfil_Opcion>
+
+@{ 
+    //Se agrupo la lista por Nombre del perfil
+    var lista = Model.GroupBy(p => p.Acceso_Perfil.Nombre).Select(x => new { x.Key }).ToList();
+}
+
+@if (lista.Count() > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped no-seleccionable" id="tablaUsuarioPerfil">
+            <thead>
+                <tr>
+                    <th style="width:100%">Perfil</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lista)
+                {
+
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.Key)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No hay registros</p>
+}
+
+

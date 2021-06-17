@@ -1,0 +1,990 @@
+﻿@model IEnumerable<GrupoBJ.Models.Puesto>
+@{
+    ViewData["Title"] = "Puesto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaEmpresa = (List<SelectListItem>)ViewBag.listaEmpresa;
+    List<SelectListItem> listaDepartamento = (List<SelectListItem>)ViewBag.listaDepartamento;
+    List<SelectListItem> listaFiltroDepartamento = (List<SelectListItem>)ViewBag.listaFiltroDepartamento;
+    List<SelectListItem> listaFiltroEmpresa = (List<SelectListItem>)ViewBag.listaFiltroEmpresa;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Filtro" asp-controller="Puesto" id="frmPuesto"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult"
+                  data-ajax-success="obtenerConfiguracionTabla('tablaPuesto')">
+                <br>
+
+                <h1 class="text-center">Puestos</h1>
+                <hr />
+
+                <div style="width:100%; height:80px;">
+                    @Html.Hidden("datosFiltro")
+                    @Html.Label("Buscador")
+                    @Html.TextBox("BuscadorPuesto", null, new { @class = "form-control", @onkeypress = "return check(event)" })
+                </div>
+                <div style="width:100%; height:80px;">
+                    <div style="width:48%; float:left;">
+                        @Html.Label("Filtro de empresa")
+                        @Html.DropDownList("filtroComboEmpresa", listaFiltroEmpresa, new { @class = "form-control" })
+                    </div>
+                    <div style="width:48%; float:left; margin-left:4%;">
+                        @Html.Label("Filtro de departamento")
+                        @Html.DropDownList("filtroComboDepartamento", listaFiltroDepartamento, new { @class = "form-control" })
+                    </div>
+                </div>
+
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Pue-Act" hidden type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="Pue-Agr" hidden type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="margin-right:5px;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Pue-Mod" hidden type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Pue-Eli" hidden type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Pue-Vta" hidden type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+                    <button id="Pue-Tba" hidden type="button" onclick="ConfigurarTabla('tablaPuesto')" class="btn btn-secondary Permisos" style="margin-right:5px;" data-toggle="tooltip" data-placement="top" title="Configurar tabla">
+                        <i class="fa fa-table"></i>
+                    </button>
+
+                </div>
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover no-seleccionable" id="tablaPuesto">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                <th hidden id="idPue-Empresa" class="tPue-Empresa Obligatorio" style="width:40%">Empresa</th>
+                                <th hidden id="idPue-Departamento" class="tPue-Departamento Obligatorio" style="width:30%">Departamento</th>
+                                <th hidden id="idPue-Puesto" class="tPue-Puesto" style="width:30%">Puesto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaPuesto")
+                        </tbody>
+                    </table>
+                </div>
+
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%; padding-top:8px;">
+                                <img src="~/Script/img/icono_puesto.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Datos del puesto</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="Guardar" asp-controller="Puesto"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Información principal</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos del puesto ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Empresa*")
+                                                @Html.DropDownList("fkEmpresa", listaEmpresa, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Puesto*")
+                                                @Html.TextBox("Nombre", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Departamento*")
+                                                @Html.DropDownList("fkDepartamento", listaDepartamento, new { @class = "form-control elementoModal" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            @* Modal de configuración de tabla *@
+            <div class="modal fade" id="tablaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%">
+                                <img src="~/Script/img/icono_tabla.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Tabla puesto</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="configurarTabla" asp-controller="UsuarioTablaColumna"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divErrorTabla"
+                              data-ajax-success="Configurar">
+
+                            @Html.Hidden("validacionColumnas")
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Configuración</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la tabla ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
+                                            <table class="table table-bordered table-hover" id="tablaPuestoColumnas">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:80%">Columna</th>
+                                                        <th style="width:10%">Visibilidad</th>
+                                                        <th style="width:10%">Ancho %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaPuestoColumnasBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambiosTabla" type="submit" class="btn btn-primary" onclick="crearArrayTabla()">Guardar cambios</button>
+                                <button type="button" id="btnCloseTabla" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divErrorTabla" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button type="submit" id="btnEliminarRegistroModal" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#ffd571;">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+
+        <script>
+            var indiceInt;
+            var campo;
+            var idTablaPuesto = 0; //Variable para el id del puesto
+
+            //Función que se ejecuta al iniciar la vista
+            $(document).ready(function () {
+                limpiarFiltros();
+                $("#filtroComboDepartamento").prop('disabled', true);
+                obtenerPermisosJS("Puesto");
+                obtenerConfiguracionTabla("tablaPuesto");
+            });
+
+            //Función para actualizar el formualario cuando se escribew en el buscardor
+            var buscador = document.getElementById("BuscadorPuesto");
+            buscador.onkeyup = function () {
+                idTablaPuesto = 0;
+                $("#tablaPuesto tbody").siblings().removeClass("seleccionado");
+                $("#frmPuesto").trigger("submit");
+            }
+
+            //Función que se ejecuta despues de que se guardan los datos (Insersión o cambio)
+            function Guardar(resultado) {
+                //idTablaPuesto = 0;
+                //$("#tablaPuesto tbody").siblings().removeClass("seleccionado");
+                if (resultado == "1" || resultado == "0") { //Si es 1 es porque inserto si es 0 es porque edito pero no se cambio ningun registro
+                    $("#frmPuesto").trigger("submit");
+                    document.getElementById("btnClose").click();
+                    idTablaPuesto = 0;
+                    $("#tablaPuesto tbody").siblings().removeClass("seleccionado");
+                } else {
+                    $("#btnGuardarCambios").attr("disabled", false);
+                    if (resultado == "-1") { //Campo que ya esta repetido en BD
+                        indiceInt = 1;
+                        var puesto = $("#Nombre").val();
+                        var departamento = $("#fkDepartamento").find('option:selected').text(); // Capturamos el texto del option seleccionado
+                        var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado. El puesto <b>" + puesto + "</b> del departamento <b>" + departamento + "</b> ya se encuentra registrado.</li></ul>";
+                        document.getElementById("divmodalErrores").innerHTML = repetido;
+                        document.getElementById("btnErrores").click();
+                    } else { //Sino es por un error
+                        var errores = resultado;
+                        let posicionInicial = errores.indexOf("(");
+                        let posicionFinal = errores.indexOf(")");
+                        var indice = errores.substring(posicionInicial + 1, posicionFinal);
+
+                        let letras = [",", "A", "B"];
+                        var posicion = letras.indexOf(indice); //posicion
+                        indiceInt = parseInt(posicion); //Posicion entera para tabs
+                        let campos = [",", "Nombre", "fkDepartamento"];
+
+                        campo = campos[posicion];//campo
+                        var cadenaCortar = "(" + indice + ")";
+                        var str = errores.replace(cadenaCortar, '');
+                        document.getElementById("divmodalErrores").innerHTML = str;
+                        document.getElementById("btnErrores").click();
+
+                    }
+                }
+            }
+
+            //Función que se ejecuta al cerrar el modal de error para abrir el tab
+            function Cerrar() {
+                document.getElementById("btnCerrarConfirmacion").click();
+                $("#home-tab").trigger("click");
+            }
+
+            //Funcion para limpiar los datos
+            function Limpiar() {
+                $("#btnGuardarCambios").attr("disabled", false);
+                document.getElementById("Nombre").value = "";
+                document.getElementById("fkDepartamento").value = "";
+                document.getElementById("fkEmpresa").value = "";
+                document.getElementById("divmodalErrores").innerHTML = "";
+                document.getElementById("divError").innerHTML = "";
+                $('#fkDepartamento').empty(); //agrego
+                $("#home-tab").trigger("click");
+            }
+
+            //Limpiar los filtros
+            function limpiarFiltros() {
+                document.getElementById("filtroComboEmpresa").value = "";
+                document.getElementById("filtroComboDepartamento").value = "";
+                $('#filtroComboDepartamento').empty(); //agrego
+                $('#filtroComboDepartamento').prepend("<option selected='true' disabled='disabled' value='0' >Todos los departamentos</option>");
+            }
+
+            
+            //Funcion cuando se presiona el boton agregar
+            function Agregar() {
+                habilitarElementos(false);
+                Limpiar();
+                $("#btnGuardarCambios").css("display", "inline");
+                document.getElementById("divError").innerHTML = "";
+                document.getElementById("id").value = -1;
+            }
+
+            //Funcion cuando se presiona el boton modificar pasando como parametro el id
+            function Modificar(id) {
+                Limpiar();
+                document.getElementById("id").value = id;
+                var idDepartamento;
+                $.get("Puesto/recuperarDatos/?id=" + id, function (data) {
+                    document.getElementById("Nombre").value = data.nombre;
+                    document.getElementById("fkDepartamento").value = data.fkDepartamento;
+                    idDepartamento = data.fkDepartamento;
+                }).done(function () {
+                    llenarDepartamentoDatos(idDepartamento); //agrego
+                });
+            }
+
+            //Función asíncrona para cargar el departamento y la empresa (Editar)
+            async function llenarDepartamentoDatos(idDepartamento) {
+                Empresa = await cargarEmpresa(idDepartamento);
+                var idEmpresa = Empresa.fkEmpresa;
+                document.getElementById("fkEmpresa").value = idEmpresa;
+
+                Departamento = await llenarDepartamento();               
+                document.getElementById("fkDepartamento").value = idDepartamento;
+            }
+
+            //Ajax para obtener la empresa
+            function cargarEmpresa(idDepartamento) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/recuperarDatosDepartamento/?id=' + idDepartamento,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Funcion para asigar el id que se va a eliminar
+            function Eliminar(idPuesto) {
+                document.getElementById("id").value = idPuesto;
+            }
+
+            //Funcion para verificar relaciones
+            async function EliminarRegistro() {
+                //idTablaPuesto = 0;
+                var id = document.getElementById("id").value;
+
+                //Validación de relación con empleado---------------------------------
+                var RelacionesEmpleado = await verificarRelacionesEmpleado(id);
+                if (RelacionesEmpleado == 0) {
+                    await verificarRegistroEliminar(id);
+                    idTablaPuesto = 0;
+                } else {
+                    Puesto = await obtenerNombrePuesto(id);
+                    var nombrePuesto = Puesto.nombre;
+                    var fkDepartamento = Puesto.fkDepartamento;
+                    Departamento = await obtenerNombreDepartamento(fkDepartamento);
+                    var nombreDepartamento = Departamento.nombre;
+                    document.getElementById("divmodalErrores").innerHTML = "<ul class='list-group'><li class='list-group-item'>No se puede eliminar el puesto <b>" + nombrePuesto + "</b> del departamento <b>" + nombreDepartamento + " </b> ya que se encuentra en uso.</li></ul>";
+                    document.getElementById("btnErrores").click();
+                    document.getElementById("btnCerrarIcono").click();
+                }
+            }
+
+            //Ajax para obtener el nombre del puesto
+            function obtenerNombrePuesto(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/recuperarDatos/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Ajax para obtener el nombre del departamento
+            function obtenerNombreDepartamento(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/recuperarDatosRelacionAnterior/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Ajax para verificar las relaciones
+            function verificarRelacionesEmpleado(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/verificarRelacionesEmpleado/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Eliminación
+            function verificarRegistroEliminar(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/eliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    if (data == "1") { //Si regresa 1 es porque se borro un registro
+                        $("#frmPuesto").trigger("submit"); //Se refresca el formulario
+                        document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                    }
+                })
+            }
+
+            //Actualizar Departamento
+            var llenarDepartamento = function () {
+                var selectedEmpresa = $('#fkEmpresa').val();
+                $('#fkDepartamento').empty();
+                $('#fkDepartamento').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione un departamento--</option>");
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/actualizarDepartamento/?id=' + selectedEmpresa,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#fkDepartamento').append('<option value="' + element.idDepartamento + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+            $('#fkEmpresa').change(llenarDepartamento);
+            llenarDepartamento();
+
+
+
+            //Actualizar Departamento de filtro
+            var llenarDepartamentoFiltro = function () {
+                var selectedEmpresa = $('#filtroComboEmpresa').val();
+                $('#filtroComboDepartamento').empty();
+                $('#filtroComboDepartamento').prepend("<option selected='true' value='' >Todos los departamentos</option>");
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/actualizarComboDepartamento/?id=' + selectedEmpresa,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#filtroComboDepartamento').append('<option value="' + element.idDepartamento + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+            $('#filtroComboEmpresa').change(llenarDepartamentoFiltro);
+            llenarDepartamentoFiltro();
+
+
+
+
+            //Obtener todos los departamentos
+            function obtenerTodosLosDepartamentos(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/actualizarDepartamento/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#fkDepartamento').append('<option value="' + element.idDepartamento + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+
+
+
+            //Auto focus en modal
+            $('#exampleModal').on('shown.bs.modal', function () {
+                $('#Nombre').focus();
+            })
+
+            //Autofocus pestaña información
+            $("#home-tab").click(function () {
+                $('#' + campo).focus();
+                $('#exampleModal').on('shown.bs.tab', function () {
+                    $('#' + campo).focus();
+                })
+            });
+
+            //Filtro por combo de empresa
+            var filtroComboEmpresa = document.getElementById("filtroComboEmpresa");
+            filtroComboEmpresa.onchange = function () {
+                var valor = filtroComboEmpresa.value;
+                if (valor == "")
+                    $("#filtroComboDepartamento").prop('disabled', true);
+                else
+                    $("#filtroComboDepartamento").prop('disabled', false);
+                idTablaPuesto = 0;
+                $("#tablaPuesto tbody").siblings().removeClass("seleccionado");
+                $("#frmPuesto").trigger("submit");
+            }
+
+            //Filtro por combo de departamento
+            var filtroComboDepartamento = document.getElementById("filtroComboDepartamento");
+            filtroComboDepartamento.onchange = function () {
+                idTablaPuesto = 0;
+                $("#tablaPuesto tbody").siblings().removeClass("seleccionado");
+                $("#frmPuesto").trigger("submit");
+            }
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaPuesto tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaPuesto = 0;
+                    //console.log(idTablaPuesto);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaPuesto = $(this).children("td:nth-child(1)").text();
+                    //console.log(idTablaPuesto);
+                }
+
+            });
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaPuesto == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaPuesto);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+                        Eliminar(idTablaPuesto);
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaPuesto);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar el puesto <span style='color:#394867;'>" + NombreEliminacion[0].nombre + "</span> de la empresa <span style='color:#394867;'>" + NombreEliminacion[0].departamento.empresa.nombre + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        $("#btnEliminarRegistroModal").attr("disabled", false);
+                        //--------------------------------------------------------------------
+                        $('#exampleModalConfirmacion').modal('show');
+                    } else if (Accion == "Vista") {
+                        habilitarElementos(true);
+                        Modificar(idTablaPuesto);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "none");
+                    }
+
+                }
+            }
+
+            //Función para recuperar el nombre del registro a elmininar
+            function recuperarNombreEliminacion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Puesto/recuperarDatosEliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para Des/habilitar los elementos del modal
+            function habilitarElementos(estatus) {
+                $(".elementoModal").prop("disabled", estatus);
+            }
+
+            //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+            $(document).ajaxError(function (event, jqxhr) {
+                if (jqxhr.status === 403)
+                    window.location = 'Login';
+            });
+
+            //Función para detectar los submit para inhabilitar/habilitar el boton
+            $("button[type='submit']").on("click", function (e) {
+                $(this).attr("disabled", true);
+                $(this).closest("form").submit()
+            }); 
+
+
+            //Función para abrir modal de tabla y configuración
+            async function ConfigurarTabla(tabla) {
+                $("#btnGuardarCambiosTabla").attr("disabled", false);
+                //Detectar las columnas de la tabla
+                var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
+
+                //Detectar las columnas obligatorias
+                var obligatorios = document.getElementsByClassName("Obligatorio");
+                var arregloObligatorios = [];
+                for (var i = 0; i < obligatorios.length; i++) {
+                    arregloObligatorios.push(obligatorios[i].innerHTML);
+                }
+
+                //Creación de registros de tabla
+                document.getElementById("tablaPuestoColumnasBody").innerHTML = "";
+                for (var i = 1; i < allSelect.length; i++) {
+                    var Columa = allSelect[i].innerHTML;
+                    var claseInput = "in" + Columa;
+                    var claseCheck = "ch" + Columa;
+                    var banderaObligatorio = 0;
+                    for (var j = 0; j < arregloObligatorios.length; j++) {
+                        if (arregloObligatorios[j] == Columa) {
+                            banderaObligatorio = 1;
+                        }
+                    }
+
+                    if (banderaObligatorio == 1) {
+                        var tr =
+                            "<tr>" +
+                            "<td>" +
+                            "<label>" +
+                            Columa +
+                            "</label>" +
+                            "</td>" +
+                            "<td class='text-center'>" +
+                            "<input type='checkbox' class='" + claseCheck + "' disabled checked id=colVisi-" + i + ">" +
+                            "</td>" +
+                            "<td>" +
+                            "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                            "</td>" +
+                            "</tr>";
+                    } else {
+                        var tr =
+                            "<tr>" +
+                            "<td>" +
+                            "<label>" +
+                            Columa +
+                            "</label>" +
+                            "</td>" +
+                            "<td class='text-center'>" +
+                            "<input type='checkbox' class='" + claseCheck + "' id=colVisi-" + i + ">" +
+                            "</td>" +
+                            "<td>" +
+                            "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                            "</td>" +
+                            "</tr>";
+                    }
+
+                    $("#tablaPuestoColumnasBody").append(tr);
+                }
+                banderaObligatorio = 0;
+
+                //Llenar los datos de la tabla con los de la colección
+                DatosTablaPuesto = await cargarDatosTabla('tablaPuesto');
+                for (let i = 0; i < DatosTablaPuesto.length; i++) {
+                    var columnaObtenida = DatosTablaPuesto[i].columna;
+                    var anchoObtenido = DatosTablaPuesto[i].ancho;
+                    var inputConClase = document.getElementsByClassName("in" + columnaObtenida);
+                    var checkConClase = document.getElementsByClassName("ch" + columnaObtenida);
+
+                    if (inputConClase[0] != null && checkConClase[0] != null) {
+                        $('#' + inputConClase[0].id).val(anchoObtenido);
+                        $("#" + checkConClase[0].id).prop("checked", true);
+                    }
+                    //console.log(inputConClase[0].id + " " +checkConClase[0].id + " " + anchoObtenido)
+
+                }
+
+                //Habilitar el ancho de los checkbox en true
+                var checksEncontrados = document.querySelector("#tablaPuestoColumnas").querySelectorAll("input[type='checkbox']");
+                checksEncontrados.forEach(C => {
+                    if (C.checked) {
+                        var idEncontrado = C.id.substr(8, C.id.length);
+                        $("#colAnch-" + idEncontrado).prop("disabled", false);
+                    }
+                });
+
+
+                //tablaEmpresaColumnasBody
+                $('#tablaModal').modal('show');
+            }
+
+
+            //Función para guardar el array con los datos de la tabla Columna
+            function crearArrayTabla() {
+                //Crear el array para guardar las columnas
+                var registrosColumnas = [];
+                var cadenaColumnas = "";
+
+                //Obtener los valores de todas las celdas de la tabla
+                var filas = $("#tablaPuestoColumnasBody").find("tr");
+
+                //Guardar los valores de la tabla en el arreglo
+                for (i = 0; i < filas.length; i++) {
+                    var celdas = $(filas[i]).find("td");
+                    nombreColumna = $($(celdas[0]).children("label")).text();
+                    anchoColumna = $($(celdas[2]).children("input")[0]).val();
+
+                    //Validar checkbox en checked
+                    visibilidadColumna = "0";
+                    visibleColumna = $($(celdas[1]).children("input:checkbox:checked")).val();
+                    if (visibleColumna == "on") {
+                        visibilidadColumna = "1";
+                    }
+
+                    //Validar ancho de columna
+                    if (anchoColumna == "") {
+                        anchoColumna = "0";
+                    }
+
+                    registrosColumnas.push(nombreColumna);
+                    registrosColumnas.push(anchoColumna);
+                    registrosColumnas.push(visibilidadColumna);
+                }
+
+                registrosColumnas.push("tablaPuesto");
+                cadenaColumnas = "[" + registrosColumnas.join() + "]";
+                document.getElementById("validacionColumnas").value = cadenaColumnas;
+            }
+
+            //Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla (Adecuar tambien para combo)
+            function Configurar(resultado) {
+                if (resultado == "1") {
+                    obtenerConfiguracionTabla("tablaPuesto");
+                    document.getElementById("btnCloseTabla").click();
+                    $("#BuscadorPuesto").val("");
+                    $("#filtroComboEmpresa").val(""); //--------------------------
+                    $("#filtroComboDepartamento").val(""); //--------------------------
+                    $("#frmPuesto").trigger("submit");
+                    //BuscadorEmpresa
+                } else {
+                    $("#btnGuardarCambiosTabla").attr("disabled", false);
+                    document.getElementById("divmodalErrores").innerHTML = resultado;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Detectar cambios en cada renglón de la tabla columnas
+            $('#tablaPuestoColumnas').on('change', 'input[type="checkbox"]', function () {
+                var checkboxTabla = $(this).prop('id');
+                var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
+                document.getElementById("colAnch-" + idCheck).value = "";
+                if ($(this).is(':checked')) {
+                    $("#colAnch-" + idCheck).prop("disabled", false);
+                } else {
+                    $("#colAnch-" + idCheck).prop("disabled", true);
+                }
+            });
+
+            //Función para cargar los datos de la tabla Usuario_Tabla_Columna
+            function cargarDatosTabla(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/cargarDatosTabla/?tabla=' + tabla,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+
+            async function obtenerConfiguracionTabla(tabla) {
+                //Mandar las columnas del HTML y el nombre de la tabla para verificar que coincidan con las que se tiene de BD
+                var columnasTablaHTML = document.querySelector("#" + tabla).querySelectorAll("th");
+                var arregloTablaHTML = [];
+
+                for (var i = 1; i < columnasTablaHTML.length; i++) {
+                    arregloTablaHTML.push(columnasTablaHTML[i].innerHTML);
+                }
+                arregloTablaHTML.push(tabla);
+                var cadenaTablaHTML = "[" + arregloTablaHTML.join() + "]";
+                ValidarTablaHTML = await validarTablaHTML(cadenaTablaHTML);
+
+                //Verificar que exista por lo menos un registro del usuario
+                RegistroExistente = await buscarRegistroExistente(tabla);
+                if (RegistroExistente.length <= 0) {
+                    //Darle la configuración predeterminada y guardarla en un arreglo
+                    var colPredeterminadas = document.querySelector("#" + tabla).querySelectorAll("th");
+                    var arregloConfigInicial = [];
+                    for (var i = 1; i < colPredeterminadas.length; i++) {
+                        arregloConfigInicial.push(colPredeterminadas[i].innerHTML);
+                        arregloConfigInicial.push(colPredeterminadas[i].style.width);
+                        if (colPredeterminadas[i].hidden == true)
+                            arregloConfigInicial.push("0");
+                        else
+                            arregloConfigInicial.push("1");
+                    }
+                    arregloConfigInicial.push("tablaPuesto");
+                    var columnasPreterminadas = "[" + arregloConfigInicial.join() + "]";
+                    await guardarColPredeterminadas(columnasPreterminadas);
+                }
+
+                //Realizar petición para buscar configuración guardada
+                DatosTablaPuesto = await cargarDatosTabla(tabla);
+
+                //Aplicar configuración              
+                var colActuales = document.querySelector("#" + tabla).querySelectorAll("th");
+                var encontrado = 0;
+
+                //Arreglo con los nombres de las columnas y sus nombres de BD
+                var arregloDatosBD = ["Empresa", "E.Nombre", "Departamento", "D.Nombre", "Puesto", "P.Nombre"];
+                var arregloFiltro = [];
+
+                for (var i = 1; i < colActuales.length; i++) { //Recorrer las th de la tabla HTML
+
+                    var columnaAct = colActuales[i].innerHTML;
+                    for (var j = 0; j < DatosTablaPuesto.length; j++) { //Recorrer las columnas configuradas como visibles
+                        if (columnaAct == DatosTablaPuesto[j].columna) { //Aplicar la visibilidad y el ancho configurados
+                            encontrado = 1;
+                            //console.log("Encontrada: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id + " ancho: " +DatosTablaEmpresa[j].ancho); //Obtiene la primera clase
+                            $("." + colActuales[i].classList[0]).prop("hidden", false);
+                            $("#" + colActuales[i].id).css("width", DatosTablaPuesto[j].ancho + "%");
+                            for (var k = 0; k < arregloDatosBD.length; k = k + 2) {
+                                if (arregloDatosBD[k] == columnaAct) {
+                                    arregloFiltro.push(arregloDatosBD[k + 1]);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if (encontrado == 0) { //Quitar la visibilidad y el ancho
+                        //console.log("No encontrado: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id);
+                        $("." + colActuales[i].classList[0]).prop("hidden", true);
+                        $("#" + colActuales[i].id).css("width", "0%");
+                    }
+                    encontrado = 0;
+                }
+
+                //Si no se encontro ninguna columna visible, dar como visible la principal (Caso de primer inicio del usuario en pantalla)
+                if (arregloFiltro.length == 0) {
+                    //Hacer todas las columnas visibles
+                    await cambiarColumnasVisibles("tablaPuesto");
+                    obtenerConfiguracionTabla("tablaPuesto");
+                }
+
+                //Conversión del arreglo a string y guardado en variable C#
+                var stArregloFiltro = "[" + arregloFiltro.join() + "]";
+                document.getElementById("datosFiltro").value = stArregloFiltro;
+
+
+                //Mostrar tabla ya configurada
+                $("#" + tabla).prop("hidden", false);
+            }
+
+            //Función para agregar las columnas predeterminadas
+            function guardarColPredeterminadas(columnasPreterminadas) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/guardarColPredeterminadas/?columnas=' + columnasPreterminadas,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para validar los datos de la tabla HTML
+            function validarTablaHTML(columnas) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/validarTablaHTML/?columnas=' + columnas,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para verificar un registro existente de la coleccion
+            function buscarRegistroExistente(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/buscarRegistroExistente/?tabla=' + tabla,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para hacer todas las columnas visibles si no tiene una configuración
+            function cambiarColumnasVisibles(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/cambiarColumnasVisibles/?tabla=' + tabla,
+                    dataType: "text"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para los caracteres permitidos en filtro
+            function check(e) {
+                tecla = (document.all) ? e.keyCode : e.which;
+                //Tecla de retroceso para borrar, siempre la permite
+                if (tecla == 8) {
+                    return true;
+                }
+
+                // Patron de entrada, en este caso solo acepta numeros y letras
+                patron = /[A-Za-z0-9áéíóúÁÉÍÓÚ.,-;$€£ñÑ ]/;
+                tecla_final = String.fromCharCode(tecla);
+                return patron.test(tecla_final);
+            }
+
+        </script>
+    }
+</body>
+</html>
+
+

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<GrupoBJ.Models.Acceso_Perfil>
+
+@if (Model.Count() > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped no-seleccionable" id="tablaBusqueda">
+            <thead>
+                <tr>
+                    <th style="width:45%">Sistema</th>
+                    <th style="width:45%">Perfil</th>
+                    <th style="width:10%; text-align:center;">Sel.</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.Acceso_Sistema.Nombre)</td>
+                        <td>@Html.DisplayFor(m => item.Nombre)</td>
+                        <td style="text-align:center">
+                            <button type="button" onclick="Seleccionar(@item.idPerfil)" class="btn btn-primary">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No hay registros</p>
+}
+
+
+
+

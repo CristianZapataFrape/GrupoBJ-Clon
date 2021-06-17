@@ -1,0 +1,28 @@
+﻿@model IEnumerable<GrupoBJ.Models.Tabla_Nutrimental>
+
+
+@if (Model.Count() > 0)
+{
+
+    @foreach (var item in Model)
+    {
+<tr>
+    <td hidden>@Html.DisplayFor(m => item.id_Tabla_Nutrimental)</td>
+    <td>@Html.DisplayFor(m => item.Nombre_Tabla_Nutrimental)</td>
+    <td style="text-align: center;">@Html.DisplayFor(m => item.Activo)</td>
+    <td>@Html.DisplayFor(m => item.Carateristica_Valores.Valor)</td>
+    <td>@Html.DisplayFor(m => item.fkUsuarioCr)</td>
+    <td>@Html.DisplayFor(m => item.fechaCr)</td>
+    <td>@Html.DisplayFor(m => item.fkUsuarioUm)</td>
+    <td>@Html.DisplayFor(m => item.fechaUm)</td>
+
+</tr>
+    }
+
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}
+

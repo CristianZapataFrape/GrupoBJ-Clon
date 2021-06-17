@@ -1,0 +1,654 @@
+﻿@model IEnumerable<GrupoBJ.Models.Tabla_Nutrimental>
+@{
+    ViewData["Title"] = "Tabla nutrimental";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaMercado = (List<SelectListItem>)ViewBag.listaMercado;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Busqueda" asp-controller="TablaNutrimental" id="frmArticulos"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult">
+                <br>
+
+                <h1 class="text-center">Tabla nutrimental</h1>
+                <hr />
+
+                <div style="width:100%; height:80px;">
+                    <div style="width:70%; float:left;">
+                        <div style="width:30%; float:left;">
+                            @Html.Label("Buscar")
+                            @Html.TextBox("BuscadorArticulo", null, new { @class = "form-control", @maxlength = "50" })
+                        </div>
+                    </div>
+                </div>
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Art-Act" type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="Art-Cam" type="button" onclick="ValidarSeleccion('Campos')" class="btn btn-secondary" data-target="#exampleModal" style="margin-left: 5px; float: right;">
+                        <i class="fa fa-book"></i> Campos
+                    </button>
+
+                    <button id="Art-Agr" type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="float:right;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Art-Mod" type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Art-Eli" type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Art-Vta" type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+                    @*<button id="Emp-Act" type="button" onclick="location.reload()" class="btn btn-info Permisos" style="float:right; margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>*@
+                </div>
+                <br />
+
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="tablaArticulos">
+                        <thead>
+                            <tr>
+                                <th style="width:10%" hidden>Id</th>
+                                <th style="width:20%">Tabla</th>
+                                <th style="width:5%">Activo</th>
+                                <th style="width:5%">Mercado</th>
+                                <th style="width:15%">Usuario Cr</th>
+                                <th style="width:15%">Fecha Cr</th>
+                                <th style="width:15%">Usuario Um</th>
+                                <th style="width:15%">Fecha Um</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaNutrimentalMaestro")
+                        </tbody>
+                    </table>
+                </div>
+
+                @*<div id="ajaxresult">
+                    @await Html.PartialAsync("_ArticulosMaestros")
+                </div>*@
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%">
+                                <img src="~/Script/img/icono_empresa.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Campo para artículos</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        @* Tabs--------------------------------------------------------- *@
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                   aria-selected="true">Datos generales</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                                   aria-selected="false">Campos</a>
+                            </li>
+                        </ul>
+                        @* --------------------------------------------------------------- *@
+                        @* Contenido de los tabs ----------------------------------------- *@
+                        @* Datos de la empresa ------------------------ *@
+
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                <div class="modal-body row">
+                                    <form style="width:100%" asp-action="Guardar" asp-controller="TablaNutrimental"
+                                          data-ajax="true" data-ajax-method="POST"
+                                          data-ajax-mode="replace" data-ajax-update="#divError"
+                                          data-ajax-success="Guardar">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-5 col-md-5">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Nombre tabla nutrimental*")
+                                                @Html.TextBox("Nombre_Tabla_Nutrimental", null, new { @class = "form-control", @maxlength = "150" })
+                                            </div>
+
+                                            <div class="form-group">
+                                                @Html.CheckBox("chActivo")
+                                                @Html.Label("Activo*")                                               
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-5 col-md-5">
+                                            <div class="form-group">
+                                                @Html.Label("Mercado*")
+                                                @Html.DropDownList("id_Carateristica_Valores", listaMercado, new { @class = "form-control elementoModal" })
+                                            </div>
+                                        </div>
+                                        <div style="width:100%; height:25px; text-align:right;">
+                                            <button id="btnGuardarCambios" style="text-align:right;  margin-right:5px; " type="submit" class="btn btn-primary">Guardar cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <div class="modal-body row">
+
+
+
+                                    <form style="width:100%;  margin-right:5px;  margin-left:5px;" asp-action="BusquedaCampos" asp-controller="TablaNutrimental" id="frmCampos"
+                                          data-ajax="true"
+                                          data-ajax-method="POST"
+                                          data-ajax-mode="replace"
+                                          data-ajax-update="#ajaxresult2">
+                                        <br>
+
+
+                                        <div class="form-group" style="width:100%; height:80px;">
+                                            <div style="width:70%; float:left;">
+                                                <div style="width:30%; float:left;">
+                                                    @Html.Hidden("id2")
+                                                    @Html.Label("Buscar")
+                                                    @Html.TextBox("BuscadorArticulo2", null, new { @class = "form-control", @maxlength = "50" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="width:100%; height:25px; text-align:right;">
+                                            @*<button id="Art-Act2" type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+            <i class="fa fa-refresh"></i> Actualizar
+        </button>*@
+                                            <button id="Art-Agr2" type="button" onclick="AgregarCampos()" class="btn btn-success Permisos" data-toggle="modal" data-target="#modalBusqueda" style="float:right;">
+                                                <i class="fa fa-plus-circle"></i> Agregar
+                                            </button>
+                                            <button id="Art-Mod2" type="button" onclick="ValidarSeleccionModal('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                                                <i class="fa fa-edit"></i> Modificar
+                                            </button>
+                                            <button id="Art-Eli2" type="button" onclick="ValidarSeleccionModal('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                                                <i class="fa fa-trash"></i> Eliminar
+                                            </button>
+                                            <button id="Art-Vta2" type="button" onclick="ValidarSeleccionModal('Vista')" class="btn btn-primary Permisos " style="margin-right:5px;">
+                                                <i class="fa fa-clipboard"></i> Vista
+                                            </button>
+                                        </div>
+                                        <br />
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover" id="tablaCampos">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:10%" hidden>Id</th>
+                                                        <th style="width:20%">Nombre</th>
+                                                        <th style="width:15%">Usuario Cr</th>
+                                                        <th style="width:15%">Fecha Cr</th>
+                                                        <th style="width:15%">Usuario Um</th>
+                                                        <th style="width:15%">Fecha Um</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="ajaxresult2">
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+
+                                    </form>
+
+                                </div>
+                            </div>
+                            @* -------------------------------------------------------------------------- *@
+
+                        </div>
+
+                        <div class="modal-footer">
+                            @*<button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>*@
+                            <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                        <div id="divError" style="color:darkred; display:none;">
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+
+        <!-- Modal de Informacion/Pregunta-->
+        <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #318fb5;" id="ejemplo">
+                        <div style="width:10%; padding-top:6px">
+                            <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                        </div>
+                        <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                        </div>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div style="padding:1em">
+                        <button type="button" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                        <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+            Errores
+        </button>
+        <!-- Modal de validaciones -->
+        <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #ffd571; ">
+                        <div style="width:10%; padding-top:4px">
+                            <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                        </div>
+                        <div style="width:90%; padding-top:4px">
+                            <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="divmodalErrores">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Modal busqueda *@
+        <div class="modal fade bd-example-modal-lg" id="modalBusqueda" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <form asp-action="GuardarCampos" asp-controller="TablaNutrimental"
+                     data-ajax="true" data-ajax-method="POST"
+                     data-ajax-mode="replace" data-ajax-update="#divError"
+                     data-ajax-success="CerrarBusqueda">
+                    <div class="modal-header" style="background-color:#01c5c4;">
+                        @*<div style="width:6%; padding-top:4px">
+                            <img src="~/Script/img/icono_busqueda.png" alt="" width="30" height="30">
+                        </div>*@
+
+                        <div style="width:94%; padding-top:4px">
+                            <h5 class="modal-title" style="color:#f6f4e6; font-size:20px;"><b>Campos</b></h5>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="CerrarBusqueda()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="col-sm-6">
+                        @Html.Hidden("id_Maestro")
+                        @Html.Hidden("id_Detalle")
+                        <div class="form-group">
+                            @Html.Label("Nombre del campo*")
+                            @Html.TextBox("Nombre_Articulo_Campos", null, new { @class = "form-control", @maxlength = "150" })
+                        </div>
+                        <!--<div class="form-group">
+    @Html.CheckBox("campoactivo")
+    @Html.Label("Activo")-->
+                        @*@Html.TextBox("Producto_Venta", null, new { @class = "form-control", @maxlength = "150" })*@
+                        <!--</div>-->
+                    </div>
+                    <div class="col-sm-6">
+                        @*Segunda Columna----------------------------------*@
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="btnGuardarCambiosCampos" type="submit" class="btn btn-primary"  >Guardar cambios</button>
+                        <button id="btnCerrarBusqueda" type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CerrarBusqueda()">Cerrar</button>
+                    </div>
+                    </form>
+                </div>
+                </div>
+            </div>
+        
+        
+    </section>
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+        <script>
+            var idTablaEmpresa = 0;
+            var idCampo = 0;
+            var buscador = document.getElementById("BuscadorArticulo");
+            buscador.onkeyup = function () {
+                $("#frmArticulos").trigger("submit");
+                $("#frmCampos").trigger("submit");
+            }
+
+            var buscador2 = document.getElementById("BuscadorArticulo2");
+            buscador2.onkeyup = function () {
+
+                $("#frmCampos").trigger("submit");
+            }
+            //Validar que solo se escriban números
+            $('.input-number').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            //Función para obtener los permisos de la pantalla
+            $(document).ready(function () {
+                obtenerPermisosJS("TablaNutrimental");
+            });
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaArticulos tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaEmpresa = 0;
+                    //console.log(idTablaEmpresa);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaEmpresa = $(this).children("td:nth-child(1)").text();
+                    console.log(idTablaEmpresa);
+                }
+
+            });
+
+            $('#tablaCampos tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idCampo = 0;
+                    console.log("IF"+idCampo);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idCampo = $(this).children("td:nth-child(1)").text();
+                    console.log("ELSE"+idCampo);
+                }
+
+            });
+
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaEmpresa == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaEmpresa);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+                        Eliminar(idTablaEmpresa);
+                        console.log("ENTRO ELIMINAR")
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaEmpresa);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar la empresa <span style='color:#394867;'>" + NombreEliminacion.nombre_Articulo_Campos + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        //--------------------------------------------------------------------
+                        console.log("MODAL ELIMINAR")
+                        $('#exampleModalConfirmacion').modal('show');
+                        console.log("SALIO ELIMINAR")
+                    } else if (Accion == "Vista") {
+                        habilitarElementos(true);
+                        Modificar(idTablaEmpresa);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "none");
+                    }
+                    else if (Accion == "Campos") {
+                        habilitarElementos(true);
+                        var idtn = idTablaEmpresa;
+                        location.href = "@Html.Raw(@Url.Action("index", "TablaNutrimentalCampos", new { id = "_Id" }))".replace("_Id", idTablaEmpresa);
+                        //Modificar(idTablaEmpresa);
+                        //$('#exampleModal').modal('show');
+                        //$("#btnGuardarCambios").css("display", "none");
+                    }
+
+                }
+            }
+             //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccionModal(Accion) {
+                console.log(idCampo);
+                if (idCampo == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        console.log("MODIFICAR")
+
+                        Buscar();
+                    } else if (Accion == "Eliminar") {
+                        console.log("ELIMINAR")
+                    } else if (Accion == "Vista") {
+                        console.log("VISTA")
+                        Buscar()
+                    }
+                   
+                    }
+
+                }
+            
+            //Función para Des/habilitar elementos
+            function habilitarElementos(estatus) {
+                $(".elemento").prop("disabled", estatus);
+            }
+
+
+            //Funcion cuando se presiona el boton modificar pasando como parametro el id
+            function Modificar(id) {
+                Limpiar();
+                document.getElementById("id").value = id;
+                document.getElementById("id2").value = id;
+                var idCiudad;
+                $.get("TablaNutrimental/recuperarDatos/?id=" + id, function (data) {
+                    console.log(data)
+                    document.getElementById("Nombre_Tabla_Nutrimental").value = data.nombre_Tabla_Nutrimental;
+
+                    document.getElementById("id_Carateristica_Valores").value = data.id_Carateristica_Valores;
+                    
+                    if (data.activo == 1) {
+                        $("#chActivo").prop("checked", true);
+                    }
+                    //document.getElementById("razonSocial").value = data.razonSocial;
+
+                }).done(function () {
+                    $("#frmCampos").trigger("submit");
+                });
+            }
+
+            //Funcion cuando se presiona el boton agregar
+            function Agregar() {
+                console.log("entro");
+                habilitarElementos(false);
+                Limpiar();
+                $("#btnGuardarCambios").css("display", "inline");
+                document.getElementById("divError").innerHTML = "";
+                document.getElementById("id").value = -1;
+                document.getElementById("id2").value = -1;
+            }
+
+            function AgregarCampos() {
+                console.log("entro");
+                $("#exampleModal").addClass("modal-backdrop"); 
+                document.getElementById("Nombre_Articulo_Campos").value = "";
+                document.getElementById("id_Maestro").value = idTablaEmpresa;
+                document.getElementById("id_Detalle").value = -1;
+            }
+
+            //Funcion para asigar el id que se va a eliminar
+            function Eliminar(idEmpresa) {
+                document.getElementById("id").value = idEmpresa;
+            }
+            //Funcion para verificar relaciones y proceder a la eliminación
+            async function EliminarRegistro() {
+                idTablaEmpresa = 0;
+                var id = document.getElementById("id").value;
+                //var Relaciones = await verificarRelaciones(id);
+                await verificarRegistroEliminar(id);
+                //if (Relaciones == 0) {
+                //    await verificarRegistroEliminar(id);
+                //} else {
+                //    var nombreEmpresa = "";
+                //    $.get("Empresa/recuperarDatos/?id=" + id, function (data) {
+                //        nombreEmpresa = data.nombre;
+                //    }).done(function () {
+                //        document.getElementById("divmodalErrores").innerHTML = "<ul class='list-group'><li class='list-group-item'>No se puede eliminar la empresa <b>" + nombreEmpresa + "</b> ya que se encuentra en uso.</li></ul>";
+                //        document.getElementById("btnErrores").click();
+                //        document.getElementById("btnCerrarIcono").click();
+                //    });
+                //}
+            }
+
+            //Función para cuando se cierra el modal del error te coloque en el tab donde ocurre el error
+            function Cerrar() {
+                document.getElementById("btnCerrarConfirmacion").click();
+                if (indiceInt <= 7) {
+                    $("#home-tab").trigger("click");
+                } else {
+                    $("#profile-tab").trigger("click");
+                }
+            }
+
+            function Limpiar() {
+                document.getElementById("Nombre_Tabla_Nutrimental").value = "";
+                document.getElementById("id_Carateristica_Valores").value = "";
+                $("#chActivo").prop("checked", false);
+            }
+
+            ////Ajax para la verificar relaciones
+            //function verificarRelaciones(id) {
+            //    return $.ajax({
+            //        async: true,
+            //        type: "GET",
+            //        url: 'ArticuloCampos/verificarRelaciones/?id=' + id,
+            //        dataType: "json"
+            //    }).done(function (data) {
+
+            //    })
+            //}
+
+            //Ajax para verificar si un registro se puede eliminar
+            function verificarRegistroEliminar(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'TablaNutrimental/eliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    if (data == "1") { //Si regresa 1 es porque se borro un registro
+                        $("#frmArticulos").trigger("submit"); //Se refresca el formulario
+                        document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                    }
+                })
+            }
+
+            //Función para recuperar el nombre del registro a elmininar
+            function recuperarNombreEliminacion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'TablaNutrimental/recuperarDatos/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para guardar que se ejecuta una vez se haya hecho la modificación o insersión
+            function Guardar(resultado) {
+                idTablaEmpresa = 0;
+                $("#tablaArticulos tbody").siblings().removeClass("seleccionado");
+
+                if (resultado == "1" || resultado == "0") {
+                    $("#frmArticulos").trigger("submit");
+                    document.getElementById("btnClose").click();
+                } else {
+                    if (resultado == "-1") { //Campo repetido en BD
+                        indiceInt = 1;
+                        var empresa = $("#Nombre").val();
+                        var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado.<b>" + empresa + "</b> ya se encuentra registrada.</li></ul>";
+                        document.getElementById("divmodalErrores").innerHTML = repetido;
+                        document.getElementById("btnErrores").click();
+                    } else { //Error
+                        var errores = resultado;
+                        let posicionInicial = errores.indexOf("(");
+                        let posicionFinal = errores.indexOf(")");
+                        var indice = errores.substring(posicionInicial + 1, posicionFinal); //letra
+                        let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
+                        var posicion = letras.indexOf(indice); //posicion
+                        indiceInt = parseInt(posicion); //Posicion entera para tabs
+                        let campos = [",", "Nombre", "razonSocial", "RFC", "fkMoneda", "Telefono", "Celular", "Fax", "codigoPostal", "Calle",
+                            "Colonia", "numeroInterior", "numeroExterior", "Cardinalidad", "Ciudad"];
+                        campo = campos[posicion];//campo
+                        var cadenaCortar = "(" + indice + ")";
+                        var str = errores.replace(cadenaCortar, '');
+                        document.getElementById("divmodalErrores").innerHTML = str;
+                        document.getElementById("btnErrores").click();
+                    }
+                }
+            }
+
+
+            //Método al abrir de modal de busqueda
+            function Buscar() {
+                $('#modalBusqueda').modal('show');
+                $("#exampleModal").addClass("modal-backdrop"); //Oscurecimiento
+                document.getElementById("Nombre_Articulo_Campos").value = "";
+                $.get("TablaNutrimental/recuperarDatosCampos/?id=" + idCampo, function (data) {
+                    console.log(data)
+                    document.getElementById("Nombre_Articulo_Campos").value = data.nombre_Tabla_Nutrimental_Campos;
+                    //document.getElementById("razonSocial").value = data.razonSocial;
+
+                }).done(function () {
+                   
+                });
+           
+               
+                document.getElementById("id3").value = idCampo;
+                console.log(idCampo);
+
+            }
+            //Método para quitar la clase para oscurecer modal
+            function CerrarBusqueda() {
+                $("#tablaCampos tbody").siblings().removeClass("seleccionado");
+                $("#frmCampos").trigger("submit");
+                document.getElementById("btnCerrarBusqueda").click();
+                $("#exampleModal").removeClass("modal-backdrop");
+            }
+
+        </script>
+
+    }
+
+
+</body>
+</html>
+

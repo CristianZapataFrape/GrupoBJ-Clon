@@ -1,0 +1,23 @@
+﻿@model IEnumerable<GrupoBJ.Models.Usuario>
+
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td hidden>@Html.DisplayFor(m => item.idUsuario)</td>
+        <td hidden class="tUsu-Usuario">@Html.DisplayFor(m => item.nombreUsuario)</td>
+        <td hidden class="tUsu-Nombre">@Html.DisplayFor(m => item.Nombre)</td>
+        <td hidden class="tUsu-Correo">@Html.DisplayFor(m => item.correoElectronico)</td>
+    </tr>
+    }
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}
+
+
+
+

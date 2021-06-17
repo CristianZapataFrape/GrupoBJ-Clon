@@ -1,0 +1,26 @@
+﻿@model IEnumerable<GrupoBJ.Models.Empleado>
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td hidden>@Html.DisplayFor(m => item.idEmpleado)</td>
+        <td hidden class="tEml-Empresa">@Html.DisplayFor(m => item.Sucursal.Empresa.Nombre)</td>
+        <td hidden class="tEml-Sucursal">@Html.DisplayFor(m => item.Sucursal.Nombre)</td>
+        <td hidden class="tEml-Puesto">@Html.DisplayFor(m => item.Puesto.Nombre)</td>
+        <td hidden class="tEml-Nombre">@Html.DisplayFor(m => item.Nombre)</td>
+        <td hidden class="tEml-PrimerApellido">@Html.DisplayFor(m => item.apPaterno)</td>
+        <td hidden class="tEml-SegundoApellido">@Html.DisplayFor(m => item.apMaterno)</td>
+        <td hidden class="tEml-CURP">@Html.DisplayFor(m => item.CURP)</td>
+    </tr>
+    }
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}
+
+
+
+

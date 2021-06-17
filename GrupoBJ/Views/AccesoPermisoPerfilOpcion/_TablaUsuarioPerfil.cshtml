@@ -1,0 +1,33 @@
+﻿@model IEnumerable<GrupoBJ.Models.Usuario_Empresa_Sucursal_Sis_Per>
+
+@if (Model.Count() > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped no-seleccionable" id="tablaUsuarioPerfil">
+            <thead>
+                <tr>
+                    <th style="width:45%">Empresa</th>
+                    <th style="width:30%">Sucursal</th>
+                    <th style="width:25%">Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+
+                <tr>
+                    <td>@Html.DisplayFor(m => item.Empresa.Nombre)</td>
+                    <td>@Html.DisplayFor(m => item.Sucursal.Nombre)</td>
+                    <td>@Html.DisplayFor(m => item.Usuario.nombreUsuario)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No hay registros</p>
+}
+
+

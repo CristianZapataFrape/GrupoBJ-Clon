@@ -1,0 +1,23 @@
+﻿@model IEnumerable<GrupoBJ.Models.Carateristicas>
+
+
+@if (Model.Count() > 0)
+{
+
+    @foreach (var item in Model)
+    {
+<tr>
+    <td hidden>@Html.DisplayFor(m => item.id_Cararteristica)</td>
+    <td>@Html.DisplayFor(m => item.Nombre_Carateristica)</td> 
+    <td>@Html.DisplayFor(m => item.Usuario.Nombre)</td>
+    <td> @Html.ValueFor(m => item.fechaUm, "{0:dd/MMM/yyyy HH:mm:ss}")</td>
+  
+</tr>
+    }
+
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}

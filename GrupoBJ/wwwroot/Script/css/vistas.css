@@ -1,0 +1,58 @@
+﻿/*Estilos de tablas----------------------*/
+table {
+    page-break-inside: auto
+}
+
+tr {
+    page-break-inside: avoid;
+    page-break-after: auto
+}
+
+thead {
+    display: table-header-group
+}
+
+tfoot {
+    display: table-footer-group
+}
+/*----------------------------------------*/
+
+/*Modales---------------------------------*/
+.modal-backdrop {
+    background-color: rgba(0,0,0,0.7);
+}
+
+.no-seleccionable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+/*----------------------------------------*/
+
+/*Colores---------------------------------*/
+.black-background {
+    background-color: darkorange;
+}
+.white {
+    color: #ffffff;
+}
+/*-----------------------------------------*/
+
+/*Color para la selección de registro*/
+.seleccionado {
+    background-color: #fff48f;
+}
+/*--------------------------------------------*/
+.Obligatorio{
+
+}
+
+/*Para no seleccionar texto*/
+.no-seleccionable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<GrupoBJ.Models.Acceso_Opcion>
+
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td hidden>@Html.DisplayFor(m => item.idOpcion)</td>
+        <td hidden class="tOpc-Sistema">@Html.DisplayFor(m => item.Acceso_Sistema.Nombre)</td>
+        <td hidden class="tOpc-Opcion">@Html.DisplayFor(m => item.Nombre)</td>
+        <td hidden class="tOpc-OpcionPadre">@Html.DisplayFor(m => item.nombrePadre)</td>
+        <td hidden class="tOpc-Tipo">@Html.DisplayFor(m => item.Acceso_Tipo_Archivo.Nombre)</td>
+        <td hidden class="tOpc-Posicion">@Html.DisplayFor(m => item.Posicion)</td>
+        @if (item.tipoSistema == 1)
+        {
+            <td hidden class="tOpc-TipoSistema">Web</td>
+        }
+        else if (item.tipoSistema == 2)
+        {
+            <td hidden class="tOpc-TipoSistema">Escritorio</td>
+        }
+        else
+        {
+            <td hidden class="tOpc-TipoSistema"> </td>
+        }
+    </tr>
+    }
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}
+
+
+
+

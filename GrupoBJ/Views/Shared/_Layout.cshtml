@@ -1,0 +1,381 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8">
+    <title>Empacadora Frape</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicons -->
+    <link href="~/lib/Plantilla/img/logo2.png" rel="icon">
+    <link href="~/lib/Plantilla/img/logo2.png" rel="apple-touch-icon">
+
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,600,700,700i|Montserrat:300,400,500,600,700" rel="stylesheet">
+
+    <!-- Bootstrap CSS File -->
+    <link href="~/lib/Plantilla/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Libraries CSS Files -->
+    <link href="~/lib/Plantilla/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/lib/Plantilla/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/Plantilla/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+    <link href="~/lib/Plantilla/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/Plantilla/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Main Stylesheet File -->
+    <link href="~/lib/Plantilla/css/style.css" rel="stylesheet">
+    <link href="~/Script/css/MenuLateral.css" rel="stylesheet">
+
+    <!---JsTree css-->
+    <link rel="stylesheet" href="~/Script/jstreeLateral/dist/themes/default/style.min.css" />
+
+    <!-- =======================================================
+      Theme Name: Rapid
+      Theme URL: https://bootstrapmade.com/rapid-multipurpose-bootstrap-business-template/
+      Author: BootstrapMade.com
+      License: https://bootstrapmade.com/license/
+    ======================================================= -->
+
+</head>
+
+
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div style="width:100%; height:220px;" class="text-center">
+                <img src="~/lib/Plantilla/img/logo2.png" style="width:170px; height:140px; margin-top:30px;">
+                <p class="titulo">GRUPOBJ</p>
+            </div>
+            <div style="width:100%; height:45px; padding-left:20px; padding-right:20px;" class="text-left">
+                <p id="nombreUsuarioLogin" style="color:black; font-size:14px;"></p>
+            </div>
+            <div id="jstreeMenuLateral" style="height: 100%; width: 250px; background-color:#f6f5f5">
+                <!---Menu lateral-->               
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <!--==========================
+            Header
+            ============================-->
+            <header id="header" style="background-color: #f6830f;">
+                <!--Color del header-->
+                <div id="topbar">
+                    <div class="container">
+                        <div class="social-links">
+                            <a href="#" class="twitter" style="color:white"><i class="fa fa-twitter"></i></a>
+                            <a href="#" class="facebook" style="color:white;"><i class="fa fa-facebook"></i></a>
+                            <a href="#" class="linkedin" style="color:white;"><i class="fa fa-linkedin"></i></a>
+                            @*<a href="#" class="instagram" style="color:white;"><i class="fa fa-instagram"></i></a>*@
+                            @*<a id="nombreUsuario" href="#" class="instagram" style="color:floralwhite; font-weight:bold;"></a>*@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container">
+
+                    <div class="logo float-left">
+                        <!-- Uncomment below if you prefer to use an image logo -->
+                        <h1 class="text-light">EMPACADORA FRAPE</h1>
+                        @* <a href="#header" class="scrollto"><img src="~/lib/Plantilla/img/logo.png" alt="" class="img-fluid" width="200" height="600" ></a>*@
+                    </div>
+
+                    <nav class="main-nav float-right d-none d-lg-block" id="MenuDesplegable">
+
+                    </nav><!-- .main-nav -->
+                </div>
+            </header><!-- #header -->
+            <!--==========================
+              Intro Section
+            ============================-->
+            <br>
+            <br>
+
+            <main id="main">
+                @RenderBody()
+            </main>
+
+            <!--==========================
+                Footer
+            ============================-->
+            <footer id="footer" class="section-bg">
+                <div class="container">
+                    <div class="copyright">
+                        &copy; Copyright <strong>Empacadora Frape</strong>. All Rights Reserved
+                    </div>
+                    <div class="credits">
+                        <!--
+                          All the links in the footer should remain intact.
+                          You can delete the links only if you purchased the pro version.
+                          Licensing information: https://bootstrapmade.com/license/
+                          Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Rapid
+                        -->
+                        Designed by Empacadora Frape
+                    </div>
+                </div>
+            </footer><!-- #footer -->
+
+            <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+
+        </div>
+    </div>
+
+    <!-- Uncomment below i you want to use a preloader -->
+    <!-- <div id="preloader"></div> -->
+    <!-- JavaScript Libraries -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/Plantilla/lib/jquery/jquery-migrate.min.js"></script>
+    <script src="~/lib/Plantilla/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/Plantilla/lib/easing/easing.min.js"></script>
+    <script src="~/lib/Plantilla/lib/mobile-nav/mobile-nav.js"></script>
+    <script src="~/lib/Plantilla/lib/wow/wow.min.js"></script>
+    <script src="~/lib/Plantilla/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/Plantilla/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/Plantilla/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/Plantilla/lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="~/lib/Plantilla/lib/lightbox/js/lightbox.min.js"></script>
+    <!-- Contact Form JavaScript File -->
+    <script src="~/lib/Plantilla/contactform/contactform.js"></script>
+
+    <!-- Template Main Javascript File -->
+    <script src="~/lib/Plantilla/js/main.js"></script>
+    <!---JsTree scripts-->
+    <script src="~/Script/jstreeLateral/dist/jstree.min.js"></script>
+    <script>
+
+        //Función para cerrar sesión
+        async function logout() {
+            window.location.href = '/Login';
+        }
+
+        //Función que se ejecuta al cargar
+        $(document).ready(function () {
+            @{int idPerfil = (int)this.Context.Session.GetInt32("PerfilSession"); }
+            obtenerPermisoDePantalla(@idPerfil);
+            obtenerNombreUsuarioLogin();
+        });
+
+        //Función para obtener el nombre del usuario
+        async function obtenerNombreUsuarioLogin() {
+            var idUsuario =@this.Context.Session.GetInt32("UsuarioSession");
+            Usuario = await ajaxObtenerNombreUsuarioLogin(idUsuario);
+            var icono = "<i class='fa fa-user'></i>"
+            document.getElementById("nombreUsuarioLogin").innerHTML = icono + "  " + Usuario;
+        }
+
+        //Funcion para ir a Home
+        async function home() {
+            window.location.href = '/Home/';
+        }
+
+        //Función para obtener las pantallas por perfil
+        async function obtenerPermisoDePantalla(idPerfil) {
+            Pantallas = await obtenerPantallasDelMenu(idPerfil);
+            if (Pantallas != "{}") {
+                await construirMenu(Pantallas);
+                await construirMenuLateral(Pantallas);
+            }
+        }
+
+        //Ajax para quitar el login
+        function obtenerPantallasDelMenu(idPerfil) {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: '/Login/obtenerPantallasDelMenu/?idPerfil=' + idPerfil,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Ajax para quitar el login
+        function ajaxObtenerNombreUsuarioLogin(idUsuario) {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: '/Login/obtenerNombreUsuarioLogin/?idUsuario=' + idUsuario,
+                dataType: "text"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Construir menu
+        function construirMenu(data) {
+            var source = [];
+            var items = [];
+            // build hierarchical source.
+            for (i = 0; i < data.length; i++) {
+                var item = data[i];
+                var label = item["text"];
+                var parentid = item["parentid"];
+                var id = item["id"];
+                var controlador = item["controlador"];
+                var tipoArchivo = item["tipoArchivo"];
+                if (items[parentid]) {
+                    var item = { parentid: parentid, label: label, item: item, controlador: controlador, tipoArchivo: tipoArchivo };
+                    if (!items[parentid].items) {
+                        items[parentid].items = [];
+                    }
+                    items[parentid].items[items[parentid].items.length] = item;
+                    items[id] = item;
+                }
+                else {
+                    items[id] = { parentid: parentid, label: label, item: item, controlador: controlador, tipoArchivo: tipoArchivo };
+                    source[i] = items[id];
+                }
+            }
+
+
+            var ul = $("<ul></ul>");
+            buildUL(ul, source);
+            imprimirMenu(ul[0].innerHTML);
+
+        }
+
+
+        var buildUL = function (parent, items) {
+            $.each(items, function () {
+                if (this.label) {
+                    // create LI element and append it to the parent element.
+                    var li;
+                    if (this.items && this.items.length > 0) {
+                        li = $("<li class='drop-down'><a>" + this.label + "</a></li>");
+                    } else {
+                        if (this.tipoArchivo == 2) { //Opcion
+                            li = $("<li><a href='/" + this.controlador + "'>" + this.label + "</a></li>");
+                        } else {
+                            li = $("<li><a>" + this.label + "</a></li>");
+                        }
+
+                    }
+                    li.appendTo(parent);
+
+                    // if there are sub items, call the buildUL function.
+                    if (this.items && this.items.length > 0) {
+                        var ul = $("<ul></ul>");
+                        ul.appendTo(li);
+                        buildUL(ul, this.items);
+                    }
+                }
+            });
+        }
+
+        function imprimirMenu(Pantalla) {
+            var MenuDesplegable =
+                "<li class='drop-down'>" +
+                "<a href=''>" +
+                "MENÚ" +
+                "</a>" +
+                "<ul>" +
+                Pantalla+
+                "</ul>" +
+                "</li>";
+
+            var MenuNavegacion =
+                "<li style='margin-right:330px;'><a href='javascript: home()'>INICIO</a></li>" +
+                //"<li><a href='#about'>About Us</a></li>" +
+                //"<li><a href='#services'>Services</a></li>" +
+                //"<li><a href='#portfolio'>Portfolio</a></li>" +
+                //"<li><a href='#team'>Team</a></li>" +
+                //"<li><a href='#footer'>Contact Us</a></li>" +
+                "<li><a href='javascript: logout()'>CERRAR SESIÓN</a></li>";
+
+            var Menu = "<ul>" + MenuDesplegable + MenuNavegacion + "</ul>";
+            document.getElementById("MenuDesplegable").innerHTML = "";
+            document.getElementById("MenuDesplegable").innerHTML = Menu;
+        }
+
+        //Función para obtener el json de las pantalla con permiso a ese perfil para menu lateral
+        async function construirMenuLateral(Pantallas) {
+            var datos = "";
+            for (var i = 0; i < Pantallas.length; i++) {
+                if (i != Pantallas.length - 1)
+                    datos = datos + Pantallas[i].id + ",";
+                else
+                    datos = datos + Pantallas[i].id;
+            }
+            JsonMenuLateral = await ajaxMenuLateral(datos);
+            await resfreshJSTreeLateral(JsonMenuLateral);
+        }
+
+        //Ajax para el menú lateral
+        function ajaxMenuLateral(datos) {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: '/Login/crearMenuLateral/?datos=' + datos,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para refrescar y cargar datos
+        function resfreshJSTreeLateral(Menu) {
+            $('#jstreeMenuLateral').jstree({
+                "core": {
+                    "themes": {
+                        "variant": "large"
+                    }
+                },
+                "types":
+                {
+                    "types": {
+                        "disabled": {
+                            "check_node": false
+                        }
+                    }
+                },
+                "plugins": ["wholerow", "types"]
+            });
+            $('#jstreeMenuLateral').jstree(true).settings.core.data = Menu;
+            $('#jstreeMenuLateral').jstree('uncheck_all');
+            $('#jstreeMenuLateral').jstree(true).refresh();
+        }
+
+        //Función para abrir todos los nodos al carga el tree lateral
+        $('#jstreeMenuLateral').on('ready.jstree', function () {
+            $("#jstreeMenuLateral").jstree("close_all");
+        }); 
+
+
+        //Detecta el click en una fila
+        $('#jstreeMenuLateral').on("select_node.jstree", function (e, data) {
+            var idOpcion = data.node.id;
+            redirigirPantalla(idOpcion);
+        });
+
+        //Función para obtener controlador y redirigir
+        async function redirigirPantalla(idOpcion) {
+            Controlador = await ajaxControlador(idOpcion);
+            location.href = "/" + Controlador;
+        }
+
+        //Función ajax para obtener el controlador de la pantalla seleccionada en el menu lateral
+        function ajaxControlador(idOpcion) {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: '/Login/obtenerControladorMenu/?idOpcion=' + idOpcion,
+                dataType: "text"
+            }).done(function (data) {
+
+            })
+        }
+
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

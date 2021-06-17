@@ -1,0 +1,1075 @@
+﻿@model IEnumerable<GrupoBJ.Models.Sucursal>
+@{
+    ViewData["Title"] = "Sucursal";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaPais = (List<SelectListItem>)ViewBag.listaPais;
+    List<SelectListItem> listaEstado = (List<SelectListItem>)ViewBag.listaEstado;
+    List<SelectListItem> listaCiudad = (List<SelectListItem>)ViewBag.listaCiudad;
+    List<SelectListItem> listaEmpresa = (List<SelectListItem>)ViewBag.listaEmpresa;
+    List<SelectListItem> listaFiltro = (List<SelectListItem>)ViewBag.listaFiltro; //Aqui
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Filtro" asp-controller="Sucursal" id="frmSucursal"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult"
+                  data-ajax-success="obtenerConfiguracionTabla('tablaSucursal')">
+                <br>
+
+                <h1 class="text-center">Sucursales</h1>
+                <hr />
+                <div style="width:100%; height:80px;">
+                    <div style="width:48%; float:left;">
+                        @Html.Hidden("datosFiltro")
+                        @Html.Label("Filtro de empresa")
+                        @Html.DropDownList("filtroCombo", listaFiltro, new { @class = "form-control"})
+                    </div>
+                    <div style="width:48%; float:left; margin-left:4%;">
+                        @Html.Label("Buscador")
+                        @Html.TextBox("BuscadorSucursal", null, new { @class = "form-control", @onkeypress = "return check(event)" })
+                    </div>
+                </div>
+
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Suc-Act" hidden type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="Suc-Agr" hidden type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="margin-right:5px;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Suc-Mod" hidden type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Suc-Eli" hidden type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Suc-Vta" hidden type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+                    <button id="Suc-Tba" hidden type="button" onclick="ConfigurarTabla('tablaSucursal')" class="btn btn-secondary Permisos" style="margin-right:5px;" data-toggle="tooltip" data-placement="top" title="Configurar tabla">
+                        <i class="fa fa-table"></i>
+                    </button>
+                </div>
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover no-seleccionable" id="tablaSucursal">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                <th hidden id="idSuc-Empresa" class="tSuc-Empresa Obligatorio" style="width:30%">Empresa</th>
+                                <th hidden id="idSuc-Sucursal" class="tSuc-Sucursal Obligatorio" style="width:30%">Sucursal</th>
+                                <th hidden id="idSuc-Telefono" class="tSuc-Telefono" style="width:20%">Teléfono</th>
+                                <th hidden id="idSuc-CodigoPostal" class="tSuc-CodigoPostal" style="width:20%">Código postal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaSucursal")
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%; padding-top:8px;">
+                                <img src="~/Script/img/icono_sucursal.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Datos de la sucursal</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="Guardar" asp-controller="Sucursal"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Información principal</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                                       aria-selected="false">Ubicación</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la sucursal ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Sucursal*")
+                                                @Html.TextBox("Nombre", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Empresa*")
+                                                @Html.DropDownList("fkEmpresa", listaEmpresa, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Teléfono*")
+                                                @Html.TextBox("Telefono", null, new { @class = "form-control input-number elementoModal", @maxlength = "10" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Celular*")
+                                                @Html.TextBox("Celular", null, new { @class = "form-control input-number elementoModal", @maxlength = "10" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Fax")
+                                                @Html.TextBox("Fax", null, new { @class = "form-control input-number elementoModal", @maxlength = "10" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------- *@
+                                @* Ubicación ---------------------------------------------------------- *@
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Código postal*")
+                                                @Html.TextBox("codigoPostal", null, new { @class = "form-control input-number elementoModal", @maxlength = "5" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Calle*")
+                                                @Html.TextBox("Calle", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Colonia*")
+                                                @Html.TextBox("Colonia", null, new { @class = "form-control elementoModal", @maxlength = "100" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Número interior*")
+                                                @Html.TextBox("numeroInterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Número exterior*")
+                                                @Html.TextBox("numeroExterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Cardinalidad")
+                                                @Html.TextBox("Cardinalidad", null, new { @class = "form-control elementoModal", @maxlength = "10" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("País*")
+                                                @Html.DropDownList("fkPais", listaPais, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Estado*")
+                                                @Html.DropDownList("fkEstado", listaEstado, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Ciudad*")
+                                                @Html.DropDownList("fkCiudad", listaCiudad, new { @class = "form-control elementoModal" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------------- *@
+
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            @* Modal de configuración de tabla *@
+            <div class="modal fade" id="tablaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%">
+                                <img src="~/Script/img/icono_tabla.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Tabla sucursal</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="configurarTabla" asp-controller="UsuarioTablaColumna"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divErrorTabla"
+                              data-ajax-success="Configurar">
+
+                            @Html.Hidden("validacionColumnas")
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Configuración</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la tabla ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
+                                            <table class="table table-bordered table-hover" id="tablaSucursalColumnas">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:80%">Columna</th>
+                                                        <th style="width:10%">Visibilidad</th>
+                                                        <th style="width:10%">Ancho %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaSucursalColumnasBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambiosTabla" type="submit" class="btn btn-primary" onclick="crearArrayTabla()">Guardar cambios</button>
+                                <button type="button" id="btnCloseTabla" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divErrorTabla" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button id="btnEliminarRegistroModal" type="submit" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ffd571;">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+@section Scripts{
+
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/Script/js/Permisos.js"></script>
+
+    <script>
+        var indiceInt;
+        var campo;
+        var idTablaSucursal = 0; //Variable para el id de la sucursal
+
+        //Función para obtener los permisos de la pantalla
+        $(document).ready(function () {
+            obtenerPermisosJS("Sucursal");
+            obtenerConfiguracionTabla("tablaSucursal");
+        });
+
+        //Función para actualizar el formulario cuando se escribe en el buscador
+        var buscador = document.getElementById("BuscadorSucursal");
+        buscador.onkeyup = function () {
+            idTablaSucursal = 0;
+            $("#tablaSucursal tbody").siblings().removeClass("seleccionado");
+            $("#frmSucursal").trigger("submit");
+        }
+
+        //Función que se ejecuta cuando se guardan los datos (Modificar o insertar)
+        function Guardar(resultado) {
+            //idTablaSucursal = 0;
+            //$("#tablaSucursal tbody").siblings().removeClass("seleccionado");
+
+            if (resultado == "1" || resultado == "0") { //Si es 1 es porque inserto si es 0 es porque edito pero no se cambio ningun registro
+                $("#frmSucursal").trigger("submit");
+                document.getElementById("btnClose").click();
+                idTablaSucursal = 0;
+                $("#tablaSucursal tbody").siblings().removeClass("seleccionado");
+            } else {
+                $("#btnGuardarCambios").attr("disabled", false);
+                if (resultado == "-1") { //Campo que ya esta repetido en BD
+                    indiceInt = 1;
+                    var sucursal = $("#Nombre").val();
+                    var empresa = $("#fkEmpresa").find('option:selected').text(); // Capturamos el texto del option seleccionado
+                    var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado. La sucursal <b>" + sucursal + "</b> de la empresa <b>" + empresa + "</b> ya se encuentra registrada.</li></ul>";
+                    document.getElementById("divmodalErrores").innerHTML = repetido;
+                    document.getElementById("btnErrores").click();
+                } else { //Sino es por un error
+                    var errores = resultado;
+                    let posicionInicial = errores.indexOf("(");
+                    let posicionFinal = errores.indexOf(")");
+                    var indice = errores.substring(posicionInicial + 1, posicionFinal);
+                    let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+                    var posicion = letras.indexOf(indice); //posicion
+                    indiceInt = parseInt(posicion); //Posicion entera para tabs
+                    let campos = [",", "Nombre", "fkEmpresa", "Telefono", "Celular", "Fax", "codigoPostal", "Calle",
+                        "Colonia", "numeroInterior", "numeroExterior", "Cardinalidad", "Ciudad"];
+                    campo = campos[posicion];//campo
+                    var cadenaCortar = "(" + indice + ")";
+                    var str = errores.replace(cadenaCortar, '');
+                    document.getElementById("divmodalErrores").innerHTML = str;
+                    document.getElementById("btnErrores").click();
+
+                }
+            }
+        }
+
+        //Función para enfocar en el tab correspondiente cuando se cierra el modal de errores
+        function Cerrar() {
+            document.getElementById("btnCerrarConfirmacion").click();
+            if (indiceInt <= 5) {
+                $("#home-tab").trigger("click");
+            } else {
+                $("#profile-tab").trigger("click");
+            }
+        }
+
+        //Funcion para limpiar los datos
+        function Limpiar() {
+            $("#btnGuardarCambios").attr("disabled", false);
+            document.getElementById("Nombre").value = "";
+            document.getElementById("codigoPostal").value = "";
+            document.getElementById("Calle").value = "";
+            document.getElementById("Colonia").value = "";
+            document.getElementById("numeroInterior").value = "";
+            document.getElementById("numeroExterior").value = "";
+            document.getElementById("Telefono").value = "";
+            document.getElementById("Celular").value = "";
+            document.getElementById("Fax").value = "";
+            document.getElementById("fkPais").value = "";
+            document.getElementById("fkEstado").value = "";
+            document.getElementById("fkCiudad").value = "";
+            document.getElementById("Cardinalidad").value = "";
+            document.getElementById("fkEmpresa").value = "";
+            $('#fkCiudad').empty();
+            $('#fkEstado').empty();
+            document.getElementById("divmodalErrores").innerHTML = "";
+            document.getElementById("divError").innerHTML = "";
+            $("#home-tab").trigger("click");
+        }
+
+        //Funcion cuando se presiona el boton agregar
+        function Agregar() {
+            habilitarElementos(false);
+            Limpiar();
+            $("#btnGuardarCambios").css("display", "inline");
+            document.getElementById("divError").innerHTML = "";
+            document.getElementById("id").value = -1;
+        }
+
+        //Funcion cuando se presiona el boton modificar pasando como parametro el id
+        async function Modificar(id) {
+            Limpiar();
+            document.getElementById("id").value = id;
+            var idCiudad;
+            Datos = await recuperarDatos(id);
+            document.getElementById("Nombre").value = Datos.nombre;
+            document.getElementById("codigoPostal").value = Datos.codigoPostal;
+            document.getElementById("Calle").value = Datos.calle;
+            document.getElementById("Colonia").value = Datos.colonia;
+            document.getElementById("numeroInterior").value = Datos.numeroInterior;
+            document.getElementById("numeroExterior").value = Datos.numeroExterior;
+            document.getElementById("Telefono").value = Datos.telefono;
+            document.getElementById("Celular").value = Datos.celular;
+            document.getElementById("Fax").value = Datos.fax;
+            document.getElementById("fkEmpresa").value = Datos.fkEmpresa;
+            document.getElementById("Cardinalidad").value = Datos.cardinalidad;
+            idCiudad = Datos.fkCiudad;
+            await llenarLocalizacion(idCiudad);
+        }
+
+
+        //Ajax para recuperar los datos del registro
+        function recuperarDatos(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatos/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+
+        //Función asíncrona para cargar el pais, estado y ciudad
+        async function llenarLocalizacion(idCiudad) {
+            Pais = await cargarPais(idCiudad);
+            var idPais = Pais.fkPais;
+            document.getElementById("fkPais").value = idPais;
+            llenarEstado();
+
+            Estado = await cargarEstado(idCiudad);
+            var idEstado = Estado.fkEstado;
+            document.getElementById("fkEstado").value = idEstado;
+
+
+            Ciudad = await llenarCiudad();
+            document.getElementById("fkCiudad").value = idCiudad;
+        }
+
+        //Ajax para obtener el pais
+        function cargarPais(idCiudad) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatosPais/?id=' + idCiudad,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Ajax para obtener el estado
+        function cargarEstado(idCiudad) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatosEstado/?id=' + idCiudad,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Ajax para obtener la ciudad
+        function cargarCiudad(idCiudad) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatosCiudad/?id=' + idCiudad,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Funcion para asigar el id que se va a eliminar
+        function Eliminar(idSucursal) {
+            document.getElementById("id").value = idSucursal;
+        }
+
+        //Funcion para verificar relaciones
+        async function EliminarRegistro() {
+            //idTablaSucursal = 0;
+            var id = document.getElementById("id").value;
+            var Relaciones = await verificarRelaciones(id);
+            if (Relaciones == 0) {
+                await verificarRegistroEliminar(id);
+                idTablaSucursal = 0;
+            } else {
+                Sucursal = await obtenerNombreSucursal(id);
+                var nombreSucursal = Sucursal.nombre;
+                var fkEmpresa = Sucursal.fkEmpresa;
+                Empresa = await obtenerNombreEmpresa(fkEmpresa);
+                var nombreEmpresa = Empresa.nombre;
+                document.getElementById("divmodalErrores").innerHTML = "<ul class='list-group'><li class='list-group-item'>No se puede eliminar la sucursal <b>" + nombreSucursal + "</b> de la empresa <b>" + nombreEmpresa + " </b> ya que se encuentra en uso.</li></ul>";
+                document.getElementById("btnErrores").click();
+                document.getElementById("btnCerrarIcono").click();
+            }
+        }
+
+        //Ajax para obtener el nombre de la sucursal
+        function obtenerNombreSucursal(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatos/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Ajax para obtener el nombre de la empresa
+        function obtenerNombreEmpresa(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatosRelacionAnterior/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Ajax para obtener las relaciones
+        function verificarRelaciones(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/verificarRelaciones/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para eliminar un registro
+        function verificarRegistroEliminar(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/eliminar/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+                if (data == "1") { //Si regresa 1 es porque se borro un registro
+                    $("#frmSucursal").trigger("submit"); //Se refresca el formulario
+                    document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                }
+            })
+        }
+
+        //Actualizar estado
+        var llenarEstado = function () {
+            var selectedPais = $('#fkPais').val();
+            $('#fkEstado').empty();
+            $('#fkCiudad').empty();
+            $('#fkEstado').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione un estado--</option>");
+            $.get("Sucursal/actualizarEstado/?id=" + selectedPais, function (data) { //Se llama a la accion
+                data.forEach(function (element, index) {
+
+                    $('#fkEstado').append('<option value="' + element.idEstado + '">' + element.nombre + '</option>');
+                });
+            })
+        }
+        $('#fkPais').change(llenarEstado);
+        llenarEstado();
+
+        //Actualizar Ciudad
+        var llenarCiudad = function () {
+            var selectedEstado = $('#fkEstado').val();
+            $('#fkCiudad').empty();
+            $('#fkCiudad').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione una ciudad--</option>");
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/actualizarCiudad/?id=' + selectedEstado,
+                dataType: "json"
+            }).done(function (data) {
+                data.forEach(function (element, index) {
+                    $('#fkCiudad').append('<option value="' + element.idCiudad + '">' + element.nombre + '</option>');
+                });
+            })
+        }
+        $('#fkEstado').change(llenarCiudad);
+        llenarCiudad();
+
+        //Auto focus en modal
+        $('#exampleModal').on('shown.bs.modal', function () {
+            $('#Nombre').focus();
+        })
+
+        //Autofocus pestaña Ubicacion
+        $("#profile-tab").click(function () {
+            $('#' + campo).focus();
+            $('#exampleModal').on('shown.bs.tab', function () {
+                $('#' + campo).focus();
+            })
+        });
+
+        //Autofocus pestaña información
+        $("#home-tab").click(function () {
+            $('#' + campo).focus();
+            $('#exampleModal').on('shown.bs.tab', function () {
+                $('#' + campo).focus();
+            })
+
+        });
+
+        //Validar que solo se escriban números
+        $('.input-number').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        //Filtro por combo
+        var filtroCombo = document.getElementById("filtroCombo");
+        filtroCombo.onchange = function () {
+            idTablaSucursal = 0;
+            $("#tablaSucursal tbody").siblings().removeClass("seleccionado");
+            $("#frmSucursal").trigger("submit");
+        }
+
+        //Función para marcar el renglon seleccionado
+        $('#tablaSucursal tbody').on("click", "tr", function () {
+            if ($(this).hasClass("seleccionado")) {
+                $(this).removeClass("seleccionado");
+                idTablaSucursal= 0;
+                //console.log(idTablaSucursal);
+            } else {
+                $(this).siblings().removeClass("seleccionado");
+                $(this).addClass("seleccionado");
+                idTablaSucursal = $(this).children("td:nth-child(1)").text();
+                //console.log(idTablaSucursal);
+            }
+
+        });
+
+        //Función para validar que exista un registro seleccionado
+        async function ValidarSeleccion(Accion) {
+            if (idTablaSucursal == 0) {
+                document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                document.getElementById("btnErrores").click();
+            } else {
+                if (Accion == "Modificar") {
+                    habilitarElementos(false);
+                    Modificar(idTablaSucursal);
+                    $('#exampleModal').modal('show');
+                    $("#btnGuardarCambios").css("display", "inline");
+                } else if (Accion == "Eliminar") {
+                    Eliminar(idTablaSucursal);
+                    //Recuperar dato para eliminacion------------------------------------
+                    NombreEliminacion = await recuperarNombreEliminacion(idTablaSucursal);
+                    var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar la sucursal <span style='color:#394867;'>" + NombreEliminacion[0].nombre + "</span> de la empresa <span style='color:#394867;'>" + NombreEliminacion[0].empresa.nombre+"</span>?</b></h5>";
+                    document.getElementById("mensajeEliminacion").innerHTML = "";
+                    document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                    $("#btnEliminarRegistroModal").attr("disabled", false);
+                    //--------------------------------------------------------------------
+                    $('#exampleModalConfirmacion').modal('show');
+                } else if (Accion == "Vista") {
+                    habilitarElementos(true);
+                    Modificar(idTablaSucursal);
+                    $('#exampleModal').modal('show');
+                    $("#btnGuardarCambios").css("display", "none");
+                }
+
+            }
+        }
+
+        //Función para recuperar el nombre del registro a elmininar
+        function recuperarNombreEliminacion(id) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'Sucursal/recuperarDatosEliminar/?id=' + id,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para Des/habilitar los elementos del modal
+        function habilitarElementos(estatus) {
+            $(".elementoModal").prop("disabled", estatus);
+        }
+
+        //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+        $(document).ajaxError(function (event, jqxhr) {
+            if (jqxhr.status === 403)
+                window.location = 'Login';
+        });
+
+        //Función para detectar los submit para inhabilitar/habilitar el boton
+        $("button[type='submit']").on("click", function (e) {
+            $(this).attr("disabled", true);
+            $(this).closest("form").submit()
+        }); 
+
+
+        //Función para abrir modal de tabla y configuración
+        async function ConfigurarTabla(tabla) {
+            $("#btnGuardarCambiosTabla").attr("disabled", false);
+            //Detectar las columnas de la tabla
+            var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
+
+            //Detectar las columnas obligatorias
+            var obligatorios = document.getElementsByClassName("Obligatorio");
+            var arregloObligatorios = [];
+            for (var i = 0; i < obligatorios.length; i++) {
+                arregloObligatorios.push(obligatorios[i].innerHTML);
+            }
+
+            //Creación de registros de tabla
+            document.getElementById("tablaSucursalColumnasBody").innerHTML = "";
+            for (var i = 1; i < allSelect.length; i++) {
+                var Columa = allSelect[i].innerHTML;
+                var claseInput = "in" + Columa;
+                var claseCheck = "ch" + Columa;
+                var banderaObligatorio = 0;
+                for (var j = 0; j < arregloObligatorios.length; j++) {
+                    if (arregloObligatorios[j] == Columa) {
+                        banderaObligatorio = 1;
+                    }
+                }
+
+                if (banderaObligatorio == 1) {
+                    var tr =
+                        "<tr>" +
+                        "<td>" +
+                        "<label>" +
+                        Columa +
+                        "</label>" +
+                        "</td>" +                       
+                        "<td class='text-center'>" +
+                        "<input type='checkbox' class='" + claseCheck + "' disabled checked id=colVisi-" + i + ">" +
+                        "</td>" +
+                        "<td>" +
+                        "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                        "</td>" +
+                        "</tr>";
+                } else {
+                    var tr =
+                        "<tr>" +
+                        "<td>" +
+                        "<label>" +
+                        Columa +
+                        "</label>" +
+                        "</td>" +                       
+                        "<td class='text-center'>" +
+                        "<input type='checkbox' class='" + claseCheck + "' id=colVisi-" + i + ">" +
+                        "</td>" +
+                        "<td>" +
+                        "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                        "</td>" +
+                        "</tr>";
+                }
+
+                $("#tablaSucursalColumnasBody").append(tr);
+            }
+            banderaObligatorio = 0;
+
+            //Llenar los datos de la tabla con los de la colección
+            DatosTablaSucursal = await cargarDatosTabla('tablaSucursal');
+            for (let i = 0; i < DatosTablaSucursal.length; i++) {
+                var columnaObtenida = DatosTablaSucursal[i].columna;
+                var anchoObtenido = DatosTablaSucursal[i].ancho;
+                var inputConClase = document.getElementsByClassName("in" + columnaObtenida);
+                var checkConClase = document.getElementsByClassName("ch" + columnaObtenida);
+
+                if (inputConClase[0] != null && checkConClase[0] != null) {
+                    $('#' + inputConClase[0].id).val(anchoObtenido);
+                    $("#" + checkConClase[0].id).prop("checked", true);
+                }
+                //console.log(inputConClase[0].id + " " +checkConClase[0].id + " " + anchoObtenido)
+
+            }
+
+            //Habilitar el ancho de los checkbox en true
+            var checksEncontrados = document.querySelector("#tablaSucursalColumnas").querySelectorAll("input[type='checkbox']");
+            checksEncontrados.forEach(C => {
+                if (C.checked) {
+                    var idEncontrado = C.id.substr(8, C.id.length);
+                    $("#colAnch-" + idEncontrado).prop("disabled", false);
+                }
+            });
+
+
+            //tablaEmpresaColumnasBody
+            $('#tablaModal').modal('show');
+        }
+
+        //Función para guardar el array con los datos de la tabla Columna
+        function crearArrayTabla() {
+            //Crear el array para guardar las columnas
+            var registrosColumnas = [];
+            var cadenaColumnas = "";
+
+            //Obtener los valores de todas las celdas de la tabla
+            var filas = $("#tablaSucursalColumnasBody").find("tr");
+
+            //Guardar los valores de la tabla en el arreglo
+            for (i = 0; i < filas.length; i++) {
+                var celdas = $(filas[i]).find("td");
+                nombreColumna = $($(celdas[0]).children("label")).text();
+                anchoColumna = $($(celdas[2]).children("input")[0]).val();
+
+                //Validar checkbox en checked
+                visibilidadColumna = "0";
+                visibleColumna = $($(celdas[1]).children("input:checkbox:checked")).val();
+                if (visibleColumna == "on") {
+                    visibilidadColumna = "1";
+                }
+
+                //Validar ancho de columna
+                if (anchoColumna == "") {
+                    anchoColumna = "0";
+                }
+
+                registrosColumnas.push(nombreColumna);
+                registrosColumnas.push(anchoColumna);
+                registrosColumnas.push(visibilidadColumna);
+            }
+
+            registrosColumnas.push("tablaSucursal");
+            cadenaColumnas = "[" + registrosColumnas.join() + "]";
+            document.getElementById("validacionColumnas").value = cadenaColumnas;
+        }
+
+        //Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla (Adecuar tambien para combo)
+        function Configurar(resultado) {
+            if (resultado == "1") {
+                obtenerConfiguracionTabla("tablaSucursal");
+                document.getElementById("btnCloseTabla").click();
+                $("#BuscadorSucursal").val("");
+                $("#filtroCombo").val(""); //--------------------------
+                $("#frmSucursal").trigger("submit");
+                //BuscadorEmpresa
+            } else {
+                $("#btnGuardarCambiosTabla").attr("disabled", false);
+                document.getElementById("divmodalErrores").innerHTML = resultado;
+                document.getElementById("btnErrores").click();
+            }
+        }
+
+        //Detectar cambios en cada renglón de la tabla columnas
+        $('#tablaSucursalColumnas').on('change', 'input[type="checkbox"]', function () {
+            var checkboxTabla = $(this).prop('id');
+            var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
+            document.getElementById("colAnch-" + idCheck).value = "";
+            if ($(this).is(':checked')) {
+                $("#colAnch-" + idCheck).prop("disabled", false);
+            } else {
+                $("#colAnch-" + idCheck).prop("disabled", true);
+            }
+        });
+
+        //Función para cargar los datos de la tabla Usuario_Tabla_Columna
+        function cargarDatosTabla(tabla) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'UsuarioTablaColumna/cargarDatosTabla/?tabla=' + tabla,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        async function obtenerConfiguracionTabla(tabla) {
+            //Mandar las columnas del HTML y el nombre de la tabla para verificar que coincidan con las que se tiene de BD
+            var columnasTablaHTML = document.querySelector("#" + tabla).querySelectorAll("th");
+            var arregloTablaHTML = [];
+
+            for (var i = 1; i < columnasTablaHTML.length; i++) {
+                arregloTablaHTML.push(columnasTablaHTML[i].innerHTML);
+            }
+            arregloTablaHTML.push(tabla);
+            var cadenaTablaHTML = "[" + arregloTablaHTML.join() + "]";
+            ValidarTablaHTML = await validarTablaHTML(cadenaTablaHTML);
+
+            //Verificar que exista por lo menos un registro del usuario
+            RegistroExistente = await buscarRegistroExistente(tabla);
+            if (RegistroExistente.length <= 0) {
+                //Darle la configuración predeterminada y guardarla en un arreglo
+                var colPredeterminadas = document.querySelector("#" + tabla).querySelectorAll("th");
+                var arregloConfigInicial = [];
+                for (var i = 1; i < colPredeterminadas.length; i++) {
+                    arregloConfigInicial.push(colPredeterminadas[i].innerHTML);
+                    arregloConfigInicial.push(colPredeterminadas[i].style.width);
+                    if (colPredeterminadas[i].hidden == true)
+                        arregloConfigInicial.push("0");
+                    else
+                        arregloConfigInicial.push("1");
+                }
+                arregloConfigInicial.push("tablaSucursal");
+                var columnasPreterminadas = "[" + arregloConfigInicial.join() + "]";
+                await guardarColPredeterminadas(columnasPreterminadas);
+            }
+
+            //Realizar petición para buscar configuración guardada
+            DatosTablaSucursal = await cargarDatosTabla(tabla);
+
+            //Aplicar configuración              
+            var colActuales = document.querySelector("#" + tabla).querySelectorAll("th");
+            var encontrado = 0;
+
+            //Arreglo con los nombres de las columnas y sus nombres de BD
+            var arregloDatosBD = ["Empresa", "E.Nombre", "Sucursal", "S.Nombre", "Teléfono", "S.Telefono", "Código postal", "S.codigoPostal"];
+            var arregloFiltro = [];
+
+            for (var i = 1; i < colActuales.length; i++) { //Recorrer las th de la tabla HTML
+
+                var columnaAct = colActuales[i].innerHTML;
+                for (var j = 0; j < DatosTablaSucursal.length; j++) { //Recorrer las columnas configuradas como visibles
+                    if (columnaAct == DatosTablaSucursal[j].columna) { //Aplicar la visibilidad y el ancho configurados
+                        encontrado = 1;
+                        //console.log("Encontrada: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id + " ancho: " +DatosTablaEmpresa[j].ancho); //Obtiene la primera clase
+                        $("." + colActuales[i].classList[0]).prop("hidden", false);
+                        $("#" + colActuales[i].id).css("width", DatosTablaSucursal[j].ancho + "%");
+                        for (var k = 0; k < arregloDatosBD.length; k = k + 2) {
+                            if (arregloDatosBD[k] == columnaAct) {
+                                arregloFiltro.push(arregloDatosBD[k + 1]);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (encontrado == 0) { //Quitar la visibilidad y el ancho
+                    //console.log("No encontrado: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id);
+                    $("." + colActuales[i].classList[0]).prop("hidden", true);
+                    $("#" + colActuales[i].id).css("width", "0%");
+                }
+                encontrado = 0;
+            }
+
+            //Si no se encontro ninguna columna visible, dar como visible la principal (Caso de primer inicio del usuario en pantalla)
+            if (arregloFiltro.length == 0) {
+                //Hacer todas las columnas visibles
+                await cambiarColumnasVisibles("tablaSucursal");
+                obtenerConfiguracionTabla("tablaSucursal");
+            }
+
+            //Conversión del arreglo a string y guardado en variable C#
+            var stArregloFiltro = "[" + arregloFiltro.join() + "]";
+            document.getElementById("datosFiltro").value = stArregloFiltro;
+
+
+            //Mostrar tabla ya configurada
+            $("#" + tabla).prop("hidden", false);
+        }
+
+        //Función para agregar las columnas predeterminadas
+        function guardarColPredeterminadas(columnasPreterminadas) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'UsuarioTablaColumna/guardarColPredeterminadas/?columnas=' + columnasPreterminadas,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para validar los datos de la tabla HTML
+        function validarTablaHTML(columnas) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'UsuarioTablaColumna/validarTablaHTML/?columnas=' + columnas,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para verificar un registro existente de la coleccion
+        function buscarRegistroExistente(tabla) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'UsuarioTablaColumna/buscarRegistroExistente/?tabla=' + tabla,
+                dataType: "json"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para hacer todas las columnas visibles si no tiene una configuración
+        function cambiarColumnasVisibles(tabla) {
+            return $.ajax({
+                async: true,
+                type: "GET",
+                url: 'UsuarioTablaColumna/cambiarColumnasVisibles/?tabla=' + tabla,
+                dataType: "text"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para los caracteres permitidos en filtro
+        function check(e) {
+            tecla = (document.all) ? e.keyCode : e.which;
+            //Tecla de retroceso para borrar, siempre la permite
+            if (tecla == 8) {
+                return true;
+            }
+
+            // Patron de entrada, en este caso solo acepta numeros y letras
+            patron = /[A-Za-z0-9áéíóúÁÉÍÓÚ.,-;$€£ñÑ ]/;
+            tecla_final = String.fromCharCode(tecla);
+            return patron.test(tecla_final);
+        }
+
+
+    </script>
+
+}
+</body>
+</html>
+
+

@@ -1,0 +1,1131 @@
+﻿@model IEnumerable<GrupoBJ.Models.Acceso_Opcion>
+@{
+    ViewData["Title"] = "Opción";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaAccesoSistema = (List<SelectListItem>)ViewBag.listaAccesoSistema;
+    List<SelectListItem> listaAccesoTipoArchivo = (List<SelectListItem>)ViewBag.listaAccesoTipoArchivo;
+    List<SelectListItem> listaAccesoOpcionPadre = (List<SelectListItem>)ViewBag.listaAccesoOpcionPadre;
+    List<SelectListItem> listaFiltro = (List<SelectListItem>)ViewBag.listaFiltro;
+    List<SelectListItem> listaTipoSistema = (List<SelectListItem>)ViewBag.listaTipoSistema;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Filtro" asp-controller="AccesoOpcion" id="frmAccesoOpcion"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult"
+                  data-ajax-success="obtenerConfiguracionTabla('tablaAccesoOpcion')">
+                <br>
+
+                <h1 class="text-center">Opciones</h1>
+                <hr />
+                <div style="width:100%; height:80px;">
+                    <div style="width:48%; float:left;">
+                        @Html.Hidden("datosFiltro")
+                        @Html.Label("Filtro de sistema")
+                        @Html.DropDownList("filtroCombo", listaFiltro, new { @class = "form-control" })
+                    </div>
+                    <div style="width:48%; float:left; margin-left:4%;">
+                        @Html.Label("Buscador")
+                        @Html.TextBox("Buscador", null, new { @class = "form-control", @onkeypress = "return check(event)" })
+                    </div>
+                </div>
+
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Opc-Act" hidden type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="Opc-Agr" hidden type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="margin-right:5px;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Opc-Mod" hidden type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Opc-Eli" hidden type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Opc-Vta" hidden type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+                    <button id="Opc-Tba" hidden type="button" onclick="ConfigurarTabla('tablaAccesoOpcion')" class="btn btn-secondary Permisos" style="margin-right:5px;" data-toggle="tooltip" data-placement="top" title="Configurar tabla">
+                        <i class="fa fa-table"></i>
+                    </button>
+                </div>
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover no-seleccionable" id="tablaAccesoOpcion">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                <th hidden id="idOpc-Sistema" class="tOpc-Sistema Obligatorio" style="width:15%">Sistema</th>
+                                <th hidden id="idOpc-Opcion" class="tOpc-Opcion Obligatorio" style="width:25%">Opción</th>
+                                <th hidden id="idOpc-OpcionPadre" class="tOpc-OpcionPadre" style="width:25%">Opción padre</th>
+                                <th hidden id="idOpc-Tipo" class="tOpc-Tipo" style="width:10%">Tipo</th>
+                                <th hidden id="idOpc-Posicion" class="tOpc-Posicion" style="width:10%">Posición</th>
+                                <th hidden id="idOpc-TipoSistema" class="tOpc-TipoSistema" style="width:15%">Tipo de sistema</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaAccesoOpcion")
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%; padding-top:8px;">
+                                <img src="~/Script/img/icono_departamento.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Datos de la opción</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="Guardar" asp-controller="AccesoOpcion"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Información de la opción</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la opción ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Sistema*")
+                                                @Html.DropDownList("fkSistema", listaAccesoSistema, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Nombre de la opción*")
+                                                @Html.TextBox("Nombre", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Tipo*")
+                                                @Html.DropDownList("fkTipoArchivo", listaAccesoTipoArchivo, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group" id="divPosicion">
+                                                @Html.Label("Posición")
+                                                @Html.TextBox("Posicion", null, new { @class = "form-control elementoModal", @type = "number", @min = "1" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Controlador")
+                                                @Html.TextBox("Controlador", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Tipo de sistema")
+                                                @Html.DropDownList("tipoSistema", listaTipoSistema, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.CheckBox("menuPadre")
+                                                @Html.Label("Menú padre")
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Opción padre")
+                                                @Html.DropDownList("idOpcionPadre", listaAccesoOpcionPadre, new { @class = "form-control elementoModal", @style = "width:90%;  float:left;" })
+                                                <button id="btnBusqueda" type="button" onclick="Buscar()" class="btn btn-primary" data-toggle="modal" data-target="#modalBusqueda" style="width:8%; float:right; display:none;">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                                <button id="btnBuscar" type="button" onclick="validarSistema()" class="btn btn-primary" style="width:8%; float:right;">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            @* Modal de configuración de tabla *@
+            <div class="modal fade" id="tablaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%">
+                                <img src="~/Script/img/icono_tabla.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Tabla opción</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="configurarTabla" asp-controller="UsuarioTablaColumna"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divErrorTabla"
+                              data-ajax-success="Configurar">
+
+                            @Html.Hidden("validacionColumnas")
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Configuración</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la tabla ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
+                                            <table class="table table-bordered table-hover" id="tablaAccesoOpcionColumnas">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:80%">Columna</th>
+                                                        <th style="width:10%">Visibilidad</th>
+                                                        <th style="width:10%">Ancho %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaAccesoOpcionColumnasBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambiosTabla" type="submit" class="btn btn-primary" onclick="crearArrayTabla()">Guardar cambios</button>
+                                <button type="button" id="btnCloseTabla" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divErrorTabla" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:10%; padding-top:15px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button type="submit" id="btnEliminarRegistroModal" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#ffd571;">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Modal busqueda *@
+            <div class="modal fade bd-example-modal-lg" id="modalBusqueda" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#01c5c4;">
+                            <div style="width:6%; padding-top:4px">
+                                <img src="~/Script/img/icono_busqueda.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:94%; padding-top:4px">
+                                <h5 class="modal-title" style="color:#f6f4e6; font-size:20px;"><b>Búsqueda</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="CerrarBusqueda()">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="Busqueda" asp-controller="AccesoOpcion" id="frmBusqueda"
+                                  data-ajax="true"
+                                  data-ajax-method="POST"
+                                  data-ajax-mode="replace"
+                                  data-ajax-update="#ajaxBusqueda">
+                                <div style="width:100%;">
+                                    @Html.Label("Buscador")
+                                    @Html.TextBox("BuscarOpcionPadre", null, new
+                                    {
+                                        @class = "f" +
+                                   "orm-control"
+                                    })
+                                </div>
+                                <div class="form-group">
+                                    @Html.DropDownList("fkOmar", listaAccesoSistema, new { @class = "form-control", @style = "display:none" })
+                                </div>
+                                <br />
+                                <div id="ajaxBusqueda">
+                                    @await Html.PartialAsync("_TablaBusqueda")
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnCerrarBusqueda" type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CerrarBusqueda()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+        <script>
+            var indiceInt;
+            var campo;
+            var valor = 0; //Registro de la tabla busqueda
+            var sistema = "";
+            var idTablaAccesoOpcion = 0; //Variable para el id de acceso opcion
+
+            //Funciones al cargar la página
+            $(document).ready(function () {
+                var controlador = document.getElementById("Controlador");
+                controlador.disabled = true;
+                obtenerPermisosJS("AccesoOpcion");
+                obtenerConfiguracionTabla("tablaAccesoOpcion");
+            });
+
+            //Funcion cuando se presiona el boton agregar
+            function Agregar() {
+                habilitarElementos(false);
+                Limpiar();
+                $("#btnGuardarCambios").css("display", "inline");
+                document.getElementById("divError").innerHTML = "";
+                document.getElementById("id").value = -1;
+                $("#divPosicion").css('display', 'none');
+            }
+
+            //Funcion para limpiar los datos
+            function Limpiar() {
+                $("#btnGuardarCambios").attr("disabled", false);
+                document.getElementById("fkSistema").value = "";
+                document.getElementById("Posicion").value = "";
+                document.getElementById("idOpcionPadre").value = "";
+                document.getElementById("Nombre").value = "";
+                document.getElementById("fkTipoArchivo").value = "";
+                document.getElementById("Controlador").value = "";
+                document.getElementById("divmodalErrores").innerHTML = "";
+                document.getElementById("divError").innerHTML = "";
+                $("#menuPadre").prop("checked", false);
+                $("#home-tab").trigger("click");
+                //Refrescar los datos que tiene el idPadre
+                $('#idOpcionPadre').empty();
+                var controlador = document.getElementById("Controlador");
+                controlador.disabled = true;
+                comboIdPadre.disabled = false;
+                botonBusqueda.disabled = false;
+                //Tipo de sistema
+                var tipoSistema = document.getElementById("tipoSistema");
+                tipoSistema.disabled = true;
+                
+            }
+
+            //Función para filtrar los datos de la tabla principal
+            var buscador = document.getElementById("Buscador");
+            buscador.onkeyup = function () {
+                idTablaAccesoOpcion = 0;
+                $("#tablaAccesoOpcion tbody").siblings().removeClass("seleccionado");
+                $("#frmAccesoOpcion").trigger("submit");
+            }
+
+            //Función para filtrar los datos de la tabla de búsqueda
+            var buscar = document.getElementById("BuscarOpcionPadre");
+            buscar.onkeyup = function () {
+                $("#frmBusqueda").trigger("submit");
+            }
+
+            //Filtro por combo
+            var filtroCombo = document.getElementById("filtroCombo");
+            filtroCombo.onchange = function () {
+                idTablaAccesoOpcion = 0;
+                $("#tablaAccesoOpcion tbody").siblings().removeClass("seleccionado");
+                $("#frmAccesoOpcion").trigger("submit");
+            }
+
+            //Función que se ejecuta al cerrar el modal de erroes
+            function Cerrar() {
+                document.getElementById("btnCerrarConfirmacion").click();
+                $("#home-tab").trigger("click");
+            }
+
+
+            //Auto focus en modal
+            $('#exampleModal').on('shown.bs.modal', function () {
+                $('#fkSistema').focus();
+            })
+
+            //Autofocus pestaña información
+            $("#home-tab").click(function () {
+                $('#' + campo).focus();
+                $('#exampleModal').on('shown.bs.tab', function () {
+                    $('#' + campo).focus();
+                })
+
+            });
+
+            //Detectar cambios de combo tipo
+            $('#fkTipoArchivo').change(function () {
+                var tipo = $("#fkTipoArchivo option:selected").text();
+                var controlador = document.getElementById("Controlador");
+                var tipoSistema = document.getElementById("tipoSistema");
+                if (tipo != "Menú") {
+                    controlador.disabled = false;
+                    tipoSistema.disabled = false;
+                } else {
+                    controlador.value = "";
+                    controlador.disabled = true;
+                    tipoSistema.value = "";
+                    tipoSistema.disabled = true;
+                }
+            });
+
+            //Metodo para validar que se haya seleccionado un sistema antes de buscar y abrir modal de busqueda
+            function validarSistema() {
+                sistema = $("#fkSistema").find('option:selected').val();
+                if (sistema != "") {
+                    $("#btnBusqueda").trigger("click");
+                } else {
+                    var validacion = "<ul class='list-group'><li class='list-group-item'>Debes de seleccionar un sistema primero</li></ul>";
+                    document.getElementById("divmodalErrores").innerHTML = validacion;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Método al abrir de modal de busqueda
+            function Buscar() {
+                $("#exampleModal").addClass("modal-backdrop"); //Oscurecimiento
+                document.getElementById("BuscarOpcionPadre").value = "";
+                var sistema = $("#fkSistema").find('option:selected').val();
+                document.getElementById("fkOmar").value = sistema
+                $("#frmBusqueda").trigger("submit");
+
+            }
+
+            //Método para quitar la clase para oscurecer modal
+            function CerrarBusqueda() {
+                $("#exampleModal").removeClass("modal-backdrop");
+            }
+
+            //Mandar el registro seleccionado al combo de idOpcionPadre
+            function Seleccionar(idOpcionPadre) {
+                document.getElementById("idOpcionPadre").value = idOpcionPadre;
+                $("#btnCerrarBusqueda").trigger("click");
+            }
+
+            //Función para guardar los cambios de un registro
+            function Guardar(resultado) {
+                //idTablaAccesoOpcion = 0;
+                //$("#tablaAccesoOpcion tbody").siblings().removeClass("seleccionado");
+                if (resultado == "1" || resultado == "0") { //Si es 1 es porque inserto si es 0 es porque edito pero no se cambio ningun registro
+                    $("#frmAccesoOpcion").trigger("submit");
+                    document.getElementById("btnClose").click();
+                    idTablaAccesoOpcion = 0;
+                    $("#tablaAccesoOpcion tbody").siblings().removeClass("seleccionado");
+                } else {
+                    $("#btnGuardarCambios").attr("disabled", false);
+                    if (resultado == "-1") { //Campo que ya esta repetido en BD
+                        indiceInt = 1;
+                        var opcion = $("#Nombre").val();
+                        var opcionPadre = $("#idOpcionPadre").find('option:selected').text(); // Capturamos el texto del option seleccionado
+                        if (opcionPadre == "--Seleccione una opción padre--")
+                            opcionPadre = "";
+                        var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado. La opción padre <b> " + opcionPadre + "</b> ya tiene registrado una opción/menú con el nombre <b>" + opcion + "</b>.</li></ul>";
+                        document.getElementById("divmodalErrores").innerHTML = repetido;
+                        document.getElementById("btnErrores").click();
+                    } else { //Sino es por un error
+                        var errores = resultado;
+                        let posicionInicial = errores.indexOf("(");
+                        let posicionFinal = errores.indexOf(")");
+                        var indice = errores.substring(posicionInicial + 1, posicionFinal);
+                        let letras = [",", "A", "B", "C", "D", "E", "F", "G"];
+                        var posicion = letras.indexOf(indice); //posicion
+                        indiceInt = parseInt(posicion); //Posicion entera para tabs
+                        let campos = [",", "fkSistema", "Nombre", "idOpcionPadre", "Posicion", "fkTipoArchivo", "Controlador", "tipoSistema"];
+                        campo = campos[posicion];//campo
+                        var cadenaCortar = "(" + indice + ")";
+                        var str = errores.replace(cadenaCortar, '');
+                        document.getElementById("divmodalErrores").innerHTML = str;
+                        document.getElementById("btnErrores").click();
+
+                    }
+                }
+            }
+
+            //Función para recargar la opcionPadre cuando el sistema cambie
+            //Actualizar opcion padre
+            var llenaridOpcionPadre = function () {
+                var selectedSistema = $('#fkSistema').val();
+                $('#idOpcionPadre').empty();
+                $('#idOpcionPadre').prepend("<option selected='true' disabled = 'true' value='0' >--Seleccione una opción padre--</option>");
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/actualizarOpcionPadre/?id=' + selectedSistema,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#idOpcionPadre').append('<option value="' + element.idOpcion + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+            $('#fkSistema').change(llenaridOpcionPadre);
+            llenaridOpcionPadre();
+
+
+            ////Filtro por combo
+            //var filtroCombo = document.getElementById("filtroCombo");
+            //filtroCombo.onchange = function () {
+            //    $("#frmAccesoOpcion").trigger("submit");
+            //}
+
+            //Funciones si se habilita el menú padre o no
+            //Validar checkbox de caducidad
+            var checkbox = document.getElementById("menuPadre");
+            var comboIdPadre = document.getElementById("idOpcionPadre");
+            var botonBusqueda = document.getElementById("btnBuscar");
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    comboIdPadre.disabled = true;
+                    botonBusqueda.disabled = true;
+                    document.getElementById("idOpcionPadre").value = "0";
+                } else {
+                    comboIdPadre.disabled = false;
+                    botonBusqueda.disabled = false;
+                }
+            });
+
+            //Funcion cuando se presiona el boton modificar pasando como parametro el id y mostrar info en modal
+            function Modificar(id, accion) {
+                var idPadre = 0;
+                Limpiar();
+                $("#divPosicion").css('display', 'inherit');
+                document.getElementById("id").value = id;
+                $.get("AccesoOpcion/recuperarDatos/?id=" + id, function (data) {
+                    document.getElementById("fkSistema").value = data.fkSistema;
+                    document.getElementById("Posicion").value = data.posicion;
+                    document.getElementById("Nombre").value = data.nombre;
+                    var tipoArchivo = data.fkTipoArchivo;
+                    document.getElementById("fkTipoArchivo").value = tipoArchivo;
+
+
+                    if (tipoArchivo != 1) {
+                        var controlador = document.getElementById("Controlador");
+                        controlador.disabled = false;
+                        var tipoSistema = document.getElementById("tipoSistema");
+                        tipoSistema.disabled = false;
+                    }
+
+
+                    document.getElementById("Controlador").value = data.controlador;
+                    if (data.tipoSistema == null)
+                        document.getElementById("tipoSistema").value = "";
+                    else
+                        document.getElementById("tipoSistema").value = data.tipoSistema;
+
+                    if (accion == 2) {
+                        var controlador = document.getElementById("Controlador");
+                        controlador.disabled = true;
+                        var tipoSistema = document.getElementById("tipoSistema");
+                        tipoSistema.disabled = true;
+                    }
+
+                    idPadre = data.idOpcionPadre;
+
+                    //recargarIdPadreActualizar();
+                }).done(function () {
+                    cargarComboPadre(idPadre, accion);
+                });
+            }
+
+            async function cargarComboPadre(idPadre, accion) {
+                cargar = await recargarIdPadreActualizar();
+                document.getElementById("idOpcionPadre").value = idPadre;
+                if (idPadre == 0) {
+                    $("#menuPadre").prop("checked", true);
+                    comboIdPadre.disabled = true;
+                    botonBusqueda.disabled = true;
+                    document.getElementById("idOpcionPadre").value = "0";
+                }
+                //Consulta para ver la posición máxima que se puede seleccionar con el idPadre
+                posicionMax = await obtenerPosMax(idPadre);
+                $("#Posicion").attr('max', posicionMax);
+                if (accion == 2) {
+                    comboIdPadre.disabled = true;
+                    botonBusqueda.disabled = true;
+                }
+
+            }
+
+            //Función para actualizar el idPadre
+            function recargarIdPadreActualizar() {
+                var selectedSistema = $('#fkSistema').val();
+                $('#idOpcionPadre').empty();
+                $('#idOpcionPadre').prepend("<option selected='true' disabled = 'true' value='0' >--Seleccione una opción padre--</option>");
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/actualizarOpcionPadre/?id=' + selectedSistema,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#idOpcionPadre').append('<option value="' + element.idOpcion + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+
+            //Obtener la posición maxima para esos hijos
+            function obtenerPosMax(idPadre) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/obtenerPosMax/?id=' + idPadre,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Guardar el id que se quiere eliminar
+            function Eliminar(idOpcion) {
+                document.getElementById("id").value = idOpcion;
+            }
+
+            //Funcion para verificar relaciones
+            async function EliminarRegistro() {
+                //idTablaAccesoOpcion = 0;
+                var id = document.getElementById("id").value;
+                //Validación de relaciones que contentan acceso_opcion---------------------------------
+                var RelacionesAccesoOpcion = await verificarRelacionesAccesoOpcion(id);
+                if (RelacionesAccesoOpcion == 0) {
+                    await verificarRegistroEliminar(id);
+                    idTablaAccesoOpcion = 0;
+                } else {
+                    Info = await recuperarInfo(id);
+                    var nombreSistema = Info[0].acceso_Sistema.nombre;
+                    var opcion = Info[0].nombre;
+                    document.getElementById("divmodalErrores").innerHTML = "<ul class='list-group'><li class='list-group-item'>No se puede eliminar la opción <b>" + opcion + "</b> del sistema <b> " + nombreSistema + "</b> ya que se encuentra en uso.</li></ul>";
+                    document.getElementById("btnErrores").click();
+                    document.getElementById("btnCerrarIcono").click();
+                }
+            }
+
+
+
+            //Ajax para obtener la información del registro seleccionado
+            function recuperarInfo(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/recuperarInfo/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+
+
+            //Ajax para obtener las relaciones que tiene Acceso_Opcion
+            function verificarRelacionesAccesoOpcion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/verificarRelacionesAccesoOpcion/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Eliminación
+            function verificarRegistroEliminar(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/eliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    if (data == "1") { //Si regresa 1 es porque se borro un registro
+                        $("#frmAccesoOpcion").trigger("submit"); //Se refresca el formulario
+                        document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                    }
+                })
+            }
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaAccesoOpcion tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaAccesoOpcion = 0;
+                    //console.log(idTablaAccesoOpcion);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaAccesoOpcion = $(this).children("td:nth-child(1)").text();
+                    //console.log(idTablaAccesoOpcion);
+                }
+
+            });
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaAccesoOpcion == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaAccesoOpcion,1);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+                        Eliminar(idTablaAccesoOpcion);
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaAccesoOpcion);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar la opcion <span style='color:#394867;'>" + NombreEliminacion[0].nombre + "</span> del sistema <span style='color:#394867;'>" + NombreEliminacion[0].acceso_Sistema.nombre + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        $("#btnEliminarRegistroModal").attr("disabled", false);
+                        //--------------------------------------------------------------------
+                        $('#exampleModalConfirmacion').modal('show');
+                    } else if (Accion == "Vista") {  
+                        habilitarElementos(true);   
+                        Modificar(idTablaAccesoOpcion, 2);                                            
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "none");
+                    }
+
+                }
+            }
+
+            //Función para recuperar el nombre del registro a elmininar
+            function recuperarNombreEliminacion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoOpcion/recuperarDatosEliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para Des/habilitar los elementos del modal
+            function habilitarElementos(estatus) {
+                $(".elementoModal").prop("disabled", estatus);
+                $("#menuPadre").prop("disabled", estatus);
+            }
+
+            //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+            $(document).ajaxError(function (event, jqxhr) {
+                if (jqxhr.status === 403)
+                    window.location = 'Login';
+            });
+
+            //Función para detectar los submit para inhabilitar/habilitar el boton
+            $("button[type='submit']").on("click", function (e) {
+                $(this).attr("disabled", true);
+                $(this).closest("form").submit()
+            }); 
+
+            //Función para abrir modal de tabla y configuración
+            async function ConfigurarTabla(tabla) {
+                $("#btnGuardarCambiosTabla").attr("disabled", false);
+                //Detectar las columnas de la tabla
+                var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
+
+                //Detectar las columnas obligatorias
+                var obligatorios = document.getElementsByClassName("Obligatorio");
+                var arregloObligatorios = [];
+                for (var i = 0; i < obligatorios.length; i++) {
+                    arregloObligatorios.push(obligatorios[i].innerHTML);
+                }
+
+                //Creación de registros de tabla
+                document.getElementById("tablaAccesoOpcionColumnasBody").innerHTML = "";
+                for (var i = 1; i < allSelect.length; i++) {
+                    var Columa = allSelect[i].innerHTML;
+                    var claseInput = "in" + Columa;
+                    var claseCheck = "ch" + Columa;
+                    var banderaObligatorio = 0;
+                    for (var j = 0; j < arregloObligatorios.length; j++) {
+                        if (arregloObligatorios[j] == Columa) {
+                            banderaObligatorio = 1;
+                        }
+                    }
+
+                    if (banderaObligatorio == 1) {
+                        var tr =
+                            "<tr>" +
+                            "<td>" +
+                            "<label>" +
+                            Columa +
+                            "</label>" +
+                            "</td>" +
+                            "<td class='text-center'>" +
+                            "<input type='checkbox' class='" + claseCheck + "' disabled checked id=colVisi-" + i + ">" +
+                            "</td>" +
+                            "<td>" +
+                            "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                            "</td>" +
+                            "</tr>";
+                    } else {
+                        var tr =
+                            "<tr>" +
+                            "<td>" +
+                            "<label>" +
+                            Columa +
+                            "</label>" +
+                            "</td>" +
+                            "<td class='text-center'>" +
+                            "<input type='checkbox' class='" + claseCheck + "' id=colVisi-" + i + ">" +
+                            "</td>" +
+                            "<td>" +
+                            "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                            "</td>" +
+                            "</tr>";
+                    }
+
+                    $("#tablaAccesoOpcionColumnasBody").append(tr);
+                }
+                banderaObligatorio = 0;
+
+                //Llenar los datos de la tabla con los de la colección
+                DatosTablaAccesoOpcion = await cargarDatosTabla('tablaAccesoOpcion');
+                for (let i = 0; i < DatosTablaAccesoOpcion.length; i++) {
+                    var columnaObtenida = DatosTablaAccesoOpcion[i].columna;
+                    var anchoObtenido = DatosTablaAccesoOpcion[i].ancho;
+                    var inputConClase = document.getElementsByClassName("in" + columnaObtenida);
+                    var checkConClase = document.getElementsByClassName("ch" + columnaObtenida);
+
+                    if (inputConClase[0] != null && checkConClase[0] != null) {
+                        $('#' + inputConClase[0].id).val(anchoObtenido);
+                        $("#" + checkConClase[0].id).prop("checked", true);
+                    }
+                    //console.log(inputConClase[0].id + " " +checkConClase[0].id + " " + anchoObtenido)
+
+                }
+
+                //Habilitar el ancho de los checkbox en true
+                var checksEncontrados = document.querySelector("#tablaAccesoOpcionColumnas").querySelectorAll("input[type='checkbox']");
+                checksEncontrados.forEach(C => {
+                    if (C.checked) {
+                        var idEncontrado = C.id.substr(8, C.id.length);
+                        $("#colAnch-" + idEncontrado).prop("disabled", false);
+                    }
+                });
+
+                //tablaEmpresaColumnasBody
+                $('#tablaModal').modal('show');
+            }
+
+            //Función para guardar el array con los datos de la tabla Columna
+            function crearArrayTabla() {
+                //Crear el array para guardar las columnas
+                var registrosColumnas = [];
+                var cadenaColumnas = "";
+
+                //Obtener los valores de todas las celdas de la tabla
+                var filas = $("#tablaAccesoOpcionColumnasBody").find("tr");
+
+                //Guardar los valores de la tabla en el arreglo
+                for (i = 0; i < filas.length; i++) {
+                    var celdas = $(filas[i]).find("td");
+                    nombreColumna = $($(celdas[0]).children("label")).text();
+                    anchoColumna = $($(celdas[2]).children("input")[0]).val();
+
+                    //Validar checkbox en checked
+                    visibilidadColumna = "0";
+                    visibleColumna = $($(celdas[1]).children("input:checkbox:checked")).val();
+                    if (visibleColumna == "on") {
+                        visibilidadColumna = "1";
+                    }
+
+                    //Validar ancho de columna
+                    if (anchoColumna == "") {
+                        anchoColumna = "0";
+                    }
+
+                    registrosColumnas.push(nombreColumna);
+                    registrosColumnas.push(anchoColumna);
+                    registrosColumnas.push(visibilidadColumna);
+                }
+
+                registrosColumnas.push("tablaAccesoOpcion");
+                cadenaColumnas = "[" + registrosColumnas.join() + "]";
+                document.getElementById("validacionColumnas").value = cadenaColumnas;
+            }
+
+            //Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla (Adecuar tambien para combo)
+            function Configurar(resultado) {
+                if (resultado == "1") {
+                    obtenerConfiguracionTabla("tablaAccesoOpcion");
+                    document.getElementById("btnCloseTabla").click();
+                    $("#Buscador").val("");
+                    $("#filtroCombo").val(""); //--------------------------
+                    $("#frmAccesoOpcion").trigger("submit");
+                    //BuscadorEmpresa
+                } else {
+                    $("#btnGuardarCambiosTabla").attr("disabled", false);
+                    document.getElementById("divmodalErrores").innerHTML = resultado;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Detectar cambios en cada renglón de la tabla columnas
+            $('#tablaAccesoOpcionColumnas').on('change', 'input[type="checkbox"]', function () {
+                var checkboxTabla = $(this).prop('id');
+                var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
+                document.getElementById("colAnch-" + idCheck).value = "";
+                if ($(this).is(':checked')) {
+                    $("#colAnch-" + idCheck).prop("disabled", false);
+                } else {
+                    $("#colAnch-" + idCheck).prop("disabled", true);
+                }
+            });
+
+            //Función para cargar los datos de la tabla Usuario_Tabla_Columna
+            function cargarDatosTabla(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/cargarDatosTabla/?tabla=' + tabla,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            async function obtenerConfiguracionTabla(tabla) {
+                //Mandar las columnas del HTML y el nombre de la tabla para verificar que coincidan con las que se tiene de BD
+                var columnasTablaHTML = document.querySelector("#" + tabla).querySelectorAll("th");
+                var arregloTablaHTML = [];
+
+                for (var i = 1; i < columnasTablaHTML.length; i++) {
+                    arregloTablaHTML.push(columnasTablaHTML[i].innerHTML);
+                }
+                arregloTablaHTML.push(tabla);
+                var cadenaTablaHTML = "[" + arregloTablaHTML.join() + "]";
+                ValidarTablaHTML = await validarTablaHTML(cadenaTablaHTML);
+
+                //Verificar que exista por lo menos un registro del usuario
+                RegistroExistente = await buscarRegistroExistente(tabla);
+                if (RegistroExistente.length <= 0) {
+                    //Darle la configuración predeterminada y guardarla en un arreglo
+                    var colPredeterminadas = document.querySelector("#" + tabla).querySelectorAll("th");
+                    var arregloConfigInicial = [];
+                    for (var i = 1; i < colPredeterminadas.length; i++) {
+                        arregloConfigInicial.push(colPredeterminadas[i].innerHTML);
+                        arregloConfigInicial.push(colPredeterminadas[i].style.width);
+                        if (colPredeterminadas[i].hidden == true)
+                            arregloConfigInicial.push("0");
+                        else
+                            arregloConfigInicial.push("1");
+                    }
+                    arregloConfigInicial.push("tablaAccesoOpcion");
+                    var columnasPreterminadas = "[" + arregloConfigInicial.join() + "]";
+                    await guardarColPredeterminadas(columnasPreterminadas);
+                }
+
+                //Realizar petición para buscar configuración guardada
+                DatosTablaAccesoOpcion = await cargarDatosTabla(tabla);
+
+                //Aplicar configuración              
+                var colActuales = document.querySelector("#" + tabla).querySelectorAll("th");
+                var encontrado = 0;
+
+                //Arreglo con los nombres de las columnas y sus nombres de BD
+                var arregloDatosBD = ["Sistema", "Sis.Nombre", "Opción", "O.Nombre", "Opción padre", "O.nombrePadre", "Tipo", "TA.Nombre","Posición","O.Posicion"];
+                var arregloFiltro = [];
+
+                for (var i = 1; i < colActuales.length; i++) { //Recorrer las th de la tabla HTML
+
+                    var columnaAct = colActuales[i].innerHTML;
+                    for (var j = 0; j < DatosTablaAccesoOpcion.length; j++) { //Recorrer las columnas configuradas como visibles
+                        if (columnaAct == DatosTablaAccesoOpcion[j].columna) { //Aplicar la visibilidad y el ancho configurados
+                            encontrado = 1;
+                            //console.log("Encontrada: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id + " ancho: " +DatosTablaEmpresa[j].ancho); //Obtiene la primera clase
+                            $("." + colActuales[i].classList[0]).prop("hidden", false);
+                            $("#" + colActuales[i].id).css("width", DatosTablaAccesoOpcion[j].ancho + "%");
+                            for (var k = 0; k < arregloDatosBD.length; k = k + 2) {
+                                if (arregloDatosBD[k] == columnaAct) {
+                                    arregloFiltro.push(arregloDatosBD[k + 1]);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if (encontrado == 0) { //Quitar la visibilidad y el ancho
+                        //console.log("No encontrado: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id);
+                        $("." + colActuales[i].classList[0]).prop("hidden", true);
+                        $("#" + colActuales[i].id).css("width", "0%");
+                    }
+                    encontrado = 0;
+                }
+
+                //Si no se encontro ninguna columna visible, dar como visible la principal (Caso de primer inicio del usuario en pantalla)
+                if (arregloFiltro.length == 0) {
+                    //Hacer todas las columnas visibles
+                    await cambiarColumnasVisibles("tablaAccesoOpcion");
+                    obtenerConfiguracionTabla("tablaAccesoOpcion");
+                }
+
+                //Conversión del arreglo a string y guardado en variable C#
+                var stArregloFiltro = "[" + arregloFiltro.join() + "]";
+                document.getElementById("datosFiltro").value = stArregloFiltro;
+
+
+                //Mostrar tabla ya configurada
+                $("#" + tabla).prop("hidden", false);
+            }
+
+            //Función para agregar las columnas predeterminadas
+            function guardarColPredeterminadas(columnasPreterminadas) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/guardarColPredeterminadas/?columnas=' + columnasPreterminadas,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para validar los datos de la tabla HTML
+            function validarTablaHTML(columnas) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/validarTablaHTML/?columnas=' + columnas,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para verificar un registro existente de la coleccion
+            function buscarRegistroExistente(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/buscarRegistroExistente/?tabla=' + tabla,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para hacer todas las columnas visibles si no tiene una configuración
+            function cambiarColumnasVisibles(tabla) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'UsuarioTablaColumna/cambiarColumnasVisibles/?tabla=' + tabla,
+                    dataType: "text"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para los caracteres permitidos en filtro
+            function check(e) {
+                tecla = (document.all) ? e.keyCode : e.which;
+                //Tecla de retroceso para borrar, siempre la permite
+                if (tecla == 8) {
+                    return true;
+                }
+
+                // Patron de entrada, en este caso solo acepta numeros y letras
+                patron = /[A-Za-z0-9áéíóúÁÉÍÓÚ.,-;$€£ñÑ ]/;
+                tecla_final = String.fromCharCode(tecla);
+                return patron.test(tecla_final);
+            }
+
+
+
+        </script>
+    }
+</body>
+</html>
+
+
+

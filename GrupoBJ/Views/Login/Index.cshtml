@@ -1,0 +1,242 @@
+﻿@model GrupoBJ.Models.Usuario
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="~/Script/jquery/jquery-3.4.1.js"></script>
+    <script src="~/Script/bootstrap/js/bootstrap.js"></script>
+    <link href="~/Script/bootstrap/css/bootstrap.css" type="text/css" rel="stylesheet" />
+    <link href="~/Script/css/login.css" rel="stylesheet">
+    <link href="~/lib/Plantilla/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <header id="header" style="background-color: #f6830f; width:100%; height:100px;">
+        <div class="container">
+            <div class="float-left logo">
+                @*<h1 class="text-light logo">EMPACADORA FRAPE</h1>*@
+                <h1 class="text-light">EMPACADORA FRAPE</h1>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="login-form">
+            <form asp-action="Login" asp-controller="Login"
+                  data-ajax="true" data-ajax-method="POST"
+                  data-ajax-mode="replace" data-ajax-update="#ajaxresult"
+                  data-ajax-success="GoHome">
+
+                <div class="avatar text-center">
+                    <img src="~/lib/Plantilla/img/logo2.png" alt="Avatar">
+                </div>
+
+                <h2 class="text-center">Inicio de sesión</h2>
+                <div class="form-group">
+                    @Html.Label("Usuario")
+                    @Html.TextBox("Usuario", null, new { @class = "form-control", @placeholder = "Usuario", @required = "true" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Contraseña")
+                    @Html.Password("Contrasena", null, new { @class = "form-control", @placeholder = "*******", @required = "true" })
+                </div>
+                <div class="form-group">
+                    <button id="btnLogin" type="submit" class="btn btn-primary btn-lg btn-block">Iniciar</button>
+                </div>
+                <div class="clearfix text-center">
+                    <a href="javascript:olvidarContrasena();">¿Olvidaste tu contraseña?</a>
+                </div>
+                <br />
+                <div id="ajaxresult">
+
+                </div>
+            </form>
+            <div class="text-center">
+                <span id="siteseal" class="text-center">
+                    <script async type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=1PvHLomeritvxaP3gu30p9FDL5pbfuGvfylhsGIxAAIEoYtQAmX71Z1yuZpZ"></script>
+                </span>
+            </div>
+        </div>
+
+
+        @* Botón para abrir modal *@
+        <button id="btnEmpresaSucursal" type="button" onclick="Buscar()" class="btn btn-primary" data-toggle="modal" data-target="#modalEmpresaSucursal" style="display:none;">
+            <i class="fa fa-search"></i>
+        </button>
+        @* Modal Empresas y sucursales *@
+        <div class="modal fade bd-example-modal-lg" id="modalEmpresaSucursal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#f5b461;">
+                        <div style="width:6%; padding-top:4px">
+                            <img src="~/Script/img/icono_empresa.png" alt="" width="30" height="30">
+                        </div>
+                        <div style="width:94%; padding-top:4px">
+                            <h5 class="modal-title" style="color:#f6f4e6; font-size:20px;"><b>Seleccione una empresa y sucursal</b></h5>
+                        </div>
+                        <button type="button" onclick="LogOut()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form asp-action="EmpresaSucursal" asp-controller="Login" id="frmEmpresaSucursal"
+                              data-ajax="true"
+                              data-ajax-method="POST"
+                              data-ajax-mode="replace"
+                              data-ajax-update="#ajaxEmpresaSucursal">
+                            <div style="width:100%;">
+                                @Html.Hidden("idUsuario")
+                                @Html.Label("Buscador")
+                                @Html.TextBox("BuscarEmpresaSucursal", null, new { @class = "form-control" })
+                            </div>
+                            <br />
+                            <div id="ajaxEmpresaSucursal">
+                                @* Vista parcial _TablaBusqueda *@
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnCerrarEmpresaSucursal" onclick="LogOut()" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Contraseña olvidada-->
+        <div class="modal fade" id="exampleModalContraOlvidada" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #318fb5;">
+                        <div style="width:10%; padding-top:6px">
+                            <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                        </div>
+                        <div style="width:90%; padding-top:8px">
+                            <h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:17px;'><b>Información</b></h5>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Favor de contactar al departamento de sistemas.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="~/Script/jquery/jquery.unobtrusive-ajax.js"></script>
+    <script>
+
+        //Función que se ejecuta al cargar la página
+        $(document).ready(function () {
+            limpiar();
+        });
+
+        //Función para ir a home
+        function GoHome(resultado) {
+            var corte = resultado.substring(0, 2);
+            if (corte == "U-") { //Login exitoso
+                document.getElementById("ajaxresult").innerHTML = "";
+                var idUsuario = resultado.substring(2, resultado.length);
+                document.getElementById("idUsuario").value = idUsuario;
+                $("#btnEmpresaSucursal").trigger("click");
+            } else {
+                limpiar();
+                $("#Usuario").focus();
+            }
+        }
+
+        //Función para limpiar campos
+        function limpiar() {
+            document.getElementById("Usuario").value = "";
+            document.getElementById("Contrasena").value = "";
+        }
+
+        //Método al abrir de modal de empresa, sucursal
+        function Buscar() {
+            $("#frmEmpresaSucursal").trigger("submit");
+        }
+
+        //Función para filtrar los datos de la tabla de empresa-sucursal
+        var buscador = document.getElementById("BuscarEmpresaSucursal");
+        buscador.onkeyup = function () {
+            $("#frmEmpresaSucursal").trigger("submit");
+        }
+
+        //Función para quitar login cuando se cancela la accion
+        async function LogOut() {
+            limpiar();
+            Login = await LogOutAjax();
+        }
+
+        //Ajax para quitar el login
+        function LogOutAjax() {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: 'Login/LogOut/',
+                dataType: "text"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para seleccionar el perfil
+        async function Seleccionar(idPerfil) {
+            Perfil = await guardarPerfil(idPerfil);
+            window.location.href = '/Home/';
+        }
+
+        //Ajax para guardar el perfil
+        function guardarPerfil(idPerfil) {
+            return $.ajax({
+                async: true,
+                type: "POST",
+                url: 'Login/guardarPerfil/?idPerfil=' + idPerfil,
+                dataType: "text"
+            }).done(function (data) {
+
+            })
+        }
+
+        //Función para abrir modal de se olvidó contraseña
+        function olvidarContrasena() {
+            $('#exampleModalContraOlvidada').modal('show');
+        }
+
+        ////Función para verificar sesión
+        //async function Sesion() {
+        //    Respuesta = await verificarSession();
+        //    if (Respuesta == null) {
+        //        location.reload();
+        //    }
+        //}
+
+        ////Ajax para guardar el perfil
+        //function verificarSession() {
+        //    return $.ajax({
+        //        async: true,
+        //        type: "POST",
+        //        url: 'Login/verificarSesion',
+        //        dataType: "text"
+        //    }).done(function (data) {
+
+        //    })
+        //}
+
+    </script>
+
+</body>
+</html>
+
+

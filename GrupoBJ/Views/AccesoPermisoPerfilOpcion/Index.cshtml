@@ -1,0 +1,684 @@
+﻿@model IEnumerable<GrupoBJ.Models.Acceso_Permiso_Perfil_Opcion>
+@{ ViewData["Title"] = "Permisos por perfil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaAccesoSistema = (List<SelectListItem>)ViewBag.listaAccesoSistema;
+    List<SelectListItem> listaAccesoPerfil = (List<SelectListItem>)ViewBag.listaAccesoPerfil;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="~/jstree/dist/themes/default/style.min.css" />
+    <style type="text/css">
+        .reja {
+            border-color: dimgray;
+            border-width: 1px;
+            border-style: dotted;
+        }
+
+        .centrado {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .boton {
+            padding-bottom: 10px;
+            padding-right: 10px;
+        }
+        .ocultar{
+            border-top:none;
+        }
+        .ocultar2 {
+            border-bottom: none;
+        }
+
+    </style>
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Guardar" asp-controller="AccesoPermisoPerfilOpcion" id="frmAccesoPermisoPerfilOpcion"
+                  data-ajax="true" data-ajax-method="POST"
+                  data-ajax-mode="replace" data-ajax-update="#divMenu"
+                  data-ajax-success="Guardar">
+                <br>
+
+                <h1 class="text-center">Permisos por perfil</h1>
+                <hr />
+
+                <div style="width:100%; height:80px;">
+                    <div style="width:30%; float:left;">
+                        @Html.Hidden("Coleccion")
+                        @Html.Label("Sistema")
+                        @Html.DropDownList("ComboSistema", listaAccesoSistema, new { @class = "form-control" })
+                    </div>
+                    <div style="width:30%; float:left;  padding-left:10px;">
+                        <div style="width:90%; float:left;">
+                            @Html.Label("Perfil")
+                            @Html.DropDownList("ComboPerfil", listaAccesoPerfil, new { @class = "form-control" })
+                        </div>
+                        <div id="Ppp-Bus" hidden style="width:10%; float:right; padding-left:2px; padding-top:32px;" class="Permisos">
+                            @* Botón para abrir modal *@
+                            <button id="btnBusqueda" type="button" onclick="Buscar()" class="btn btn-primary" data-toggle="modal" data-target="#modalBusqueda" style="display:none;">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            @* Botón para validar un sistema seleccionado antes de abrir modal *@
+                            <button id="btnValidar" type="button" onclick="validarSistema()" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="width:25%; float:right; padding-top:32px;">
+                        <div style="width:45%; float:right;">
+                            @* Botón para abrir modal *@
+                            <button id="btnUsuariosPerfiles" type="button" onclick="BuscarUsuarioPerfil()" class="btn btn-success" data-toggle="modal" data-target="#modalUsuarioPerfil" style="display:none;">
+                                <i class="fa fa-user-circle-o"></i> Usuarios
+                            </button>
+                            @* Botón para validar un perfil seleccionado antes de abrir modal *@
+                            <button id="Ppp-Usu" hidden type="button" class="btn btn-success Permisos" onclick="validarPerfil()">
+                                <i class="fa fa-user-circle-o"></i> Usuarios
+                            </button>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+                <hr />
+
+                <div id="divCuerpo" style="width:auto; height:auto;">
+                    <!---Encabezado-->
+                    <div style="height:40px; display:flex;">
+                        <div id="titulo-arbol" style="width:70%; float:left;"></div>
+                        <div id="titulo-permisos" style="width:30%; float:right;"></div>
+                    </div>
+                    <!---Cuerpo-->
+                    <div style="height:auto; display:flex;">
+                        <div id="jstree" style="width:70%; float:left; overflow: auto;">
+
+                        </div>
+                        <div id="divPermiso" style="width:30%; float:right;">
+                            <div id="header-permiso" style="width:100%; height:auto">
+
+                            </div>
+                            <div id="body-permiso" style="width:100%; height:auto">
+
+                            </div>
+                            <div id="footer-permiso" style="width:100%; height:auto">
+
+                            </div>
+                        </div>
+                    </div>
+                    <!---Pie-->
+                    <div id="Ppp-Pan" hidden style="height:50px; display:flex;" class="Permisos">
+                        <div id="pie-arbol" style="width:70%; float:left;"></div>
+                        <div id="pie-permisos" style="width:30%; float:right;"></div>
+                    </div>
+                </div>
+                <hr />
+                <div width="100%;" style="float:right">
+                    <input type="hidden" name="selectedItems" id="selectedItems" />
+                    <button id="Ppp-Grd" hidden type="submit" onclick="guardarArreglo()" class="btn btn-primary Permisos" style="display:none;">Guardar</button>
+                </div>
+            </form>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#ffd571;">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px" id="divModalErroresHeader">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal de Usuarios por perfil--->
+            <div class="modal fade bd-example-modal-lg" id="modalUsuarioPerfil" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:5%; padding-top:4px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:95%; padding-top:6px">
+                                <h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:17px;'><b>Usuarios del perfil</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="UsuarioPerfil" asp-controller="AccesoPermisoPerfilOpcion" id="frmUsuarioPerfil"
+                                  data-ajax="true"
+                                  data-ajax-method="POST"
+                                  data-ajax-mode="replace"
+                                  data-ajax-update="#ajaxUsuarioPerfil">
+                                @Html.DropDownList("fkPerfil", listaAccesoPerfil, new { @class = "form-control", @style = "display:none" })
+                                <div id="ajaxUsuarioPerfil">
+                                    @* Vista parcial _TablaUsuarioPerfil *@
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal de pantallas--->
+            <div class="modal fade bd-example-modal-lg" id="modalPantalla" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:5%; padding-top:4px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:95%; padding-top:6px">
+                                <h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:17px;'><b>Perfiles con permisos en esta pantalla</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="PerfilPantalla" asp-controller="AccesoPermisoPerfilOpcion" id="frmPerfilPantalla"
+                                  data-ajax="true"
+                                  data-ajax-method="POST"
+                                  data-ajax-mode="replace"
+                                  data-ajax-update="#ajaxPerfilPantalla">
+                                @Html.Hidden("PantallaSelec")
+                                <div id="ajaxPerfilPantalla">
+
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnCorrecto" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalConfirmacion" style="display:none;">
+                Correcto
+            </button>
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px">
+                                <h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:17px;'><b>Información</b></h5>
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono" onclick="habilitarBtnGuardar()">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">Datos guardados correctamente</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            @* Modal busqueda *@
+            <div class="modal fade bd-example-modal-lg" id="modalBusqueda" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#01c5c4;">
+                            <div style="width:6%; padding-top:4px">
+                                <img src="~/Script/img/icono_busqueda.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:94%; padding-top:4px">
+                                <h5 class="modal-title" style="color:#f6f4e6; font-size:20px;"><b>Búsqueda</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="Busqueda" asp-controller="AccesoPermisoPerfilOpcion" id="frmBusqueda"
+                                  data-ajax="true"
+                                  data-ajax-method="POST"
+                                  data-ajax-mode="replace"
+                                  data-ajax-update="#ajaxBusqueda">
+                                <div style="width:100%;">
+                                    @Html.Label("Buscador")
+                                    @Html.TextBox("BuscarPerfil", null, new { @class = "form-control" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.DropDownList("fkSistema", listaAccesoSistema, new { @class = "form-control", @style = "display:none" })
+                                </div>
+                                <br />
+                                <div id="ajaxBusqueda">
+                                    @* Vista parcial _TablaBusqueda *@
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnCerrarBusqueda" type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/jstree/dist/jstree.min.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+        <script>
+
+            var bandera = false;
+            var registrosPermisos = []; //Arreglo temporal para guardar los permisos de las pantallas.
+            var checkboxs = "";
+
+            //Función para obtener los permisos de la pantalla
+            $(document).ready(function () {
+                obtenerPermisosJS("AccesoPermisoPerfilOpcion");
+            });
+
+
+            //Actualizar perfil
+            var llenarPerfil = function () {
+                var selectedSistema = $('#ComboSistema').val();
+                $('#ComboPerfil').empty();
+                $('#ComboPerfil').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione un perfil--</option>");
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoPermisoPerfilOpcion/actualizarPerfil/?id=' + selectedSistema,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#ComboPerfil').append('<option value="' + element.idPerfil + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+            $('#ComboSistema').change(llenarPerfil);
+            llenarPerfil();
+
+
+            //Metodo para validar que se haya seleccionado un sistema antes de buscar y abrir modal de busqueda
+            function validarSistema() {
+                sistema = $("#ComboSistema").find('option:selected').val();
+                if (sistema != "" && sistema != 0) {
+                    $("#btnBusqueda").trigger("click");
+                } else {
+                    var validacion = "<ul class='list-group'><li class='list-group-item'>Debes de seleccionar un sistema primero</li></ul>";
+                    document.getElementById("divmodalErrores").innerHTML = validacion;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Método al abrir de modal de busqueda
+            function Buscar() {
+                //document.getElementById("ComboPerfil").value = "";
+                var sistema = $("#ComboSistema").find('option:selected').val();
+                document.getElementById("fkSistema").value = sistema
+                $("#frmBusqueda").trigger("submit");
+            }
+
+            //Método al abrir de modal de busqueda
+            function BuscarUsuarioPerfil() {
+                var perfil = $("#ComboPerfil").find('option:selected').val();
+                document.getElementById("fkPerfil").value = perfil
+                $("#frmUsuarioPerfil").trigger("submit");
+            }
+
+            //Función para filtrar los datos de la tabla de busqueda
+            var buscador = document.getElementById("BuscarPerfil");
+            buscador.onkeyup = function () {
+                $("#frmBusqueda").trigger("submit");
+            }
+
+            //Metodo para validar que se haya seleccionado un perfil antes de abrir modal de Usuarios con el mismo perfil
+            function validarPerfil() {
+                perfil = $("#ComboPerfil").find('option:selected').val();
+                if (perfil != "" && perfil != 0) {
+                    $("#btnUsuariosPerfiles").trigger("click");
+                } else {
+                    var validacion = "<ul class='list-group'><li class='list-group-item'>Debes de seleccionar un perfil primero</li></ul>";
+                    document.getElementById("divmodalErrores").innerHTML = validacion;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Mandar el registro seleccionado al combo de perfil
+            function Seleccionar(idPerfil) {
+                document.getElementById("ComboPerfil").value = idPerfil;
+                $("#btnCerrarBusqueda").trigger("click");
+                //Ejecutar función para cargar el menu
+                cargarMenu();
+            }
+
+            //Detecta el cambio del perfil para cargar el menu
+            var comboPerfil = document.getElementById("ComboPerfil");
+            comboPerfil.addEventListener("change", function () {
+                //Ejecutar función para cargar el menu
+                cargarMenu();
+            });
+
+            //Función para obtener mandar el JSON para llenar el jstree
+            async function cargarMenu() {
+                var ComboSistema = $('#ComboSistema').val();
+                Menu = await cargarJson(ComboSistema);
+                await resfreshJSTree(Menu);
+                await cargarPantallas(Menu);
+                await guardarPermisosArreglo();
+                var divTituloArbol = document.getElementById("titulo-arbol");
+                var divTituloPermisos = document.getElementById("titulo-permisos");
+                //Titulo
+                $("#titulo-arbol").addClass("reja");
+                divTituloArbol.innerHTML = "<h6><strong>Menú de opciones</strong></h6>";
+                $("#titulo-arbol").addClass("centrado");
+
+                $("#titulo-permisos").addClass("reja");
+                divTituloPermisos.innerHTML = "<h6><strong>Permisos</strong></h6>";
+                $("#titulo-permisos").addClass("centrado");
+
+                //Cuerpo
+                $("#divCuerpo").addClass("reja");
+                $("#jstree").addClass("reja");
+                $("#jstree").addClass("ocultar2");
+
+                $("#divPermiso").addClass("reja");
+                $("#divPermiso").addClass("centrado");
+                $("#divPermiso").addClass("ocultar2");
+
+                //Pie
+                $("#pie-arbol").addClass("reja");
+                $("#pie-permisos").addClass("reja");
+                $("#pie-permisos").addClass("boton");
+                $("#pie-permisos").addClass("ocultar");
+                $("#pie-arbol").addClass("ocultar");
+                //pie-arbol
+            }
+
+            //Ajax para obtener el menú en JSON en base al sistema seleccionado
+            function cargarJson(ComboSistema) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoPermisoPerfilOpcion/Tree/?ComboSistema=' + ComboSistema,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para refrescar y cargar datos
+            function resfreshJSTree(Menu) {
+                //$('#jstree').jstree('destroy'); //Destruye el jstree para dejarlo vacio
+                $('#jstree').jstree({
+                    "core": {
+                        "themes": {
+                            "variant": "large"
+                        }
+                    },
+                    "checkbox": {
+                        "keep_selected_style": false,
+                        three_state: true, // to avoid that fact that checking a node also check others
+                        whole_node: false,  // to avoid checking the box just clicking the node
+                        tie_selection: false // for checking without selecting and selecting without checking
+                    },
+                    "types":
+                    {
+                        "types": {
+                            "disabled": {
+                                "check_node": false
+                            }
+                        }
+                    },
+                    "plugins": ["wholerow", "checkbox", "types"]
+                });
+
+                $("#Ppp-Grd").show();
+                $('#jstree').jstree(true).settings.core.data = Menu;
+                $('#jstree').jstree('uncheck_all');
+                $('#jstree').jstree(true).refresh();
+                borrarPermisos();
+            }
+
+            //Detecta el click en una fila
+            $('#jstree').on("select_node.jstree", function (e, data) {
+                //console.log("click en fila");
+                if (data.node.state.checked) //Si esta seleccionado el nodo
+                    mostrarPermisos(data);
+            });
+
+
+            //Detectar el checked
+            $('#jstree').on("check_node.jstree uncheck_node.jstree", function (e, data) {
+                if (!data.node.state.checked)//Si se quito la selección del nodo
+                    borrarPermisos(data);
+            });
+
+            //Se selecciono una pantalla y se van a mostrar los permisos
+            async function mostrarPermisos(data) {
+                var permisos = "";
+                var pantalla = data.node.text;
+                var idOpcion = data.node.id;
+                document.getElementById("header-permiso").innerHTML = "<h6><strong>" + pantalla + "</strong></h6>";
+                Permisos = await obtenerPermisos(idOpcion);
+                Permisos.forEach(function (element, index) {
+                    var id = element.idOpcionPermiso;
+                    var nombre = "P" + id;
+                    permisos = permisos + "<li><label><input type='checkbox' id=" + nombre + "> " + element.acceso_Permiso.nombre + "</label></li>";
+                });
+                //var listaPermisos = "<ul id='listaPermisos' style='list-style:none;'>" + permisos + "</ul>";
+                document.getElementById("body-permiso").innerHTML = "";
+                document.getElementById("body-permiso").innerHTML = permisos;
+
+                var boton = "<button id='btnPantalla' type='button' onclick='BuscarPantalla(" + idOpcion + ")' class='btn btn-warning' data-toggle='modal'" +
+                    "data-target='#modalPantalla' style='float:right'>" +
+                    "<i class='fa fa-file-archive-o'></i> Pantalla" +
+                    "</button>";
+
+                document.getElementById("pie-permisos").innerHTML = "";
+                document.getElementById("pie-permisos").innerHTML = boton;
+
+                $('input[type=checkbox]').on('change', function () {
+                    var idP = $(this).prop("id");
+                    var corte = idP.substring(1, idP.length);
+                    if ($(this).is(':checked')) { //Guardarlo en arreglo temporal
+                        registrosPermisos.push(corte);
+                        //console.log("Marcado = " + corte);
+                    } else { //Eliminarlo en arreglo temporal
+                        var id = corte;
+                        var p = -1;
+                        for (var i = 0; i < registrosPermisos.length; i++) {
+                            if (registrosPermisos[i] == id) {
+                                p = i;
+                                i = registrosPermisos.length;
+                            }
+                        }
+                        if (p != -1) {
+                            registrosPermisos.splice(p, 1); //Eliminar el registro en ese indice
+                        }
+                    }
+                });
+
+                marcarChecksBD();
+            }
+
+            //Se quito el checked de la pantalla por lo cual se quitan los registros
+            async function borrarPermisos(data) {
+                document.getElementById("header-permiso").innerHTML = "";
+                document.getElementById("body-permiso").innerHTML = "";
+                document.getElementById("footer-permiso").innerHTML = "";
+                //Borrar los permisos de la pantalla
+                if (data != null) {
+                    var idOpcion = data.node.id;
+                    Permisos = await obtenerPermisos(idOpcion);
+                    Permisos.forEach(function (element, index) {
+                        var id = element.idOpcionPermiso;
+                        var p = -1;
+                        for (var i = 0; i < registrosPermisos.length; i++) {
+                            if (registrosPermisos[i] == id) {
+                                p = i;
+                                i = registrosPermisos.length;
+                            }
+                        }
+                        if (p != -1) {
+                            registrosPermisos.splice(p, 1); //Eliminar el registro en ese indice
+                        }
+                    });
+                }
+            }
+
+            //Función para cargar las pantallas que tiene guardada el perfil
+            async function cargarPantallas(Menu) {
+                var perfil = $('#ComboPerfil').val();
+                Pantallas = await obtenerPantallas(perfil);
+                Pantallas.forEach(function (element, index) {
+                    var idPantalla = element.key;
+                    $('#jstree').jstree(true).check_node(idPantalla);
+                });
+            }
+
+
+            //Ajax para obtener las pantallas guardar en el perfil
+            function obtenerPantallas(perfil) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoPermisoPerfilOpcion/obtenerPantallas/?perfil=' + perfil,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+
+            //Ajax para obtener todos los permisos de la pantalla
+            function obtenerPermisos(idOpcion) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoPermisoPerfilOpcion/obtenerPermisos/?idOpcion=' + idOpcion,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para guardar los permisos de BD en un arreglo
+            async function guardarPermisosArreglo() {
+                var perfil = $('#ComboPerfil').val();
+                registrosPermisos = [];
+                PermisosBD = await obtenerPermisosBD(perfil);
+                PermisosBD.forEach(function (element, index) {
+                    var idOpcionPermiso = element.fkOpcionPermiso;
+                    registrosPermisos.push(idOpcionPermiso);
+                });
+            }
+
+            //Ajax para obtener todos los permisos del perfil que estan en BD
+            function obtenerPermisosBD(perfil) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'AccesoPermisoPerfilOpcion/obtenerPermisosBD/?perfil=' + perfil,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Función para marcar los checks de BD
+            function marcarChecksBD() {
+                document.querySelectorAll('#body-permiso input').forEach(function (element) {
+                    var id = element.id;
+                    var corte = id.substring(1, id.length);
+                    registrosPermisos.forEach(function (elemento, indice, array) {
+                        //console.log("Id= " + id.length);
+                        if (corte == elemento)
+                            $("#P" + corte).prop("checked", true);
+                    })
+
+
+                });
+
+            }
+
+            //Función para guardar el arreglo como cadena en la variable C#
+            function guardarArreglo() {
+                var cadena = "[" + registrosPermisos.join() + "]";
+                document.getElementById("Coleccion").value = cadena;
+            }
+
+            function Guardar(res) {
+                if (res == "1") {
+                    document.getElementById("btnCorrecto").click();
+                } else {
+                    document.getElementById("divmodalErrores").innerHTML = res;
+                    document.getElementById("btnErrores").click();
+                }
+            }
+
+            //Función al abrir el modal de las pantallas
+            function BuscarPantalla(idOpcion) {
+                document.getElementById("PantallaSelec").value = idOpcion;
+                $("#frmPerfilPantalla").trigger("submit");
+            }
+
+            //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+            $(document).ajaxError(function (event, jqxhr) {
+                if (jqxhr.status === 403)
+                    window.location = 'Login';
+            });
+
+
+            //Función para detectar los submit para inhabilitar/habilitar el boton
+            $("button[type='submit']").on("click", function (e) {
+                $(this).attr("disabled", true);
+                $(this).closest("form").submit()
+            }); 
+
+            //Función para habilitar el boton de guardar cuando acabe la petición
+            function habilitarBtnGuardar() {
+                console.log("Entro");
+                $("#Ppp-Grd").attr("disabled", false);
+            }
+
+        </script>
+    }
+</body>
+</html>
+
+

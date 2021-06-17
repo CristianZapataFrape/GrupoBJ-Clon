@@ -1,0 +1,72 @@
+﻿@model IEnumerable<GrupoBJ.Models.Articulos>
+
+
+@if (Model.Count() > 0)
+{
+    @*<div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped no-seleccionable" id="tablaBusqueda">
+            <thead>
+                <tr>
+                    <th style="width:10%">Id</th>
+                    <th style="width:20%">Articulo</th>
+                    <th style="width:5%">Venta</th>
+                    <th style="width:5%">Activo</th>
+                    <th style="width:15%">Usuario Cr</th>
+                    <th style="width:15%">Fecha Cr</th>
+                    <th style="width:15%">Usuario Um</th>
+                    <th style="width:15%">Fecha Um</th>
+                </tr>
+            </thead>
+            <tbody>*@
+    @foreach (var item in Model)
+    {
+<tr>
+    <td hidden>@Html.DisplayFor(m => item.id_Articulos)</td>
+    <td>@Html.DisplayFor(m => item.id_Articulo)</td>
+    <td>@Html.DisplayFor(m => item.Nombre_Articulo)</td>
+    <td style="text-align: center;">@Html.DisplayFor(m => item.Producto_Venta)</td>
+    <td style="text-align: center;">@Html.DisplayFor(m => item.Activo)</td>
+    
+    @*<td>@Html.DisplayFor(m => item.Producto_Venta)</td>*@
+    @*<td>@Html.DisplayFor(m => item.Activo)</td>*@
+    <td hidden>@Html.DisplayFor(m => item.fkUsuarioCr)</td>
+    <td hidden>@Html.DisplayFor(m => item.fechaCr)</td>
+    <td>@Html.DisplayFor(m => item.Usuario.Nombre)</td>
+    <td>@Html.DisplayFor(m => item.fechaUm)</td>
+
+    @*<td><input type="text" id=">@Html.DisplayFor(m => item.Campo)" name="name" value="@Html.DisplayFor(m => item.Valor)" required minlength="4" maxlength="8" size="10"></td>
+        <td>@Html.DisplayFor(m => item.Unidad)</td>*@
+</tr>
+    }
+    @*</tbody>
+        </table>*@
+    @*@{bool band = true;}
+        @foreach (var item in Model)
+        {
+
+            <label class="col-md-2" style="text-align-last: right;" for="name">@Html.DisplayFor(m => item.Campo):</label>
+
+            <input class="col-md-1" style="width:7%;" type="text" id=">@Html.DisplayFor(m => item.Campo)" name="name" value="@Html.DisplayFor(m => item.Valor)" required
+                   minlength="4" maxlength="8" size="4">
+            <input class="col-md-1" type="text" style="width:5%;" id=">@Html.DisplayFor(m => item.Campo)_Uni" name="name" value="@Html.DisplayFor(m => item.Unidad)" required
+                   minlength="4" maxlength="8" size="2">
+            @if (band)
+            {
+                band = false;
+            }
+            else
+            {
+                <br />
+                band = true;
+
+            }
+
+        }*@
+    @*</div>*@
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}
+

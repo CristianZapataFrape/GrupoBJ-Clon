@@ -1,0 +1,20 @@
+﻿@model IEnumerable<GrupoBJ.Models.Moneda>
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td hidden>@Html.DisplayFor(m => item.idMoneda)</td>
+        <td hidden class="tMon-Codigo">@Html.DisplayFor(m => item.Codigo)</td>
+        <td hidden class="tMon-Moneda">@Html.DisplayFor(m => item.Nombre)</td>
+        <td hidden class="tMon-Simbolo">@Html.DisplayFor(m => item.Simbolo)</td>
+        <td hidden class="tMon-CodigoSAT">@Html.DisplayFor(m => item.MonedaSAT.Codigo)</td>
+        <td hidden class="tMon-Decimales">@Html.DisplayFor(m => item.Decimales)</td>
+    </tr>
+    }
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}

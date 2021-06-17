@@ -1,0 +1,484 @@
+﻿@model IEnumerable<GrupoBJ.Models.Contabilidad.ConceptosIETU>
+@{
+    ViewData["Title"] = "Conceptos IETU";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaTipoConceptoIETU = (List<SelectListItem>)ViewBag.listaTipoConceptoIETU;
+    List<SelectListItem> listaTipoConceptoIETU_IETU = (List<SelectListItem>)ViewBag.listaTipoConceptoIETU_IETU;
+    List<SelectListItem> listaTipoConceptoIETU_IVA = (List<SelectListItem>)ViewBag.listaTipoConceptoIETU_IVA;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Filtro" asp-controller="ConceptosIETU" id="frmConceptosIETU"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult">
+                <br>
+
+                <h1 class="text-center">Conceptos IETU</h1>
+                <hr />
+
+                <div style="width:100%; height:80px;">
+                    @Html.Label("Buscador")
+                    @Html.TextBox("Buscador", null, new { @class = "form-control" })
+                </div>
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="CIE-Act" hidden type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="CIE-Agr" hidden type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="margin-right:5px;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="CIE-Mod" hidden type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="CIE-Eli" hidden type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="CIE-Vta" hidden type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+
+                </div>
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="tablaConceptosIETU">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                <th style="width:10%">Código</th>
+                                <th style="width:30%">Nombre</th>
+                                <th style="width:30%">IVA</th>
+                                <th style="width:30%">IETU</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaConceptosIETU")
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </form>
+
+            <!---Modales-->
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%; padding-top:8px;">
+                                <img src="~/Script/img/icono_note.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Datos del concepto IETU</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="Guardar" asp-controller="ConceptosIETU"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Información principal</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos del puesto ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-12" style="border-style:dotted; border-width:1px; padding-top:10px;">
+                                            @Html.Hidden("id")
+                                            <div class="form-group" style="width:30%">
+                                                @Html.Label("Código*")
+                                                @Html.TextBox("Codigo", null, new { @class = "form-control elementoModal input-number", @maxlength = "20" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Nombre*")
+                                                @Html.TextBox("Nombre", null, new { @class = "form-control elementoModal", @maxlength = "50" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12" style="border-style:dotted; border-width:1px; padding-top:10px;">
+                                            <div class="form-group">
+                                                @Html.Label("Tipo de flujo*")
+                                                @Html.DropDownList("fkTipoFlujo", listaTipoConceptoIETU, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Para IVA*")
+                                                @Html.DropDownList("fkTipoIVA", listaTipoConceptoIETU_IVA, new { @class = "form-control elementoModal" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Para IETU*")
+                                                @Html.DropDownList("fkTipoIETU", listaTipoConceptoIETU_IETU, new { @class = "form-control elementoModal" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button type="submit" id="btnEliminarRegistroModal" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#ffd571;">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!----->
+
+        </div>
+    </section>
+
+
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+
+        <script>
+            var indiceInt;
+            var campo;
+            var idTablaConceptosIETU = 0; //Variable para el id del puesto
+
+            //Función que se ejecuta al iniciar la vista
+            $(document).ready(function () {
+                obtenerPermisosJS("ConceptosIETU");
+            });     
+
+            //Función para actualizar el formualario cuando se escribe en el buscador
+            var buscador = document.getElementById("Buscador");
+            buscador.onkeyup = function () {
+                idTablaConceptosIETU = 0;
+                $("#tablaConceptosIETU tbody").siblings().removeClass("seleccionado");
+                $("#frmConceptosIETU").trigger("submit");
+            }
+
+            //Funcion para limpiar los datos
+            function Limpiar() {
+                $("#btnGuardarCambios").attr("disabled", false);
+                document.getElementById("Codigo").value = "";
+                document.getElementById("Nombre").value = "";
+                document.getElementById("fkTipoFlujo").value = "";
+                document.getElementById("fkTipoIVA").value = "";
+                document.getElementById("fkTipoIETU").value = "";
+                $('#fkTipoIVA').empty();
+                $('#fkTipoIETU').empty();
+                $('#fkTipoIVA').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione para el IVA--</option>");
+                $('#fkTipoIETU').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione para el IETU--</option>");
+                document.getElementById("divmodalErrores").innerHTML = "";
+                document.getElementById("divError").innerHTML = "";
+                $("#home-tab").trigger("click");
+            }
+
+            //Funcion cuando se presiona el boton agregar
+            function Agregar() {
+                habilitarElementos(false);
+                Limpiar();
+                $("#btnGuardarCambios").css("display", "inline");
+                document.getElementById("divError").innerHTML = "";
+                document.getElementById("id").value = -1;
+            }
+
+            //Actualizar Departamento
+            var llenarConceptos = async function () {
+                var selectedTipoConcepto = $('#fkTipoFlujo').val();
+                $('#fkTipoIVA').empty();
+                $('#fkTipoIETU').empty();
+                $('#fkTipoIVA').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione para el IVA--</option>");
+                $('#fkTipoIETU').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione para el IETU--</option>");
+                await llenarIVA(selectedTipoConcepto);
+                await llenarIETU(selectedTipoConcepto);             
+            }
+            $('#fkTipoFlujo').change(llenarConceptos);
+            llenarConceptos();
+
+            //Función para llenar el combo para el IVA
+            function llenarIVA(selectedTipoConcepto) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'ConceptosIETU/actualizarIVA/?id=' + selectedTipoConcepto,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#fkTipoIVA').append('<option value="' + element.idTipoConceptoIETU_IVA + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+
+            //Función para llenar el combo para el IETU
+            function llenarIETU(selectedTipoConcepto) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'ConceptosIETU/actualizarIETU/?id=' + selectedTipoConcepto,
+                    dataType: "json"
+                }).done(function (data) {
+                    data.forEach(function (element, index) {
+                        $('#fkTipoIETU').append('<option value="' + element.idTipoConceptoIETU_IETU + '">' + element.nombre + '</option>');
+                    });
+                })
+            }
+
+            //Función que se ejecuta despues de que se guardan los datos (Insersión o cambio)
+            function Guardar(resultado) {
+                if (resultado == "1" || resultado == "0") { //Si es 1 es porque inserto si es 0 es porque edito pero no se cambio ningun registro
+                    $("#frmConceptosIETU").trigger("submit");
+                    document.getElementById("btnClose").click();
+                    idConceptosIETU = 0;
+                    $("#tablaConceptosIETU tbody").siblings().removeClass("seleccionado");
+                } else {
+                    $("#btnGuardarCambios").attr("disabled", false);
+                    if (resultado == "-1") { //Campo que ya esta repetido en BD
+                        indiceInt = 1;
+                        var concepto = $("#Nombre").val();
+                        var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado. Los datos del Concepto IETU <b>" + concepto + "</b> ya se encuentran registrado. Favor de verificar la información</li></ul>";
+                        document.getElementById("divmodalErrores").innerHTML = repetido;
+                        document.getElementById("btnErrores").click();
+                    } else { //Sino es por un error
+                        var errores = resultado;
+                        let posicionInicial = errores.indexOf("(");
+                        let posicionFinal = errores.indexOf(")");
+                        var indice = errores.substring(posicionInicial + 1, posicionFinal);
+
+                        let letras = [",", "A", "B", "C", "D", "E"];
+                        var posicion = letras.indexOf(indice); //posicion
+                        indiceInt = parseInt(posicion); //Posicion entera para tabs
+                        let campos = [",", "Codigo", "Nombre","fkTipoFlujo", "fkTipoIVA", "fkTipoIETU"];
+
+                        campo = campos[posicion];//campo
+                        var cadenaCortar = "(" + indice + ")";
+                        var str = errores.replace(cadenaCortar, '');
+                        document.getElementById("divmodalErrores").innerHTML = str;
+                        document.getElementById("btnErrores").click();
+
+                    }
+                }
+            }
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaConceptosIETU tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaConceptosIETU = 0;
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaConceptosIETU = $(this).children("td:nth-child(1)").text();
+                }
+            });
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaConceptosIETU == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaConceptosIETU);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+                        Eliminar(idTablaConceptosIETU);
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaConceptosIETU);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar la el concepto IETU <span style='color:#394867;'>" + NombreEliminacion.nombre + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        $("#btnEliminarRegistroModal").attr("disabled", false);
+                        //--------------------------------------------------------------------
+                        $('#exampleModalConfirmacion').modal('show');
+                    } else if (Accion == "Vista") {
+                        habilitarElementos(true);
+                        Modificar(idTablaConceptosIETU);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "none");
+                    }
+
+                }
+            }
+
+            //Función para recuperar el nombre del registro a elmininar
+            function recuperarNombreEliminacion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'ConceptosIETU/recuperarDatos/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Funcion cuando se presiona el boton modificar pasando como parametro el id
+            function Modificar(id) {
+                Limpiar();
+                document.getElementById("id").value = id;
+                var fkTipoIVA;
+                var fkTipoIETU;
+                $.get("ConceptosIETU/recuperarDatos/?id=" + id, function (data) {
+                    document.getElementById("Codigo").value = data.codigo;
+                    document.getElementById("Nombre").value = data.nombre;
+                    document.getElementById("fkTipoFlujo").value = data.fkTipoFlujo;
+                    fkTipoIVA = data.fkTipoIVA;
+                    fkTipoIETU = data.fkTipoIETU; 
+                }).done(function () {
+                    llenarIVA_IETU(fkTipoIVA, fkTipoIETU);
+                });
+            }
+
+            //Función asíncrona para el IVA e IETU
+            async function llenarIVA_IETU(fkTipoIVA, fkTipoIETU) {
+                Conceptos = await llenarConceptos();
+                document.getElementById("fkTipoIVA").value = fkTipoIVA;
+                document.getElementById("fkTipoIETU").value = fkTipoIETU;  
+                
+            }
+
+            //Funcion para asigar el id que se va a eliminar
+            function Eliminar(idConceptosIETU) {
+                document.getElementById("id").value = idConceptosIETU;
+            }
+
+            //Funcion para verificar relaciones (Complementar cuando se agreguen más tablas)
+            async function EliminarRegistro() {
+                var id = document.getElementById("id").value;
+                await verificarRegistroEliminar(id);
+                idTablaConceptosIETU = 0;
+            }
+
+            //Eliminación
+            function verificarRegistroEliminar(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'ConceptosIETU/eliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    if (data == "1") { //Si regresa 1 es porque se borro un registro
+                        $("#frmConceptosIETU").trigger("submit"); //Se refresca el formulario
+                        document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                    }
+                })
+            }
+            
+
+            //Función que se ejecuta al cerrar el modal de error para abrir el tab
+            function Cerrar() {
+                document.getElementById("btnCerrarConfirmacion").click();
+                $("#home-tab").trigger("click");
+            }
+
+            //Auto focus en modal
+            $('#exampleModal').on('shown.bs.modal', function () {
+                $('#Codigo').focus();
+            })
+
+            //Autofocus pestaña información
+            $("#home-tab").click(function () {
+                $('#' + campo).focus();
+                $('#exampleModal').on('shown.bs.tab', function () {
+                    $('#' + campo).focus();
+                })
+            });
+
+            //Función para Des/habilitar los elementos del modal
+            function habilitarElementos(estatus) {
+                $(".elementoModal").prop("disabled", estatus);
+            }
+
+            //Función para detectar los submit para inhabilitar/habilitar el boton
+            $("button[type='submit']").on("click", function (e) {
+                $(this).attr("disabled", true);
+                $(this).closest("form").submit()
+            });
+
+            //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+            $(document).ajaxError(function (event, jqxhr) {
+                if (jqxhr.status === 403)
+                    window.location = 'Login';
+            });
+
+        </script>
+    }
+</body>
+</html>

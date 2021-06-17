@@ -1,0 +1,19 @@
+﻿@model IEnumerable<GrupoBJ.Models.Contabilidad.ConceptosIETU>
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td hidden>@Html.DisplayFor(m => item.idConceptoIETU)</td>
+            <td>@Html.DisplayFor(m => item.Codigo)</td>
+            <td>@Html.DisplayFor(m => item.Nombre)</td>
+            <td>@Html.DisplayFor(m => item.Tipo_ConceptosIETU_IVA.Nombre)</td>
+            <td>@Html.DisplayFor(m => item.Tipo_ConceptosIETU_IETU.Nombre)</td>
+        </tr>
+    }
+}
+else
+{
+    <br />
+    <h6>No hay registros</h6>
+}

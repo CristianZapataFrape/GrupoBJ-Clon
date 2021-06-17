@@ -1,0 +1,19 @@
+﻿@model IEnumerable<GrupoBJ.Models.Contabilidad.Rubros_NIF>
+@if (Model.Count() > 0)
+{
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td hidden>@Html.DisplayFor(m => item.idRubroNIF)</td>
+            <td hidden class="tRnf-Codigo">@Html.DisplayFor(m => item.Codigo)</td>
+            <td hidden class="tRnf-Rubro">@Html.DisplayFor(m => item.Nombre)</td>
+            <td hidden class="tRnf-Tipo">@Html.DisplayFor(m => item.NIF_Tipo.Nombre)</td>
+            <td hidden class="tRnf-Nivel">@Html.DisplayFor(m => item.NIF_Nivel.Nombre)</td>
+        </tr>
+    }
+}
+else
+{
+    <br />
+    <p>No hay registros</p>
+}

@@ -1,0 +1,378 @@
+﻿@model IEnumerable<GrupoBJ.Models.Carateristicas>
+@{
+    ViewData["Title"] = "Artículos características";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem> listaCaracteristicas = (List<SelectListItem>)ViewBag.listaCaracteristicas;
+    List<SelectListItem> listaCaracteristicasD = (List<SelectListItem>)ViewBag.listaCaracteristicasD; 
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Busqueda" asp-controller="ArticulosCaracteristicas" id="frmArticulos"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult">
+                <br>
+
+                <h1 class="text-center">Características</h1>
+                <hr/>
+
+                <div style="width:100%; height:80px;">
+                    <div style="width:100%; float:left;">
+                        @Html.Hidden("datosFiltro")
+                        <div style="width:20%; float:left;">
+                            @Html.Label("Buscar")
+                            @Html.TextBox("BuscadorCaracteristicas", null, new { @class = "form-control", @maxlength = "50" })
+                        </div>
+                        @*<div style="width:20%; float:left;margin-left:3%;">
+                            @Html.Label("Características")
+                            @Html.DropDownList("cbCaracteristicasBusq", listaCaracteristicas, new { @class = "form-control elementoModal" })
+                        </div>*@
+                    </div>
+                </div>
+
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Car-Act" type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+
+                    <button id="Car-Agr" type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="float:right;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Car-Mod" type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Car-Eli" type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Car-Vta" type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>                  
+                </div>
+                <br />
+
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="tablaArticulos">
+                        <thead>
+                            <tr>
+                                <th id="idArt-Articulo" style="width:50%">Características</th>
+                                <th id="idArt-Usuario" style="width:25%">Usuario modificación</th>
+                                <th id="idArt-Fecha" style="width:25%">Fecha modificación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_CaracteristicasMaestras")
+                        </tbody>
+                    </table>
+                </div>
+
+                @*<div id="ajaxresult">
+                        @await Html.PartialAsync("_ArticulosMaestros")
+                    </div>*@
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <!--Crear-->
+                        <form style="width:100%" asp-action="Guardar" asp-controller="Articulos"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+                            <div class="modal-header" style="background-color: #ff5f40;">
+                                <div style="width:4%">
+                                    <img src="~/Script/img/icono_articulo.png" alt="" width="30" height="30">
+                                </div>
+                                <div style="width:80%">
+                                    <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Características</h5>
+                                    <h6 class="modal-title" id="LbNombreArticulo" style="color:#f6f4e6; font-weight:bold; padding-top:0px;"></h6>
+                                </div>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                       aria-selected="true">Datos generales</a>
+                                </li>
+                                @*<li class="nav-item">
+                                        <a class="nav-link" id="caracteristicas-tab" data-toggle="tab" href="#caracteristicas" role="tab" aria-controls="profile"
+                                           aria-selected="false">Caracteristicas</a>
+                                    </li>*@
+                                <li hidden class="nav-item">
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                                       aria-selected="false">Detalles</a>
+                                </li>
+                               
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos de la empresa ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div class="modal-body row">
+
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6 col-md-6">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Nombre característica*")
+                                                @Html.TextBox("id_Articulo", null, new { @class = "form-control", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @*@Html.Label("Nombre artículo*")
+                @Html.TextBox("Nombre_Articulo", null, new { @class = "form-control", @maxlength = "150" })*@
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                @*@Html.Label("Características")
+                                                @Html.DropDownList("cbCaracteristicas", listaCaracteristicasD, new { @class = "form-control elementoModal" })*@
+                                            </div>
+                                            <div id="divNutrimental" class="form-group">
+                                                @*@Html.Label("Tabla nutrimental*")*@
+                                                @*@Html.DropDownList("id_Tabla_Nutrimental", listaTablaNutrimental, new { @class = "form-control elementoModal" })*@
+                                            </div>
+                                        </div>
+
+
+                                        <form class="form-group" style="width:90%;  margin-right:5px;  margin-left:5px;" asp-action="BusquedaCampos" asp-controller="ArticulosCaracteristicas" id="frmCampos"
+                                              data-ajax="true"
+                                              data-ajax-method="POST"
+                                              data-ajax-mode="replace"
+                                              data-ajax-update="#ajaxresult2">
+                                            <br>
+
+
+                                            <div class="form-group" style="width:90%; height:80px;">
+                                                <div style="width:70%; float:left;">
+                                                    <div style="width:30%; float:left;">
+                                                        @Html.Hidden("id2")
+                                                        @Html.Label("Buscar")
+                                                        @Html.TextBox("BuscadorArticulo2", null, new { @class = "form-control", @maxlength = "50" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style="width:100%; height:25px; text-align:right;">
+                                                <button id="Art-Agr2" type="button" onclick="AgregarCampos()" class="btn btn-success Permisos" data-toggle="modal" data-target="#modalBusqueda" style="float:right;">
+                                                    <i class="fa fa-plus-circle"></i> Agregar
+                                                </button>
+                                                <button id="Art-Mod2" type="button" onclick="ValidarSeleccionModal('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                                                    <i class="fa fa-edit"></i> Modificar
+                                                </button>
+                                                <button id="Art-Eli2" type="button" onclick="ValidarSeleccionModal('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                                                    <i class="fa fa-trash"></i> Eliminar
+                                                </button>
+                                                <button id="Art-Vta2" type="button" onclick="ValidarSeleccionModal('Vista')" class="btn btn-primary Permisos " style="margin-right:5px;">
+                                                    <i class="fa fa-clipboard"></i> Vista
+                                                </button>
+                                            </div>
+                                            <br />
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover" id="tablaCampos">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:10%" hidden>Id</th>
+                                                            <th style="width:20%">Nombre</th>
+                                                            <th style="width:15%">Usuario Cr</th>
+                                                            <th style="width:15%">Fecha Cr</th>
+                                                            <th style="width:15%">Usuario Um</th>
+                                                            <th style="width:15%">Fecha Um</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="ajaxresult2">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                              
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                    <div class="modal-body row">
+                                       
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------------- *@
+
+                                @* Contenido dinamico ---------------------------------------------------------- *@
+                                <div class="tab-pane fade" id="tablaNutrimental" role="tabpanel" aria-labelledby="tablaNutrimental-tab">
+                                    <div class="modal-body row">
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------------- *@
+
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+
+
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" onclick="crearArrays()" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                            @*<div style="width:100%; height:25px; text-align:right;">
+                                    <button id="btnGuardarCambios" style="text-align:right;  margin-right:5px; " type="submit" class="btn btn-primary">Guardar cambios</button>
+                                </div>*@
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;" id="ejemplo">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button type="button" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+            </button>
+            <!-- Modal de validaciones -->
+            <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ffd571; ">
+                            <div style="width:10%; padding-top:4px">
+                                <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:4px">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="divmodalErrores">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+    @section Scripts{
+
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+        <script>
+            var buscador = document.getElementById("BuscadorCaracteristicas");
+
+            //Función para obtener los permisos de la pantalla
+            $(document).ready(function () {
+                obtenerPermisosJS("ArticulosCaracteristicas");
+            });
+
+            // var cbCaracteristicas = document.getElementById("cbCaracteristicasBusq");
+
+            buscador.onkeyup = function () {
+                $("#frmArticulos").trigger("submit");
+            }
+
+            //cbCaracteristicas.addEventListener("change", function () {
+            //    $("#frmArticulos").trigger("submit");
+            //});
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaArticulos tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaEmpresa = 0;
+                    console.log(idTablaEmpresa);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaEmpresa = $(this).children("td:nth-child(1)").text();
+                    console.log(idTablaEmpresa);
+                }
+
+            });
+            //Funciona para habilitar elementos
+            function habilitarElementos(estatus) {
+                $(".elemento").prop("disabled", estatus);
+            }
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaEmpresa == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaEmpresa);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+                        Eliminar(idTablaEmpresa);
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaEmpresa);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar el artículo <span style='color:#394867;'>" + NombreEliminacion[0].nombre_Articulo + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        //--------------------------------------------------------------------
+                        $('#exampleModalConfirmacion').modal('show');
+                    } else if (Accion == "Vista") {
+                        habilitarElementos(true);
+                        Modificar(idTablaEmpresa);
+                        $('#exampleModal').modal('show');
+                        $("#btnGuardarCambios").css("display", "none");
+                    }
+
+                }
+            }
+        </script>
+
+    }
+
+
+</body>
+</html>
+
+
