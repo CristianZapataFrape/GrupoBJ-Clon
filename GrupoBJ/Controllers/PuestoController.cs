@@ -9,6 +9,7 @@ using GrupoBJ.DataBase;
 using GrupoBJ.Models;
 using GrupoBJ.Filters;
 using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace GrupoBJ.Controllers
 {
@@ -17,6 +18,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         #region "Constructor"
@@ -157,58 +159,58 @@ namespace GrupoBJ.Controllers
             {
                 string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
                 List<Puesto> liListarPuesto = new List<Puesto>();
-                string consultaLike =
-                        "SELECT P.idPuesto, P.Nombre, P.fkDepartamento, P.fkUsuarioCr, P.fechaCr, P.Habilitado, P.fechaUm, P.fkUsuarioUm " +
-                        "FROM Puesto AS P " +
-                        "INNER JOIN Departamento AS D ON P.fkDepartamento = D.idDepartamento " +
-                        "INNER JOIN Empresa AS E ON E.idEmpresa = D.fkEmpresa " +
-                        "WHERE P.Habilitado = 1 AND ";
+                sbConsulta.AppendLine("SELECT P.idPuesto, P.Nombre, P.fkDepartamento, P.fkUsuarioCr, P.fechaCr, P.Habilitado, P.fechaUm, P.fkUsuarioUm ");
+                sbConsulta.AppendLine("FROM Puesto AS P ");
+                sbConsulta.AppendLine("  INNER JOIN Departamento AS D ON P.fkDepartamento = D.idDepartamento ");
+                sbConsulta.AppendLine("  INNER JOIN Empresa AS E ON E.idEmpresa = D.fkEmpresa ");
+                sbConsulta.AppendLine("  WHERE P.Habilitado = 1 AND ");
+                string consultaLike = sbConsulta.ToString();
 
                 if (filtroComboDepartamento == null && filtroComboEmpresa == null)
                 {
-                    consultaLike = consultaLike + "(";
+                    consultaLike +=  "(";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
                     }
                     liListarPuesto = _context.Puesto.FromSqlRaw(consultaLike).Include(c => c.Departamento.Empresa).ToList();
                 }
                 else if (filtroComboEmpresa == null && filtroComboDepartamento != null)
                 {
-                    consultaLike = consultaLike + "P.fkDepartamento = " + filtroComboDepartamento + " AND (";
+                    consultaLike +=  "P.fkDepartamento = " + filtroComboDepartamento + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
                     }
                     liListarPuesto = _context.Puesto.FromSqlRaw(consultaLike).Include(c => c.Departamento.Empresa).ToList();
                 }
                 else if (filtroComboEmpresa != null && filtroComboDepartamento == null)
                 {
-                    consultaLike = consultaLike + "D.fkEmpresa = " + filtroComboEmpresa + " AND (";
+                    consultaLike +=  "D.fkEmpresa = " + filtroComboEmpresa + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
                     }
                     liListarPuesto = _context.Puesto.FromSqlRaw(consultaLike).Include(c => c.Departamento.Empresa).ToList();
                 }
                 else if (filtroComboEmpresa != null && filtroComboDepartamento != null)
                 {
-                    consultaLike = consultaLike + "D.fkEmpresa = " + filtroComboEmpresa + " AND P.fkDepartamento = " + filtroComboDepartamento + " AND (";
+                    consultaLike +=  "D.fkEmpresa = " + filtroComboEmpresa + " AND P.fkDepartamento = " + filtroComboDepartamento + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorPuesto + "%')";
                     }
                     liListarPuesto = _context.Puesto.FromSqlRaw(consultaLike).Include(c => c.Departamento.Empresa).ToList();
                 }
