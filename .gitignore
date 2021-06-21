@@ -381,3 +381,10 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+GrupoBJ/bin/Debug/netcoreapp3.1/GrupoBJ.dll
+GrupoBJ/bin/Debug/netcoreapp3.1/GrupoBJ.pdb
+GrupoBJ/bin/Debug/netcoreapp3.1/GrupoBJ.Views.dll
+GrupoBJ/bin/Debug/netcoreapp3.1/GrupoBJ.Views.pdb
+GrupoBJ/obj/Debug/netcoreapp3.1/GrupoBJ.assets.cache
+GrupoBJ/obj/Debug/netcoreapp3.1/GrupoBJ.csproj.AssemblyReference.cache
+.vs/GrupoBJ/v16/.suo
