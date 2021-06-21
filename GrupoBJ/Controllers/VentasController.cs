@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GrupoBJ.Controllers
 {
-    public class VentasController1 : Controller
+    public class VentasController : Controller
     {
         public IActionResult Index()
         {
