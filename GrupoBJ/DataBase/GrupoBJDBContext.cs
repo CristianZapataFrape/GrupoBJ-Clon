@@ -147,5 +147,8 @@ namespace GrupoBJ.DataBase
         //Articulos Unidades de medida
         public DbSet<Unidades_Medida> Unidades_Medida { get; set; }
 
+        ////Ventas
+        public DbSet<ClienteCls> Cliente { get; set; }
+
     }
 }
