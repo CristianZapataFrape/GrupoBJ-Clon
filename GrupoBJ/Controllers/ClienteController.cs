@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GrupoBJ.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GrupoBJ.Controllers
 {
@@ -63,12 +64,18 @@ namespace GrupoBJ.Controllers
                     {
                         listaCliente = _context.Cliente.Where(p => p.Habilitado == true).ToList();
                         incantidad = listaCliente.Where(
-                           p => (p.nombre.ToUpper() == oClienteCls.nombre.ToUpper()
+                           p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
                            && p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
-                           && p.pais.ToUpper() == oClienteCls.pais.ToUpper()
-                           && p.telefono == oClienteCls.telefono
+                           && p.fkPais.ToUpper() == oClienteCls.fkPais.ToUpper()
+                           && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
+                           && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
+                           && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
+                           && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
+                           && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
+                           && p.Saldo == oClienteCls.Saldo
+                           && p.Telefono == oClienteCls.Telefono
                            && p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper())
-                           && p.email.ToUpper() == oClienteCls.email.ToUpper()).Count();
+                           && p.Email.ToUpper() == oClienteCls.Email.ToUpper()).Count();
 
                         if (incantidad >=1)//En caso de que exista algun registro repetido
                         {
@@ -87,10 +94,17 @@ namespace GrupoBJ.Controllers
                     {
                         listaCliente = _context.Cliente.Where(p => p.Habilitado == true).ToList();
                         incantidad = listaCliente.Where(
-                           p => (p.nombre.ToUpper() == oClienteCls.nombre.ToUpper()
+                           p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
                            && p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
+                           && p.fkPais.ToUpper() == oClienteCls.fkPais.ToUpper()
+                           && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
+                           && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
+                           && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
+                           && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
+                           && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
+                           && p.Saldo == oClienteCls.Saldo
                            && p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper())
-                           && p.email.ToUpper() == oClienteCls.email.ToUpper()).Count();
+                           && p.Email.ToUpper() == oClienteCls.Email.ToUpper()).Count();
                         if (incantidad >=1)
                         {
                             return "-1";
@@ -98,12 +112,19 @@ namespace GrupoBJ.Controllers
                         else
                         {
                             var oCliente = _context.Cliente.Find(id);
-                            oCliente.nombre = oClienteCls.nombre;
+                            oCliente.Nombre = oClienteCls.Nombre;
                             oCliente.apPaterno = oClienteCls.apPaterno;
                             oCliente.apMaterno = oClienteCls.apMaterno;
-                            oCliente.ciudad = oClienteCls.ciudad;
+                            oCliente.fkCiudad = oClienteCls.fkCiudad;
+                            oCliente.fkPais = oClienteCls.fkPais;
                             oCliente.CP = oClienteCls.CP;
-                            oCliente.email = oClienteCls.email;
+                            oCliente.Email = oClienteCls.Email;
+                            oCliente.nombreCompania = oClienteCls.nombreCompania;
+                            oCliente.CP = oClienteCls.CP;
+                            oCliente.razonSocial = oClienteCls.razonSocial;
+                            oCliente.rfcFacturacion = oClienteCls.rfcFacturacion;
+                            oCliente.domicilioFacturacion = oClienteCls.domicilioFacturacion;
+                            oCliente.Saldo = oClienteCls.Saldo;
                             _context.SaveChanges();
                             return "1";
                         }
@@ -130,6 +151,33 @@ namespace GrupoBJ.Controllers
             #endregion
             
         }
+        //Método para cargar las empresas
+        public void listarComboProveedor()
+        {
+            try
+            {
+                List<SelectListItem> liLista;
+                liLista = _context.Proveedor.Where(p => p.Habilitado == true).Select(x =>
+                                      new SelectListItem()
+                                      {
+                                          Text = x.Nombre,
+                                          Value = x.id_Proveedor.ToString()
+                                      }).ToList();
+                liLista.Insert(0, new SelectListItem
+                {
+                    Selected = true,
+                    Disabled = true,
+                    Text = "--Seleccione una empresa--",
+                    Value = ""
+                });
+                ViewBag.listaEmpresa = liLista;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         //Método para deshabilitar el registro
         public string eliminar(int id)

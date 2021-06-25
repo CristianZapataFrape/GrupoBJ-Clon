@@ -94,7 +94,7 @@ namespace GrupoBJ.DataBase
         public DbSet<Tipo_ConceptosIETU_IVA> Tipo_ConceptosIETU_IVA { get; set; }
 
         public DbSet<Tipo_ConceptosIETU_IETU> Tipo_ConceptosIETU_IETU { get; set; }
-
+        
         public DbSet<ConceptosIETU> ConceptosIETU { get; set; }
 
         public DbSet<NIF_Nivel> NIF_Nivel { get; set; }
@@ -147,8 +147,12 @@ namespace GrupoBJ.DataBase
         //Articulos Unidades de medida
         public DbSet<Unidades_Medida> Unidades_Medida { get; set; }
 
-        //Compras
+        ////Ventas
+        public DbSet<ClienteCls> Cliente { get; set; }
+
         public DbSet<Proveedorcs> Proveedor { get; set; }
+
+        
 
     }
 }

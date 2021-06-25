@@ -58,9 +58,9 @@
                                 <th hidden></th>
                                 @*<td>@Html.LabelFor(p => Model[0].codigo)</td>
                             <td>@Html.LabelFor(p => Model[0].nombre)</td>*@
-                                <th id="idCln-codigo" class="Tcln-codigo" style="width:10%">Código</th>
+                                <th id="idCln-id_Cliente" class="Tcln-codigo" style="width:10%">Código</th>
                                 <th id="idCln-nombre" class="Tcln-nombre Obligatorio" style="width:30%">nombre</th>
-                                <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Apellido parterno</th>
+                                <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Apellido paterno</th>
                                 <th id="idCln-apMaterno" class="Tcln-apMaterno" style="width:25%">Apellido materno</th>
                                 <th id="idCln-telefono" class="Tcln-telefono" style="width:15%">telefono</th>
                             </tr>
@@ -100,96 +100,152 @@
                                        aria-selected="true">Datos del usuario</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="sistema-tab" data-toggle="tab" href="#sistema" role="tab" aria-controls="sistema"
-                                       aria-selected="false">Datos de la empresa y sistema</a>
+                                    <a class="nav-link" id="domicilio-tab" data-toggle="tab" href="#domicilio" role="tab" aria-controls="domicilio"
+                                       aria-selected="false">Domicilio</a>
+                                </li>
+                               
+                                <li class="nav-item">
+                                    <a class="nav-link" id="empresa-tab" data-toggle="tab" href="#empresa" role="tab" aria-controls="empresa"
+                                       aria-selected="false">Datos de la empresa</a>
                                 </li>
                             </ul>
                             @* --------------------------------------------------------------- *@
                             @* Contenido de los tabs ----------------------------------------- *@
                             @* Datos del usuario ------------------------ *@
-                            <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="usuario" role="tabpanel" aria-labelledby="usuario-tab">
-                                    <div class="modal-body row">
-                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                        <div class="col-sm-6">
-                                            @Html.Hidden("id")
-                                            <div class="form-group">
-                                                @Html.Label("Nombre*")
-                                                @Html.TextBox("nombre", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.Label("Apellido paterno*")
-                                                @Html.TextBox("apPaterno", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.Label("Apellido materno*")
-                                                @Html.TextBox("apMaterno", null, new { @class = "form-control elementoVista", @maxlength = "50" })
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                @Html.Label("Correo electrónico")
-                                                @Html.TextBox("email", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.Label("Pais")
-                                                @Html.TextBox("pais", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.Label("Telefono")
-                                                @Html.TextBox("telefono", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                            </div>
-                                            @*<div class="form-group">
-                                            @Html.CheckBox("nuncaCaduca")
-                                            @Html.Label("Nunca caduca")
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="usuario" role="tabpanel" aria-labelledby="usuario-tab">
+                                <div class="modal-body row">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="col-sm-6">
+                                        @Html.Hidden("id")
+                                        <div class="form-group">
+                                            @Html.Label("Nombre*")
+                                            @Html.TextBox("Nombre", null, new { @class = "form-control elementoVista", @maxlength = "150" })
                                         </div>
                                         <div class="form-group">
-                                            @Html.Label("Fecha de caducidad")
-                                            @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
-                                        </div>*@
+                                            @Html.Label("Apellido paterno*")
+                                            @Html.TextBox("apPaterno", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Apellido materno*")
+                                            @Html.TextBox("apMaterno", null, new { @class = "form-control elementoVista", @maxlength = "50" })
                                         </div>
                                     </div>
-                                </div>
-                                @* -------------------------------------------------------------------- *@
-                                @* Sistema ---------------------------------------------------------- *@
-                                <div class="tab-pane fade" id="sistema" role="tabpanel" aria-labelledby="sistema-tab">
-                                    <div class="modal-body row">
-                                        <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
-                                            <div style="width:100%; height:30px;">
-                                                <div style="width:25%; float:left; padding-top:15px;">
-                                                    @Html.Hidden("validacionColeccion")
-                                                    @Html.Label("Colección", null, new { @class = "font-italic" })
-                                                </div>
-                                                <div style="width:5%; float:right;">
-                                                    <button type="button" onclick="EliminarRenglon()" class="btn btn-danger elementoVista" style="float:left;">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                                <div style="width:5%; float:right; padding-right:10px;">
-                                                    <button type="button" onclick="AgregarRenglon()" class="btn btn-success elementoVista" style="float:right">
-                                                        <i class="fa fa-plus-circle"></i>
-                                                    </button>
-                                                </div>
-
-                                            </div>
-                                            <hr />
-                                            <table class="table table-bordered myTabla" id="tablaColeccion">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width:25%">Empresa</th>
-                                                        <th style="width:25%">Sucursal</th>
-                                                        <th style="width:25%">Sistema</th>
-                                                        <th style="width:25%">Perfil</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tbodyColeccion">
-                                                </tbody>
-                                            </table>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.Label("Correo electrónico")
+                                            @Html.TextBox("Email", null, new { @class = "form-control elementoVista", @maxlength = "150" })
                                         </div>
+                                        <div class="form-group">
+                                            @Html.Label("Pais")
+                                            @Html.TextBox("fkPais", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Ciudad")
+                                            @Html.TextBox("fkCiudad", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Telefono")
+                                            @Html.TextBox("Telefono", null, new { @class = "form-control elementoVista", @maxlength = "10" })
+                                        </div>
+                                        @*<div class="form-group">
+                        @Html.CheckBox("nuncaCaduca")
+                        @Html.Label("Nunca caduca")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Fecha de caducidad")
+                        @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
+                    </div>*@
                                     </div>
                                 </div>
-                                @* -------------------------------------------------------------------------- *@
                             </div>
+                            @* -------------------------------------------------------------------- *@
+                            @* Sistema ---------------------------------------------------------- *@
+                            @* -------------------------------------------------------------------------- *@
+                            @* Domicilio ---------------------------------------------------------- *@
+                            <div class="tab-pane fade" id="domicilio" role="tabpanel" aria-labelledby="domicilio-tab">
+                                <div class="modal-body row">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="col-sm-6">
+                                        @*<div class="form-group">
+                                            @Html.Label("Colonia*")
+                                            @Html.TextBox("Colonia", null, new { @class = "form-control elementoModal", @maxlength = "100" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Calle*")
+                                            @Html.TextBox("Calle", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Número interior*")
+                                            @Html.TextBox("numeroInterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Número exterior*")
+                                            @Html.TextBox("numeroExterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Código postal*")
+                                            @Html.TextBox("codigoPostal", null, new { @class = "form-control input-number elementoModal", @maxlength = "5" })
+                                        </div>*@
+                                    </div>
+                                    <div class="col-sm-6">
+                                        @*<div class="form-group">
+                                            @Html.Label("Cardinalidad")
+                                            @Html.TextBox("Cardinalidad", null, new { @class = "form-control elementoModal", @maxlength = "10" })
+                                        </div>*@
+                                        @*<div class="form-group">
+                        @Html.Label("País*")
+                        @Html.DropDownList("fkPais", listaPais, new { @class = "form-control elementoModal" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Estado*")
+                        @Html.DropDownList("fkEstado", listaEstado, new { @class = "form-control elementoModal" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Ciudad*")
+                        @Html.DropDownList("fkCiudad", listaCiudad, new { @class = "form-control elementoModal" })
+                    </div>*@
+                                    </div>
+                                </div>
+                            </div>
+                            @* -------------------------------------------------------------------------- *@
+                            @* Datos de la empresa ---------------------------------------------------------- *@
+                            <div class="tab-pane fade" id="empresa" role="tabpanel" aria-labelledby="empresa-tab">
+                                <div class="modal-body row">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.Label("Empresa*")
+                                            @Html.TextBox("nombreCompania", null, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Razon social*")
+                                            @Html.TextBox("razonSocial", null, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("RFC*")
+                                            @Html.TextBox("rfcFacturacion", null, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Domicilio de la empresa*")
+                                            @Html.TextBox("domicilioFacturacion", null, new { @class = "form-control elementoModal" })
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.Label("Codigo postal*")
+                                            @Html.TextBox("CP", null, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Saldo*")
+                                            @Html.TextBox("Saldo", null, new { @class = "form-control input-number text-right elementoModal", @maxlength = "18" })
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            @* -------------------------------------------------------------------------- *@
+                        </div>
                             @* --------------------------------------------------------------------------------------------------------- *@
                             <div class="modal-footer">
                                 <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
@@ -305,7 +361,7 @@
                         let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
                         var posicion = letras.indexOf(indice); //posicion
                         indiceInt = parseInt(posicion); //Posicion entera para tabs
-                        let campos = [",", "nombre", "apPaterno", "apMaterno", "telefono", "correo",  "pais"
+                        let campos = [",", "Nombre", "apPaterno", "apMaterno", "Telefono", "Correo",  "fkPais"
                             ];
                         campo = campos[posicion];//campo
                         var cadenaCortar = "(" + indice + ")";
@@ -329,13 +385,19 @@
             //Funcion para limpiar los datos
             function Limpiar() {
                 $("#btnGuardarCambios").attr("disabled", false);
-                document.getElementById("nombre").value = "";
+                document.getElementById("Nombre").value = "";
                 document.getElementById("apPaterno").value = "";
                 document.getElementById("apMaterno").value = "";
-                document.getElementById("telefono").value = "";
-                document.getElementById("email").value = "";
-             
-                document.getElementById("pais").value = "";
+                document.getElementById("Telefono").value = "";
+                document.getElementById("Email").value = "";
+                document.getElementById("fkPais").value = "";
+                document.getElementById("fkCiudad").value = "";
+                document.getElementById("nombreCompania").value = "";
+                document.getElementById("CP").value = "";
+                document.getElementById("razonSocial").value = "";
+                document.getElementById("rfcFacturacion").value = "";
+                document.getElementById("domicilioFacturacion").value = "";
+                document.getElementById("Saldo").value = "";
                
                 $("#home-tab").trigger("click");
             }
@@ -385,6 +447,56 @@
             }
 
 
+            //Modificar algun registro------------------------------------------------------------
+
+            //Funcion cuando se presiona el boton modificar pasando como parametro el id
+            async function Modificar(id) {
+                Limpiar();
+                document.getElementById("id").value = id;
+                Datos = await recuperarDatos(id);
+                document.getElementById("Nombre").value = Datos.nombre;
+                document.getElementById("apPaterno").value = Datos.apPaterno;
+                document.getElementById("apMaterno").value = Datos.apMaterno;
+                document.getElementById("Telefono").value = Datos.telefono;
+                document.getElementById("Email").value = Datos.email;
+                document.getElementById("fkPais").value = Datos.fkPais;
+                document.getElementById("fkCiudad").value = Datos.fkCiudad;
+                document.getElementById("nombreCompania").value = Datos.nombreCompania;
+                document.getElementById("CP").value = Datos.cp;
+                document.getElementById("razonSocial").value = Datos.razonSocial;
+                document.getElementById("rfcFacturacion").value = Datos.rfcFacturacion;
+                document.getElementById("domicilioFacturacion").value = Datos.domicilioFacturacion;
+                document.getElementById("Saldo").value = Datos.saldo;
+                //document.getElementById("Calle").value = Datos.calle;
+                //document.getElementById("Ciudad").value = Datos.ciudad;
+                //document.getElementById("Estado").value = Datos.estado;
+                
+                //document.getElementById("Codigo_Postal").value = Datos.codigo_Postal;
+                //document.getElementById("Razon_Social").value = Datos.razon_Social;
+                //document.getElementById("RFC").value = Datos.rfc;
+                //document.getElementById("Cuenta").value = Datos.cuenta;
+                //document.getElementById("Tiempo_Entrega").value = Datos.tiempo_Entrega;
+
+                
+            }
+
+            //Ajax para recuperar los datos del registro
+            function recuperarDatos(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Cliente/recuperarDatos/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+
+
+
+
+
 
 
             //Función para validar que exista un registro seleccionado
@@ -411,9 +523,7 @@
                         //--------------------------------------------------------------------
                         $('#exampleModalConfirmacion').modal('show');
 
-                        //Eliminar(idTablaCliente);
-                        //$('#exampleModalConfirmacion').modal('show');
-                        //$("#btnEliminarRegistroModal").attr("disabled", false);
+                   
                     } else if (Accion == "Vista") {
                         habilitarElementos(true);
                         Modificar(idTablaCliente, 2);
