@@ -1,0 +1,548 @@
+﻿@model List<ClienteCls>
+@{ ViewData["Title"] = "Cliente";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="~/Script/css/vistas.css" rel="stylesheet">
+</head>
+<body>
+    <section id="about">
+        <div class="container">
+            <form asp-action="Filtro" asp-controller="Cliente" id="frmClientes"
+                  data-ajax="true"
+                  data-ajax-method="POST"
+                  data-ajax-mode="replace"
+                  data-ajax-update="#ajaxresult"
+                  data-ajax-success="obtenerConfiguracionTabla('tablaClientes')">
+                <br>
+
+                <h1 class="text-center">Clientes</h1>
+                <hr />
+
+                <div style="width:100%; height:80px;">
+                    @Html.Hidden("idTablaClientes")
+                    @Html.Label("Buscador")
+                    @Html.TextBox("Buscador", null, new { @class = "form-control", @onkeypress = "return check(event)" })
+                </div>
+                <div style="width:100%; height:25px; text-align:right;">
+                    <button id="Cln-Act" hidden type="button" onclick="location.reload()" class="btn btn-info Permisos" style="margin-right:5px;">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
+                    <button id="Cln-Agr" hidden type="button" onclick="Agregar()" class="btn btn-success Permisos" data-toggle="modal" data-target="#exampleModal" style="margin-right:5px;">
+                        <i class="fa fa-plus-circle"></i> Agregar
+                    </button>
+                    <button id="Cln-Mod" hidden type="button" onclick="ValidarSeleccion('Modificar')" class="btn black-background white Permisos" style="margin-right:5px;">
+                        <i class="fa fa-edit"></i> Modificar
+                    </button>
+                    <button id="Cln-Eli" hidden type="button" onclick="ValidarSeleccion('Eliminar')" class="btn btn-danger Permisos" style="margin-right:5px;">
+                        <i class="fa fa-trash"></i> Eliminar
+                    </button>
+                    <button id="Cln-Vta" hidden type="button" onclick="ValidarSeleccion('Vista')" class="btn btn-primary Permisos" style="margin-right:5px;">
+                        <i class="fa fa-clipboard"></i> Vista
+                    </button>
+                    <button id="Cln-Tba" hidden type="button" onclick="ConfigurarTabla('tablaClientes')" class="btn btn-secondary Permisos" style="margin-right:5px;" data-toggle="tooltip" data-placement="top" title="Configurar tabla">
+                        <i class="fa fa-table"></i>
+                    </button>
+
+                </div>
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover no-seleccionable" id="tablaClientes">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                @*<td>@Html.LabelFor(p => Model[0].codigo)</td>
+                            <td>@Html.LabelFor(p => Model[0].nombre)</td>*@
+                                <th id="idCln-codigo" class="Tcln-codigo" style="width:10%">Código</th>
+                                <th id="idCln-nombre" class="Tcln-nombre Obligatorio" style="width:30%">nombre</th>
+                                <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Apellido parterno</th>
+                                <th id="idCln-apMaterno" class="Tcln-apMaterno" style="width:25%">Apellido materno</th>
+                                <th id="idCln-telefono" class="Tcln-telefono" style="width:15%">telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ajaxresult">
+                            @await Html.PartialAsync("_TablaCliente")
+                        </tbody>
+                    </table>
+                </div>
+
+            </form>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #ff5f40;">
+                            <div style="width:4%; padding-top:8px;">
+                                <img src="~/Script/img/icono_usuario.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:80%">
+                                <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Datos del usuario</h5>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!--Crear-->
+                        <form asp-action="Guardar" asp-controller="Cliente"
+                              data-ajax="true" data-ajax-method="POST"
+                              data-ajax-mode="replace" data-ajax-update="#divError"
+                              data-ajax-success="Guardar">
+
+                            @* Tabs--------------------------------------------------------- *@
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="usuario-tab" data-toggle="tab" href="#usuario" role="tab" aria-controls="usuario"
+                                       aria-selected="true">Datos del usuario</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="sistema-tab" data-toggle="tab" href="#sistema" role="tab" aria-controls="sistema"
+                                       aria-selected="false">Datos de la empresa y sistema</a>
+                                </li>
+                            </ul>
+                            @* --------------------------------------------------------------- *@
+                            @* Contenido de los tabs ----------------------------------------- *@
+                            @* Datos del usuario ------------------------ *@
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="usuario" role="tabpanel" aria-labelledby="usuario-tab">
+                                    <div class="modal-body row">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="col-sm-6">
+                                            @Html.Hidden("id")
+                                            <div class="form-group">
+                                                @Html.Label("Nombre*")
+                                                @Html.TextBox("nombre", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Apellido paterno*")
+                                                @Html.TextBox("apPaterno", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Apellido materno*")
+                                                @Html.TextBox("apMaterno", null, new { @class = "form-control elementoVista", @maxlength = "50" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.Label("Correo electrónico")
+                                                @Html.TextBox("email", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Pais")
+                                                @Html.TextBox("pais", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.Label("Telefono")
+                                                @Html.TextBox("telefono", null, new { @class = "form-control elementoVista", @maxlength = "150" })
+                                            </div>
+                                            @*<div class="form-group">
+                                            @Html.CheckBox("nuncaCaduca")
+                                            @Html.Label("Nunca caduca")
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Fecha de caducidad")
+                                            @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
+                                        </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------- *@
+                                @* Sistema ---------------------------------------------------------- *@
+                                <div class="tab-pane fade" id="sistema" role="tabpanel" aria-labelledby="sistema-tab">
+                                    <div class="modal-body row">
+                                        <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
+                                            <div style="width:100%; height:30px;">
+                                                <div style="width:25%; float:left; padding-top:15px;">
+                                                    @Html.Hidden("validacionColeccion")
+                                                    @Html.Label("Colección", null, new { @class = "font-italic" })
+                                                </div>
+                                                <div style="width:5%; float:right;">
+                                                    <button type="button" onclick="EliminarRenglon()" class="btn btn-danger elementoVista" style="float:left;">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                                <div style="width:5%; float:right; padding-right:10px;">
+                                                    <button type="button" onclick="AgregarRenglon()" class="btn btn-success elementoVista" style="float:right">
+                                                        <i class="fa fa-plus-circle"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                            <hr />
+                                            <table class="table table-bordered myTabla" id="tablaColeccion">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:25%">Empresa</th>
+                                                        <th style="width:25%">Sucursal</th>
+                                                        <th style="width:25%">Sistema</th>
+                                                        <th style="width:25%">Perfil</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyColeccion">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* -------------------------------------------------------------------------- *@
+                            </div>
+                            @* --------------------------------------------------------------------------------------------------------- *@
+                            <div class="modal-footer">
+                                <button id="btnGuardarCambios" type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                            <div id="divError" style="color:darkred; display:none;">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal de Informacion/Pregunta-->
+            <div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #318fb5;" id="ejemplo">
+                            <div style="width:10%; padding-top:6px">
+                                <img src="~/Script/img/icono_informacion.png" alt="" width="30" height="30">
+                            </div>
+                            <div style="width:90%; padding-top:8px" id="mensajeEliminacion">
+
+                            </div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnCerrarIcono">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div style="padding:1em">
+                            <button id="btnEliminarRegistroModal" type="submit" onclick="EliminarRegistro()" class="btn btn-primary">Aceptar</button> <!---Boton para eliminar registro-->
+                            <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button> <!---Cerrar popup -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
+                Errores
+                </button>
+
+
+                <!-- Modal de validaciones -->
+                <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #ffd571;">
+                                <div style="width:10%; padding-top:4px">
+                                    <img src="~/Script/img/icono_warning.png" alt="" width="30" height="30">
+                                </div>
+                                <div style="width:90%; padding-top:4px">
+                                    <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-size:20px;"><b>Atención</b></h5>
+                                </div>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="divmodalErrores">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="Cerrar()">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </section>
+
+    @section Scripts{
+        <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/Script/js/Permisos.js"></script>
+
+        <script>
+          
+
+            var indiceInt;
+            var campo;
+            var idTablaCliente = 0; //Variable para el id de la empresa
+
+
+            //Función para obtener los permisos de la pantalla
+            $(document).ready(function () {
+                obtenerPermisosJS("Cliente");
+                obtenerConfiguracionTabla("tablaClientes");
+            });
+
+
+            function Guardar(resultado) {
+                //idTablaProveedor = 0;
+                //$("#tablaEmpresa tbody").siblings().removeClass("seleccionado");
+                if (resultado == "1" || resultado == "0") {
+                    $("#frmClientes").trigger("submit");
+                    document.getElementById("btnClose").click();
+                    idTablaCliente = 0;
+                    $("#tablaClientes tbody").siblings().removeClass("seleccionado");
+                } else {
+                    $("#btnGuardarCambios").attr("disabled", false);
+                    if (resultado == "-1") { //Campo repetido en BD
+                        indiceInt = 1;
+                        var Guardar = $("#nombre").val();
+                        var repetido = "<ul class='list-group'><li class='list-group-item'>Registro duplicado. El proveedor <b>" + nombre + "</b> ya se encuentra registrado.</li></ul>";
+                        document.getElementById("divmodalErrores").innerHTML = repetido;
+                        document.getElementById("btnErrores").click();
+                    } else { //Error
+                        var errores = resultado;
+                        let posicionInicial = errores.indexOf("(");
+                        let posicionFinal = errores.indexOf(")");
+                        var indice = errores.substring(posicionInicial + 1, posicionFinal); //letra
+                        let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
+                        var posicion = letras.indexOf(indice); //posicion
+                        indiceInt = parseInt(posicion); //Posicion entera para tabs
+                        let campos = [",", "nombre", "apPaterno", "apMaterno", "telefono", "correo",  "pais"
+                            ];
+                        campo = campos[posicion];//campo
+                        var cadenaCortar = "(" + indice + ")";
+                        var str = errores.replace(cadenaCortar, '');
+                        document.getElementById("divmodalErrores").innerHTML = str;
+                        document.getElementById("btnErrores").click();
+                    }
+                }
+            }
+
+            //Función para cuando se cierra el modal del error te coloque en el tab donde ocurre el error
+            function Cerrar() {
+                document.getElementById("btnCerrarConfirmacion").click();
+                if (indiceInt <= 7) {
+                    $("#home-tab").trigger("click");
+                } else {
+                    $("#profile-tab").trigger("click");
+                }
+            }
+
+            //Funcion para limpiar los datos
+            function Limpiar() {
+                $("#btnGuardarCambios").attr("disabled", false);
+                document.getElementById("nombre").value = "";
+                document.getElementById("apPaterno").value = "";
+                document.getElementById("apMaterno").value = "";
+                document.getElementById("telefono").value = "";
+                document.getElementById("email").value = "";
+             
+                document.getElementById("pais").value = "";
+               
+                $("#home-tab").trigger("click");
+            }
+
+
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaClientes tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaCliente = 0;
+                    //console.log(idTablaCliente);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaCliente = $(this).children("td:nth-child(1)").text();
+                    //console.log(idTablaCliente);
+                }
+
+            });
+
+            //Eliminar-----------------------------------------------------------------------------
+
+            //Funcion para asigar el id que se va a eliminar
+            function Eliminar(codigo) {
+                document.getElementById("id").value = codigo;
+            }
+
+            //Funcion para verificar relaciones y proceder a la eliminación
+            async function EliminarRegistro() {
+                //idTablaEmpresa = 0;
+                var id = document.getElementById("id").value;
+                var Relaciones = await verificarRelaciones(id);
+                if (Relaciones == 0) {
+                    await verificarRegistroEliminar(id);
+                    idTablaProveedor = 0;
+                } else {
+                    var nombreEmpresa = "";
+                    $.get("Cliente/recuperarDatos/?id=" + id, function (data) {
+                        nombreEmpresa = data.nombre;
+                    }).done(function () {
+                        document.getElementById("divmodalErrores").innerHTML = "<ul class='list-group'><li class='list-group-item'>No se puede eliminar la empresa <b>" + nombreEmpresa + "</b> ya que se encuentra en uso.</li></ul>";
+                        document.getElementById("btnErrores").click();
+                        document.getElementById("btnCerrarIcono").click();
+                    });
+                }
+            }
+
+
+
+
+            //Función para validar que exista un registro seleccionado
+            async function ValidarSeleccion(Accion) {
+                if (idTablaCliente == 0) {
+                    document.getElementById("divmodalErrores").innerHTML = "Debes de seleccionar un registro";
+                    document.getElementById("btnErrores").click();
+                } else {
+                    if (Accion == "Modificar") {
+                        habilitarElementos(false);
+                        Modificar(idTablaCliente, 1);
+                        $('#exampleModal').modal('show');
+                        $("#btnSubmit").css("display", "inline");
+                    } else if (Accion == "Eliminar") {
+
+
+                        Eliminar(idTablaCliente);
+                        //Recuperar dato para eliminacion------------------------------------
+                        NombreEliminacion = await recuperarNombreEliminacion(idTablaCliente);
+                        var mensaje = "<h5 class='modal-title' id='exampleModalLabel' style='color:#f6f4e6; font-size:14px;'><b>¿Seguro que desea eliminar al cliente <span style='color:#394867;'>" + NombreEliminacion.nombre + "</span>?</b></h5>";
+                        document.getElementById("mensajeEliminacion").innerHTML = "";
+                        document.getElementById("mensajeEliminacion").innerHTML = mensaje;
+                        $("#btnEliminarRegistroModal").attr("disabled", false);
+                        //--------------------------------------------------------------------
+                        $('#exampleModalConfirmacion').modal('show');
+
+                        //Eliminar(idTablaCliente);
+                        //$('#exampleModalConfirmacion').modal('show');
+                        //$("#btnEliminarRegistroModal").attr("disabled", false);
+                    } else if (Accion == "Vista") {
+                        habilitarElementos(true);
+                        Modificar(idTablaCliente, 2);
+                        $('#exampleModal').modal('show');
+                        $("#btnSubmit").css("display", "none");
+                    }
+
+                }
+            }
+
+            //Funcion cuando se presiona el boton agregar
+            function Agregar() {
+                habilitarElementos(false);
+                Limpiar();
+                $("#btnGuardarCambios").css("display", "inline");
+                document.getElementById("divError").innerHTML = "";
+                document.getElementById("id").value = -1;
+            }
+
+
+
+            //Función para recuperar el nombre del registro a elmininar
+            function recuperarNombreEliminacion(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Cliente/recuperarDatos/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+            //Ajax para la verificar relaciones
+            function verificarRelaciones(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Empresa/verificarRelaciones/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+
+                })
+            }
+
+
+            //Ajax para verificar si un registro se puede eliminar
+            function verificarRegistroEliminar(id) {
+                return $.ajax({
+                    async: true,
+                    type: "GET",
+                    url: 'Cliente/eliminar/?id=' + id,
+                    dataType: "json"
+                }).done(function (data) {
+                    if (data == "1") { //Si regresa 1 es porque se borro un registro
+                        $("#frmClientes").trigger("submit"); //Se refresca el formulario
+                        document.getElementById("btnCerrarConfirmacion").click(); //Cierra el popup
+                    }
+                })
+            }
+
+            //Validacion y Seleccion de datos de los modales----------------------------------------
+
+            //Auto focus en modal al Inicio
+            $('#exampleModal').on('shown.bs.modal', function () {
+                $('#Nombre').focus();
+            })
+
+            //Autofocus pestaña Ubicacion
+            $("#profile-tab").click(function () {
+                $('#' + campo).focus();
+                $('#exampleModal').on('shown.bs.tab', function () {
+                    $('#' + campo).focus();
+                })
+            });
+
+            //Autofocus pestaña información
+            $("#home-tab").click(function () {
+                $('#' + campo).focus();
+                $('#exampleModal').on('shown.bs.tab', function () {
+                    $('#' + campo).focus();
+                })
+
+            });
+
+            //Validar que solo se escriban números
+            $('.input-number').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            //Función para marcar el renglon seleccionado
+            $('#tablaProveedor tbody').on("click", "tr", function () {
+                if ($(this).hasClass("seleccionado")) {
+                    $(this).removeClass("seleccionado");
+                    idTablaProveedor = 0;
+                    //console.log(idTablaEmpresa);
+                } else {
+                    $(this).siblings().removeClass("seleccionado");
+                    $(this).addClass("seleccionado");
+                    idTablaProveedor = $(this).children("td:nth-child(1)").text();
+                    //console.log(idTablaEmpresa);
+                }
+
+            });
+
+
+            //Función para abrir modal de tabla y configuración
+            //async function ConfigurarTabla(tabla) {
+            //    /*$("#btnGuardarCambiosTabla").attr("disabled", false);*/
+            //    //Detectar las columnas de la tabla
+            //    var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
+
+            //Función para Des/habilitar elementos
+            function habilitarElementos(estatus) {
+                $(".elemento").prop("disabled", estatus);
+            }
+
+            //Función para detectar los submit para inhabilitar/habilitar el boton
+            $("button[type='submit']").on("click", function (e) {
+                $(this).attr("disabled", true);
+                $(this).closest("form").submit()
+            });
+        </script>
+    }
+</body>
+</html>
+
+
+
+
+
+ 

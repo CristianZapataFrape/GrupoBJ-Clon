@@ -1,0 +1,19 @@
+﻿@model IEnumerable<GrupoBJ.Models.ClienteCls>
+@if (Model.Count() > 0)
+{
+@foreach (var item in Model)
+{
+<tr>
+    @*<td>@Html.DisplayFor(m => item.codigo)</td>
+    <td>@Html.DisplayFor(m => item.nombre)</td>*@
+        @*<td >@Html.DisplayFor(m => item.codigo)</td>*@
+        <td  class="idCln-codigo">@Html.DisplayFor(m => item.codigo)</td>
+        <td  class="idCln-nombre">@Html.DisplayFor(m => item.nombre)</td>
+        <td  class="idCln-apPaterno">@Html.DisplayFor(m => item.apPaterno)</td>
+        <td  class="idCln-apMaterno">@Html.DisplayFor(m => item.apMaterno)</td>
+        <td  class="idCln-telefono">@Html.DisplayFor(m => item.telefono)</td>
+</tr>} }
+            else
+            {
+<br />
+                <p>No hay registros</p>}
