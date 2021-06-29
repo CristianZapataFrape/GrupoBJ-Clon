@@ -11,6 +11,10 @@ namespace GrupoBJ.DataBase
 {
     public class GrupoBJDBContext : DbContext
     {
+        public GrupoBJDBContext()
+        {
+        }
+
         public GrupoBJDBContext(DbContextOptions<GrupoBJDBContext> options) : base(options)
         {
 

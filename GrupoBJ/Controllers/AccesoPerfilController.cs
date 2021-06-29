@@ -164,11 +164,11 @@ namespace GrupoBJ.Controllers
                 
                 sbConsulta.Remove(0, sbConsulta.Length);
                 sbConsulta.AppendLine("SELECT Per.idPerfil, Per.Nombre, Per.fkSistema, Per.fkUsuarioCr, Per.fechaCr, ");
-                sbConsulta.AppendLine("    Per.Habilitado, Per.fechaUm, Per.fkUsuarioUm");
-                sbConsulta.AppendLine( "FROM Acceso_Perfil AS Per ");
-                sbConsulta.AppendLine("    INNER JOIN Acceso_Sistema AS Sis ON Per.fkSistema = Sis.idSistema ");
-                sbConsulta.AppendLine("    INNER JOIN Acceso_Sistema AS Sis ON Per.fkSistema = Sis.idSistema ");
-                sbConsulta.AppendLine("WHERE Per.Habilitado = 1 AND ");
+                sbConsulta.AppendLine("    Per.Habilitado, Per.fechaUm, Per.fkUsuarioUm ");
+                sbConsulta.AppendLine("FROM Acceso_Perfil AS Per ");
+                sbConsulta.AppendLine("  INNER JOIN Acceso_Sistema AS Sis ON Per.fkSistema = Sis.idSistema ");
+                sbConsulta.AppendLine("  INNER JOIN Empresa AS E ON E.idEmpresa = Sis.fkEmpresa "  );
+                sbConsulta.AppendLine(" WHERE Per.Habilitado = 1 AND ");
                 string consultaLike = sbConsulta.ToString();
 
 
@@ -198,28 +198,28 @@ namespace GrupoBJ.Controllers
                 }
                 else if (filtroComboEmpresa == null && filtroCombo != null)
                 {
-                    consultaLike =  "Per.fkSistema = " + filtroCombo + " AND (";
+                    consultaLike +=  "Per.fkSistema = " + filtroCombo + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike =  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%' OR ";
                         else
-                            consultaLike =  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%')";
                     }
                     liListarPerfil = _context.Acceso_Perfil.FromSqlRaw(consultaLike).Include(c => c.Acceso_Sistema.Empresa).ToList();
                 }
                 else if (filtroComboEmpresa != null && filtroCombo != null)
                 {
-                    consultaLike =  "Sis.fkEmpresa = " + filtroComboEmpresa + " AND Per.fkSistema = " + filtroCombo + " AND (";
+                    consultaLike +=  "Sis.fkEmpresa = " + filtroComboEmpresa + " AND Per.fkSistema = " + filtroCombo + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike =  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%' OR ";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%' OR ";
                         else
-                            consultaLike =  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%')";
+                            consultaLike +=  asArregloFiltro[i] + " LIKE '%" + BuscadorAccesoPerfil + "%')";
                     }
-                    //liListarPerfil = _context.Acceso_Perfil.FromSqlRaw(consultaLike).Include(c => c.Acceso_Sistema.Empresa).ToList();
-                    liListarPerfil = _context.Acceso_Perfil.FromSqlRaw(sbConsulta.ToString()).Include(c => c.Acceso_Sistema.Empresa).ToList();
+                    liListarPerfil = _context.Acceso_Perfil.FromSqlRaw(consultaLike).Include(c => c.Acceso_Sistema.Empresa).ToList();
+                   // liListarPerfil = _context.Acceso_Perfil.FromSqlRaw(sbConsulta.ToString()).Include(c => c.Acceso_Sistema.Empresa).ToList();
                 }
                 return PartialView("_TablaAccesoPerfil", liListarPerfil);
             }

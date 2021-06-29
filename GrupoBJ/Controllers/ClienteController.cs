@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using GrupoBJ.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text;
 
 namespace GrupoBJ.Controllers
 {
@@ -16,6 +17,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         public ClienteController(GrupoBJDBContext context)
@@ -29,9 +31,17 @@ namespace GrupoBJ.Controllers
             List<ClienteCls> listaClientes = new List<ClienteCls>();
             try
             {
+                listarComboProveedor();
+                //List<Empleado> liListaEmpleado = new List<Empleado>();
+                //liListaEmpleado = _context.Empleado.Include
+                //    (c => c.Sucursal.Empresa)
+                //    .Include(c => c.Puesto.Departamento)
+                //    .AsNoTracking().ToList(); //Incluir la información de la empresa (Relacion)
+                //liListaEmpleado = liListaEmpleado.Where(p => p.Habilitado == true).ToList();
+                //liLista = _context.Moneda.Include(c => c.MonedaSAT).AsNoTracking().Where(p => p.Habilitado == true).ToList();
+                listaClientes = _context.Cliente.Include(c => c.Proveedor).AsNoTracking().Where(p => p.Habilitado == true).ToList();
 
-                
-                listaClientes = _context.Cliente.Where(p => p.Habilitado == true).ToList();
+                //listaClientes = _context.Cliente.Where(p => p.Habilitado == true).ToList();
                 
                 
                
@@ -70,6 +80,7 @@ namespace GrupoBJ.Controllers
                            && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
                            && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
                            && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
+                           && p.fkProveedor == oClienteCls.fkProveedor
                            && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
                            && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
                            && p.Saldo == oClienteCls.Saldo
@@ -102,6 +113,7 @@ namespace GrupoBJ.Controllers
                            && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
                            && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
                            && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
+                           && p.fkProveedor == oClienteCls.fkProveedor
                            && p.Saldo == oClienteCls.Saldo
                            && p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper())
                            && p.Email.ToUpper() == oClienteCls.Email.ToUpper()).Count();
@@ -121,6 +133,7 @@ namespace GrupoBJ.Controllers
                             oCliente.Email = oClienteCls.Email;
                             oCliente.nombreCompania = oClienteCls.nombreCompania;
                             oCliente.CP = oClienteCls.CP;
+                            oCliente.fkProveedor = oClienteCls.fkProveedor;
                             oCliente.razonSocial = oClienteCls.razonSocial;
                             oCliente.rfcFacturacion = oClienteCls.rfcFacturacion;
                             oCliente.domicilioFacturacion = oClienteCls.domicilioFacturacion;
@@ -151,11 +164,66 @@ namespace GrupoBJ.Controllers
             #endregion
             
         }
-        //Método para cargar las empresas
-        public void listarComboProveedor()
+
+
+        [HttpPost]
+        //Método para filtrar la tabla con el buscador y/o combo
+        public ActionResult Filtro(string BuscadorDepartamento, bool Habilitar, int? filtroCombo, string datosFiltro) //Filtro por textbox
         {
             try
             {
+                string consultaLike;
+                string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
+                List<ClienteCls> liListarCliente = new List<ClienteCls>();
+                //Creación de la consulta de filtro dinámica sin combo filtro
+                sbConsulta.AppendLine("SELECT id_Cliente, Nombre, apPaterno, apMaterno, Telefono, habilitado ");
+                sbConsulta.AppendLine(" FROM Cliente");
+                sbConsulta.AppendLine(" WHERE habilitado = 1 AND ");
+                consultaLike = sbConsulta.ToString();
+
+
+                if (filtroCombo == null)
+                {
+                    consultaLike += "(";
+                    for (int i = 0; i < asArregloFiltro.Length; i++)
+                    {
+                        if (i != asArregloFiltro.Length - 1)
+                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
+                        else
+                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
+                    }
+                    liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
+                }
+                else
+                {
+                    consultaLike += "fkEmpresa = " + filtroCombo + " AND (";
+                    for (int i = 0; i < asArregloFiltro.Length; i++)
+                    {
+                        if (i != asArregloFiltro.Length - 1)
+                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
+                        else
+                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
+                    }
+                    liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
+                }
+                return PartialView("_TablaCliente", liListarCliente);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        //Método para cargar las empresas
+        private void listarComboProveedor()
+        {
+
+            try
+            {
+
+
                 List<SelectListItem> liLista;
                 liLista = _context.Proveedor.Where(p => p.Habilitado == true).Select(x =>
                                       new SelectListItem()
@@ -167,10 +235,10 @@ namespace GrupoBJ.Controllers
                 {
                     Selected = true,
                     Disabled = true,
-                    Text = "--Seleccione una empresa--",
+                    Text = "--Seleccione un Proveedor--",
                     Value = ""
                 });
-                ViewBag.listaEmpresa = liLista;
+                ViewBag.listaProveedor = liLista;
             }
             catch (Exception)
             {
@@ -213,6 +281,24 @@ namespace GrupoBJ.Controllers
                 throw;
             }
         }
+
+
+
+
+        //Método para validar las relaciones que tiene empresa
+        public int verificarRelacionesProveedor(int id)
+        {
+            try
+            {
+                var vaEmpresa = _context.Cliente.Where(p => p.fkProveedor == id && p.Habilitado == true).Count();
+                return vaEmpresa;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
         #endregion
 
     }
