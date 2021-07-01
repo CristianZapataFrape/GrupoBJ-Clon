@@ -2,6 +2,8 @@
         @{ ViewData["Title"] = "Cliente";
             Layout = "~/Views/Shared/_Layout.cshtml";
             List<SelectListItem> listaProveedor = (List<SelectListItem>)ViewBag.listaProveedor;
+            List<SelectListItem> listaPais = (List<SelectListItem>)ViewBag.listaPais;
+            List<SelectListItem> listaCiudad = (List<SelectListItem>)ViewBag.listaCiudad;
             //List<SelectListItem> listarComboP = (List<SelectListItem>)ViewBag.lista;
 
 
@@ -62,12 +64,12 @@
                                     <tr>
                                         <th hidden></th>
                                         @*<td>@Html.LabelFor(p => Model[0].codigo)</td>
-                                            <td>@Html.LabelFor(p => Model[0].nombre)</td>*@
+                            <td>@Html.LabelFor(p => Model[0].nombre)</td>*@
                                         <th id="idCln-id_Cliente" class="Tcln-codigo" style="width:10%">Código</th>
-                                        <th id="idCln-nombre" class="Tcln-nombre Obligatorio" style="width:30%">nombre</th>
-                                        <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Apellido paterno</th>
-                                        <th id="idCln-apMaterno" class="Tcln-apMaterno" style="width:25%">Apellido materno</th>
-                                        <th id="idCln-telefono" class="Tcln-telefono" style="width:15%">telefono</th>
+                                        <th id="idCln-nombre" class="Tcln-nombre Obligatorio" style="width:30%">Nombre</th>
+                                        <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Telefono</th>
+                                        <th id="idCln-apMaterno" class="Tcln-apMaterno" style="width:25%">Correo</th>
+                                        <th id="idCln-telefono" class="Tcln-telefono" style="width:15%">Código postal</th>
                                     </tr>
                                 </thead>
                                 <tbody id="ajaxresult">
@@ -128,39 +130,33 @@
                                                         @Html.TextBox("Nombre", null, new { @class = "form-control elementoVista", @maxlength = "150" })
                                                     </div>
                                                     <div class="form-group">
-                                                        @Html.Label("Apellido paterno*")
-                                                        @Html.TextBox("apPaterno", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.Label("Apellido materno*")
-                                                        @Html.TextBox("apMaterno", null, new { @class = "form-control elementoVista", @maxlength = "50" })
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
                                                         @Html.Label("Correo electrónico")
                                                         @Html.TextBox("Email", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.Label("Pais")
-                                                        @Html.TextBox("fkPais", null, new { @class = "form-control elementoVista", @maxlength = "150" })
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.Label("Ciudad")
-                                                        @Html.TextBox("fkCiudad", null, new { @class = "form-control elementoVista", @maxlength = "150" })
                                                     </div>
                                                     <div class="form-group">
                                                         @Html.Label("Telefono")
                                                         @Html.TextBox("Telefono", null, new { @class = "form-control elementoVista", @maxlength = "10" })
                                                     </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    
+                                                    <div class="form-group">
+                                                        @Html.Label("Pais")
+                                                        @Html.DropDownList("fk_id_Pais", listaPais, new { @class = "form-control elementoModal" })
+                                                    </div>
+                                                    <div class="form-group">
+                                                        @Html.Label("Ciudad")
+                                                        @Html.DropDownList("fk_id_Ciudad", listaCiudad, new { @class = "form-control elementoModal" })
+                                                    </div>
+                                                    
                                                     @*<div class="form-group">
-                                                            @Html.CheckBox("nuncaCaduca")
-                                                            @Html.Label("Nunca caduca")
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Fecha de caducidad")
-                                                            @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
-                                                        </div>*@
+                                            @Html.CheckBox("nuncaCaduca")
+                                            @Html.Label("Nunca caduca")
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Fecha de caducidad")
+                                            @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
+                                        </div>*@
                                                 </div>
                                             </div>
                                         </div>
@@ -173,43 +169,43 @@
                                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                                 <div class="col-sm-6">
                                                     @*<div class="form-group">
-                                                            @Html.Label("Colonia*")
-                                                            @Html.TextBox("Colonia", null, new { @class = "form-control elementoModal", @maxlength = "100" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Calle*")
-                                                            @Html.TextBox("Calle", null, new { @class = "form-control elementoModal", @maxlength = "150" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Número interior*")
-                                                            @Html.TextBox("numeroInterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Número exterior*")
-                                                            @Html.TextBox("numeroExterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Código postal*")
-                                                            @Html.TextBox("codigoPostal", null, new { @class = "form-control input-number elementoModal", @maxlength = "5" })
-                                                        </div>*@
+                                            @Html.Label("Colonia*")
+                                            @Html.TextBox("Colonia", null, new { @class = "form-control elementoModal", @maxlength = "100" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Calle*")
+                                            @Html.TextBox("Calle", null, new { @class = "form-control elementoModal", @maxlength = "150" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Número interior*")
+                                            @Html.TextBox("numeroInterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Número exterior*")
+                                            @Html.TextBox("numeroExterior", null, new { @class = "form-control elementoModal", @maxlength = "8" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Código postal*")
+                                            @Html.TextBox("codigoPostal", null, new { @class = "form-control input-number elementoModal", @maxlength = "5" })
+                                        </div>*@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     @*<div class="form-group">
-                                                            @Html.Label("Cardinalidad")
-                                                            @Html.TextBox("Cardinalidad", null, new { @class = "form-control elementoModal", @maxlength = "10" })
-                                                        </div>*@
+                                            @Html.Label("Cardinalidad")
+                                            @Html.TextBox("Cardinalidad", null, new { @class = "form-control elementoModal", @maxlength = "10" })
+                                        </div>*@
                                                     @*<div class="form-group">
-                                                            @Html.Label("País*")
-                                                            @Html.DropDownList("fkPais", listaPais, new { @class = "form-control elementoModal" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Estado*")
-                                                            @Html.DropDownList("fkEstado", listaEstado, new { @class = "form-control elementoModal" })
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.Label("Ciudad*")
-                                                            @Html.DropDownList("fkCiudad", listaCiudad, new { @class = "form-control elementoModal" })
-                                                        </div>*@
+                                            @Html.Label("País*")
+                                            @Html.DropDownList("fkPais", listaPais, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Estado*")
+                                            @Html.DropDownList("fkEstado", listaEstado, new { @class = "form-control elementoModal" })
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Ciudad*")
+                                            @Html.DropDownList("fkCiudad", listaCiudad, new { @class = "form-control elementoModal" })
+                                        </div>*@
                                                 </div>
                                             </div>
                                         </div>
@@ -247,7 +243,7 @@
                                                     </div>
                                                     <div class="form-group">
                                                         @Html.Label("Proveedor*")
-                                                        @Html.DropDownList("fkProveedor", listaProveedor, new { @class = "form-control elementoModal" })
+                                                        @Html.DropDownList("fk_Id_Proveedor", listaProveedor, new { @class = "form-control elementoModal" })
                                                     </div>
 
                                                 </div>
@@ -261,6 +257,72 @@
                                         <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                                     </div>
                                     <div id="divError" style="color:darkred; display:none;">
+
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Modal de configuración de tabla *@
+                    <div class="modal fade" id="tablaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="overflow-y: scroll;" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header" style="background-color: #ff5f40;">
+                                    <div style="width:4%">
+                                        <img src="~/Script/img/icono_tabla.png" alt="" width="30" height="30">
+                                    </div>
+                                    <div style="width:80%">
+                                        <h5 class="modal-title" id="exampleModalLabel" style="color:#f6f4e6; font-weight:bold; padding-top:8px;">Tabla empresa</h5>
+                                    </div>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <!--Crear-->
+                                <form asp-action="configurarTabla" asp-controller="UsuarioTablaColumna"
+                                      data-ajax="true" data-ajax-method="POST"
+                                      data-ajax-mode="replace" data-ajax-update="#divErrorTabla"
+                                      data-ajax-success="Configurar">
+
+                                    @Html.Hidden("validacionColumnas")
+                                    @* Tabs--------------------------------------------------------- *@
+                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                               aria-selected="true">Configuración</a>
+                                        </li>
+                                    </ul>
+                                    @* --------------------------------------------------------------- *@
+                                    @* Contenido de los tabs ----------------------------------------- *@
+                                    @* Datos de la tabla ------------------------ *@
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                            <div class="modal-body row">
+                                                <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
+                                                    <table class="table table-bordered table-hover" id="tablaEmpresaColumnas">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:80%">Columna</th>
+                                                                <th style="width:10%">Visibilidad</th>
+                                                                <th style="width:10%">Ancho %</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tablaClientesColumnasBody">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @* --------------------------------------------------------------------------------------------------------- *@
+
+                                    <div class="modal-footer">
+                                        <button id="btnGuardarCambiosTabla" type="submit" class="btn btn-primary" onclick="crearArrayTabla()">Guardar cambios</button>
+                                        <button type="button" id="btnCloseTabla" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                    </div>
+                                    <div id="divErrorTabla" style="color:darkred; display:none;">
 
                                     </div>
                                 </form>
@@ -345,6 +407,14 @@
                         obtenerConfiguracionTabla("tablaClientes");
                     });
 
+                    //Función para actualizar la tabla cuando se escribe en el buscador
+                    var buscador = document.getElementById("Buscador");
+                    buscador.onkeyup = function () {
+                        idTablaClientes = 0;
+                        $("#tablaClientes tbody").siblings().removeClass("seleccionado");
+                        $("#frmClientes").trigger("submit");
+                    }
+
 
                     function Guardar(resultado) {
                         //idTablaProveedor = 0;
@@ -370,7 +440,7 @@
                                 let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
                                 var posicion = letras.indexOf(indice); //posicion
                                 indiceInt = parseInt(posicion); //Posicion entera para tabs
-                                let campos = [",", "Nombre", "apPaterno", "apMaterno", "Telefono", "Correo", "fkPais", "fkProveedor", "nombreCompania"
+                                let campos = [",", "Nombre", "apPaterno", "apMaterno", "Telefono", "Correo", "fk_id_Pais", "fk_Id_Proveedor", "nombreCompania"
                                 ];
                                 campo = campos[posicion];//campo
                                 var cadenaCortar = "(" + indice + ")";
@@ -395,19 +465,19 @@
                     function Limpiar() {
                         $("#btnGuardarCambios").attr("disabled", false);
                         document.getElementById("Nombre").value = "";
-                        document.getElementById("apPaterno").value = "";
-                        document.getElementById("apMaterno").value = "";
+                        //document.getElementById("apPaterno").value = "";
+                        //document.getElementById("apMaterno").value = "";
                         document.getElementById("Telefono").value = "";
                         document.getElementById("Email").value = "";
-                        document.getElementById("fkPais").value = "";
-                        document.getElementById("fkCiudad").value = "";
+                        document.getElementById("fk_id_Pais").value = "";
+                        document.getElementById("fk_id_Ciudad").value = "";
                         document.getElementById("nombreCompania").value = "";
                         document.getElementById("CP").value = "";
                         document.getElementById("razonSocial").value = "";
                         document.getElementById("rfcFacturacion").value = "";
                         document.getElementById("domicilioFacturacion").value = "";
                         document.getElementById("Saldo").value = "";
-                        document.getElementById("fkProveedor").value = "";
+                        document.getElementById("fk_Id_Proveedor").value = "";
                         
 
                         $("#home-tab").trigger("click");
@@ -466,19 +536,19 @@
                         document.getElementById("id").value = id;
                         Datos = await recuperarDatos(id);
                         document.getElementById("Nombre").value = Datos.nombre;
-                        document.getElementById("apPaterno").value = Datos.apPaterno;
-                        document.getElementById("apMaterno").value = Datos.apMaterno;
+                        //document.getElementById("apPaterno").value = Datos.apPaterno;
+                        //document.getElementById("apMaterno").value = Datos.apMaterno;
                         document.getElementById("Telefono").value = Datos.telefono;
                         document.getElementById("Email").value = Datos.email;
-                        document.getElementById("fkPais").value = Datos.fkPais;
-                        document.getElementById("fkCiudad").value = Datos.fkCiudad;
+                        document.getElementById("fk_id_Pais").value = Datos.fkPais;
+                        document.getElementById("fk_id_Ciudad").value = Datos.fkCiudad;
                         document.getElementById("nombreCompania").value = Datos.nombreCompania;
                         document.getElementById("CP").value = Datos.cp;
                         document.getElementById("razonSocial").value = Datos.razonSocial;
                         document.getElementById("rfcFacturacion").value = Datos.rfcFacturacion;
                         document.getElementById("domicilioFacturacion").value = Datos.domicilioFacturacion;
                         document.getElementById("Saldo").value = Datos.saldo;
-                        document.getElementById("fkProveedor").value = Datos.fkProveedor;
+                        document.getElementById("fk_Id_Proveedor").value = Datos.fkProveedor;
                         //document.getElementById("Calle").value = Datos.calle;
                         //document.getElementById("Ciudad").value = Datos.ciudad;
                         //document.getElementById("Estado").value = Datos.estado;
@@ -660,18 +730,214 @@
                         $("#frmClientes").trigger("submit");
                     }
 
+                    //Detecta el error 403 por la caducidad de la sesión cuando se realiza una peticion ajax
+                    $(document).ajaxError(function (event, jqxhr) {
+                        if (jqxhr.status === 403)
+                            window.location = 'Login';
+                    });
 
+
+                  ///  -------------------Filtro y tablas-----------------------------------
 
                     //Función para abrir modal de tabla y configuración
-                    //async function ConfigurarTabla(tabla) {
-                    //    /*$("#btnGuardarCambiosTabla").attr("disabled", false);*/
-                    //    //Detectar las columnas de la tabla
-                    //    var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
+                    async function ConfigurarTabla(tabla) {
+                        $("#btnGuardarCambiosTabla").attr("disabled", false);
+                        //Detectar las columnas de la tabla
+                        var allSelect = document.querySelector("#" + tabla).querySelectorAll("th");
 
-                    //Función para Des/habilitar elementos
+
+                        //Detectar las columnas obligatorias
+                        var obligatorios = document.getElementsByClassName("Obligatorio");
+                        var arregloObligatorios = [];
+                        for (var i = 0; i < obligatorios.length; i++) {
+                            arregloObligatorios.push(obligatorios[i].innerHTML);
+                        }
+
+                        //Creación de registros de tabla
+                        document.getElementById("tablaClientesColumnasBody").innerHTML = "";
+                        for (var i = 1; i < allSelect.length; i++) {
+                            var Columa = allSelect[i].innerHTML;
+                            var claseInput = "in" + Columa;
+                            var claseCheck = "ch" + Columa;
+                            var banderaObligatorio = 0;
+                            for (var j = 0; j < arregloObligatorios.length; j++) {
+                                if (arregloObligatorios[j] == Columa) {
+                                    banderaObligatorio = 1;
+                                }
+                            }
+
+                            if (banderaObligatorio == 1) {
+                                var tr =
+                                    "<tr>" +
+                                    "<td>" +
+                                    "<label>" +
+                                    Columa +
+                                    "</label>" +
+                                    "</td>" +
+                                    "<td class='text-center'>" +
+                                    "<input type='checkbox' class='" + claseCheck + "' disabled checked id=colVisi-" + i + ">" +
+                                    "</td>" +
+                                    "<td>" +
+                                    "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                                    "</td>" +
+                                    "</tr>";
+                            } else {
+                                var tr =
+                                    "<tr>" +
+                                    "<td>" +
+                                    "<label>" +
+                                    Columa +
+                                    "</label>" +
+                                    "</td>" +
+                                    "<td class='text-center'>" +
+                                    "<input type='checkbox' class='" + claseCheck + "' id=colVisi-" + i + ">" +
+                                    "</td>" +
+                                    "<td>" +
+                                    "<input type='number' disabled class='form-control " + claseInput + "' id=colAnch-" + i + " min ='1' max ='100' pattern ='^[0-9]+' onkeypress ='return event.charCode >= 48'>" +
+                                    "</td>" +
+                                    "</tr>";
+                            }
+
+                            $("#tablaClientesColumnasBody").append(tr);
+                        }
+                        banderaObligatorio = 0;
+
+
+                        //Llenar los datos de la tabla con los de la colección
+                        DatosTablaClientes = await cargarDatosTabla('tablaClientes');
+                        for (let i = 0; i < DatosTablaClientes.length; i++) {
+                            var columnaObtenida = DatosTablaClientes[i].columna;
+                            var anchoObtenido = DatosTablaClientes[i].ancho;
+                            var inputConClase = document.getElementsByClassName("in" + columnaObtenida);
+                            var checkConClase = document.getElementsByClassName("ch" + columnaObtenida);
+
+                            if (inputConClase[0] != null && checkConClase[0] != null) {
+                                $('#' + inputConClase[0].id).val(anchoObtenido);
+                                $("#" + checkConClase[0].id).prop("checked", true);
+                            }
+                            //console.log(inputConClase[0].id + " " +checkConClase[0].id + " " + anchoObtenido)
+
+                        }
+
+
+                        //Habilitar el ancho de los checkbox en true
+                        var checksEncontrados = document.querySelector("#tablaClientesColumnas").querySelectorAll("input[type='checkbox']");
+                        checksEncontrados.forEach(C => {
+                            if (C.checked) {
+                                var idEncontrado = C.id.substr(8, C.id.length);
+                                $("#colAnch-" + idEncontrado).prop("disabled", false);
+                            }
+                        });
+
+
+                        //tablaEmpresaColumnasBody
+                        $('#tablaModal').modal('show');
+                    }
+
+
+                    //Función para guardar el array con los datos de la tabla Clientes
+                    function crearArrayTabla() {
+                        //Crear el array para guardar las columnas
+                        var registrosColumnas = [];
+                        var cadenaColumnas = "";
+
+                        //Obtener los valores de todas las celdas de la tabla
+                        var filas = $("#tablaClientesColumnasBody").find("tr");
+
+                        //Guardar los valores de la tabla en el arreglo
+                        for (i = 0; i < filas.length; i++) {
+                            var celdas = $(filas[i]).find("td");
+                            nombreColumna = $($(celdas[0]).children("label")).text();
+                            anchoColumna = $($(celdas[2]).children("input")[0]).val();
+
+                            //Validar checkbox en checked
+                            visibilidadColumna = "0";
+                            visibleColumna = $($(celdas[1]).children("input:checkbox:checked")).val();
+                            if (visibleColumna == "on") {
+                                visibilidadColumna = "1";
+                            }
+
+                            //Validar ancho de columna
+                            if (anchoColumna == "") {
+                                anchoColumna = "0";
+                            }
+
+                            registrosColumnas.push(nombreColumna);
+                            registrosColumnas.push(anchoColumna);
+                            registrosColumnas.push(visibilidadColumna);
+                        }
+
+                        registrosColumnas.push("tablaEmpresa");
+                        cadenaColumnas = "[" + registrosColumnas.join() + "]";
+
+                        document.getElementById("validacionColumnas").value = cadenaColumnas;
+                    }
+
+
+
+
+                    //Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla
+                    function Configurar(resultado) {
+                        if (resultado == "1") {
+                            obtenerConfiguracionTabla("tablaClientes");
+                            document.getElementById("btnCloseTabla").click();
+                            $("#Buscador").val("");
+                            $("#frmClientes").trigger("submit");
+                            //BuscadorEmpresa
+                        } else {
+                            $("#btnGuardarCambiosTabla").attr("disabled", false);
+                            document.getElementById("divmodalErrores").innerHTML = resultado;
+                            document.getElementById("btnErrores").click();
+                        }
+                    }
+
+                    //Detectar cambios en cada renglón de la tabla columnas
+                    $('#tablaClientesColumnas').on('change', 'input[type="checkbox"]', function () {
+                        var checkboxTabla = $(this).prop('id');
+                        var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
+                        document.getElementById("colAnch-" + idCheck).value = "";
+                        if ($(this).is(':checked')) {
+                            $("#colAnch-" + idCheck).prop("disabled", false);
+                        } else {
+                            $("#colAnch-" + idCheck).prop("disabled", true);
+                        }
+                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        //////////////////////--------------------------------------------------------------//////////////////////////////
+                   // Función para Des/habilitar elementos
                     function habilitarElementos(estatus) {
                         $(".elemento").prop("disabled", estatus);
                     }
+
+
 
                     //Función para detectar los submit para inhabilitar/habilitar el boton
                     $("button[type='submit']").on("click", function (e) {

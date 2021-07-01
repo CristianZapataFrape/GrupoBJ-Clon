@@ -32,6 +32,8 @@ namespace GrupoBJ.Controllers
             try
             {
                 listarComboProveedor();
+                listarComboPais();
+                listarComboCiudad();
                 //List<Empleado> liListaEmpleado = new List<Empleado>();
                 //liListaEmpleado = _context.Empleado.Include
                 //    (c => c.Sucursal.Empresa)
@@ -75,17 +77,18 @@ namespace GrupoBJ.Controllers
                         listaCliente = _context.Cliente.Where(p => p.Habilitado == true).ToList();
                         incantidad = listaCliente.Where(
                            p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
-                           && p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
-                           && p.fkPais.ToUpper() == oClienteCls.fkPais.ToUpper()
+                           //&& p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
+                           && p.fk_id_Pais== oClienteCls.fk_id_Pais
+                           && p.fk_id_Ciudad == oClienteCls.fk_id_Ciudad
                            && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
                            && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
                            && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
-                           && p.fkProveedor == oClienteCls.fkProveedor
+                           && p.fk_Id_Proveedor == oClienteCls.fk_Id_Proveedor
                            && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
                            && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
                            && p.Saldo == oClienteCls.Saldo
                            && p.Telefono == oClienteCls.Telefono
-                           && p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper())
+                           /*&& p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper()*/)
                            && p.Email.ToUpper() == oClienteCls.Email.ToUpper()).Count();
 
                         if (incantidad >=1)//En caso de que exista algun registro repetido
@@ -106,16 +109,17 @@ namespace GrupoBJ.Controllers
                         listaCliente = _context.Cliente.Where(p => p.Habilitado == true).ToList();
                         incantidad = listaCliente.Where(
                            p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
-                           && p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
-                           && p.fkPais.ToUpper() == oClienteCls.fkPais.ToUpper()
+                           //&& p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
+                           && p.fk_id_Pais == oClienteCls.fk_id_Pais
+                           && p.fk_id_Ciudad == oClienteCls.fk_id_Ciudad
                            && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
                            && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
                            && p.razonSocial.ToUpper() == oClienteCls.razonSocial.ToUpper()
                            && p.rfcFacturacion.ToUpper() == oClienteCls.rfcFacturacion.ToUpper()
                            && p.domicilioFacturacion.ToUpper() == oClienteCls.domicilioFacturacion.ToUpper()
-                           && p.fkProveedor == oClienteCls.fkProveedor
+                           && p.fk_Id_Proveedor == oClienteCls.fk_Id_Proveedor
                            && p.Saldo == oClienteCls.Saldo
-                           && p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper())
+                           /*&& p.apMaterno.ToUpper() == oClienteCls.apMaterno.ToUpper()*/)
                            && p.Email.ToUpper() == oClienteCls.Email.ToUpper()).Count();
                         if (incantidad >=1)
                         {
@@ -125,15 +129,15 @@ namespace GrupoBJ.Controllers
                         {
                             var oCliente = _context.Cliente.Find(id);
                             oCliente.Nombre = oClienteCls.Nombre;
-                            oCliente.apPaterno = oClienteCls.apPaterno;
-                            oCliente.apMaterno = oClienteCls.apMaterno;
-                            oCliente.fkCiudad = oClienteCls.fkCiudad;
-                            oCliente.fkPais = oClienteCls.fkPais;
+                            //oCliente.apPaterno = oClienteCls.apPaterno;
+                            //oCliente.apMaterno = oClienteCls.apMaterno;
+                            oCliente.fk_id_Ciudad = oClienteCls.fk_id_Ciudad;
+                            oCliente.fk_id_Pais = oClienteCls.fk_id_Pais;
                             oCliente.CP = oClienteCls.CP;
                             oCliente.Email = oClienteCls.Email;
                             oCliente.nombreCompania = oClienteCls.nombreCompania;
                             oCliente.CP = oClienteCls.CP;
-                            oCliente.fkProveedor = oClienteCls.fkProveedor;
+                            oCliente.fk_Id_Proveedor = oClienteCls.fk_Id_Proveedor;
                             oCliente.razonSocial = oClienteCls.razonSocial;
                             oCliente.rfcFacturacion = oClienteCls.rfcFacturacion;
                             oCliente.domicilioFacturacion = oClienteCls.domicilioFacturacion;
@@ -168,45 +172,95 @@ namespace GrupoBJ.Controllers
 
         [HttpPost]
         //Método para filtrar la tabla con el buscador y/o combo
-        public ActionResult Filtro(string BuscadorDepartamento, bool Habilitar, int? filtroCombo, string datosFiltro) //Filtro por textbox
+        //public ActionResult Filtro(string BuscadorDepartamento, bool Habilitar, int? filtroCombo, string datosFiltro) //Filtro por textbox
+        //{
+        //    try
+        //    {
+        //        string consultaLike;
+        //        string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
+        //        List<ClienteCls> liListarCliente = new List<ClienteCls>();
+        //        //Creación de la consulta de filtro dinámica sin combo filtro
+        //        sbConsulta.AppendLine("SELECT id_Cliente, Nombre, apPaterno, apMaterno, Telefono, habilitado ");
+        //        sbConsulta.AppendLine(" FROM Cliente");
+        //        sbConsulta.AppendLine(" WHERE habilitado = 1 AND ");
+        //        consultaLike = sbConsulta.ToString();
+
+
+        //        if (filtroCombo == null)
+        //        {
+        //            consultaLike += "(";
+        //            for (int i = 0; i < asArregloFiltro.Length; i++)
+        //            {
+        //                if (i != asArregloFiltro.Length - 1)
+        //                    consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
+        //                else
+        //                    consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
+        //            }
+        //            liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
+        //        }
+        //        else
+        //        {
+        //            consultaLike += "fkEmpresa = " + filtroCombo + " AND (";
+        //            for (int i = 0; i < asArregloFiltro.Length; i++)
+        //            {
+        //                if (i != asArregloFiltro.Length - 1)
+        //                    consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
+        //                else
+        //                    consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
+        //            }
+        //            liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
+        //        }
+        //        return PartialView("_TablaCliente", liListarCliente);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+
+        //Método para cargar los países
+        public void listarComboPais()
         {
             try
             {
-                string consultaLike;
-                string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
-                List<ClienteCls> liListarCliente = new List<ClienteCls>();
-                //Creación de la consulta de filtro dinámica sin combo filtro
-                sbConsulta.AppendLine("SELECT id_Cliente, Nombre, apPaterno, apMaterno, Telefono, habilitado ");
-                sbConsulta.AppendLine(" FROM Cliente");
-                sbConsulta.AppendLine(" WHERE habilitado = 1 AND ");
-                consultaLike = sbConsulta.ToString();
+                List<SelectListItem> liLista;
+                liLista = _context.Pais.Where(p => p.Habilitado == true).Select(x =>
+                                      new SelectListItem()
+                                      {
+                                          Text = x.Nombre,
+                                          Value = x.idPais.ToString()
+                                      }).ToList();
+                liLista.Insert(0, new SelectListItem
+                {
+                    Selected = true,
+                    Disabled = true,
+                    Text = "--Seleccione un país--",
+                    Value = ""
+                });
+                ViewBag.listaPais = liLista;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
 
 
-                if (filtroCombo == null)
-                {
-                    consultaLike += "(";
-                    for (int i = 0; i < asArregloFiltro.Length; i++)
-                    {
-                        if (i != asArregloFiltro.Length - 1)
-                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
-                        else
-                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
-                    }
-                    liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
-                }
-                else
-                {
-                    consultaLike += "fkEmpresa = " + filtroCombo + " AND (";
-                    for (int i = 0; i < asArregloFiltro.Length; i++)
-                    {
-                        if (i != asArregloFiltro.Length - 1)
-                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%' OR ";
-                        else
-                            consultaLike += asArregloFiltro[i] + " LIKE '%" + BuscadorDepartamento + "%')";
-                    }
-                    liListarCliente = _context.Cliente.FromSqlRaw(consultaLike).ToList();
-                }
-                return PartialView("_TablaCliente", liListarCliente);
+        //Método para cargar las ciudad
+        public void listarComboCiudad()
+        {
+            try
+            {
+                List<SelectListItem> liLista;
+                liLista = _context.Ciudad.Where(p => p.Habilitado == true).Select(x =>
+                                      new SelectListItem()
+                                      {
+                                          Text = x.Nombre,
+                                          Value = x.idCiudad.ToString()
+                                      }).ToList();
+                ViewBag.listaCiudad = liLista;
             }
             catch (Exception)
             {
@@ -216,8 +270,8 @@ namespace GrupoBJ.Controllers
 
 
 
-        //Método para cargar las empresas
-        private void listarComboProveedor()
+            //Método para cargar las empresas
+            private void listarComboProveedor()
         {
 
             try
@@ -290,7 +344,7 @@ namespace GrupoBJ.Controllers
         {
             try
             {
-                var vaEmpresa = _context.Cliente.Where(p => p.fkProveedor == id && p.Habilitado == true).Count();
+                var vaEmpresa = _context.Cliente.Where(p => p.fk_Id_Proveedor == id && p.Habilitado == true).Count();
                 return vaEmpresa;
             }
             catch (Exception)

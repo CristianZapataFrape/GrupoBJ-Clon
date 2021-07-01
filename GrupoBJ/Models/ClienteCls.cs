@@ -20,14 +20,14 @@ namespace GrupoBJ.Models
         public string Nombre { get; set; }
 
       //  [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
-        [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
-        [Display(Name = "Apellido paterno")]
-        public string? apPaterno { get; set; }
+        //[StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
+        //[Display(Name = "Apellido paterno")]
+        //public string? apPaterno { get; set; }
 
        // [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
-        [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
-        [Display(Name = "Apellido materno")]
-        public string? apMaterno { get; set; }
+        //[StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
+        //[Display(Name = "Apellido materno")]
+        //public string? apMaterno { get; set; }
 
      //   [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
         [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
@@ -38,13 +38,13 @@ namespace GrupoBJ.Models
       //  [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
         [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
         [Display(Name = "Ciudad")]
-        public string? fkCiudad { get; set; }
+        public int? fk_id_Ciudad { get; set; }
 
 
       //  [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
         [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
         [Display(Name = "Pais")]
-        public string? fkPais { get; set; }
+        public int? fk_id_Pais { get; set; }
 
        // [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
         [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
@@ -105,13 +105,13 @@ namespace GrupoBJ.Models
         //[ForeignKey("fkSucursal")]
         //public Sucursal Sucursal { get; set; }
 
-        public int? fkProveedor { get; set; }
+        public int? fk_Id_Proveedor { get; set; }
 
 
-        [ForeignKey("fkProveedor")]
+        [ForeignKey("fk_Id_Proveedor")]
         public Proveedorcs Proveedor { get; set; }
 
-        public int? fkMoneda { get; set; }
+        //public int? fk_id_Moneda { get; set; }
 
     }
 }
