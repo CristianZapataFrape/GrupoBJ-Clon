@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GrupoBJ.Controllers
@@ -15,6 +16,8 @@ namespace GrupoBJ.Controllers
     {
         #region"Variables Globales"
         private readonly GrupoBJDBContext _context;
+        public string[] asArregloColumnas;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         #region"Constructor"
@@ -26,7 +29,7 @@ namespace GrupoBJ.Controllers
 
         #region "Index"
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string filtro)
         {
             try
             {
@@ -43,40 +46,44 @@ namespace GrupoBJ.Controllers
         #endregion
 
         #region "Funciones CRUD"
-        //Funcion de filtro de busqueda de proveedor
-        //public ActionResult Filtro(string BuscardorProveedor, string datosFiltro)
-        //{
-        //    try
-        //    {
-        //        string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
-        //        List<Proveedorcs> liListarProveedor = new List<Proveedorcs>();
+        //Funcion para el filtro de busqueda dinamico de proveedor
+        public ActionResult Filtro(string BuscadorProveedor, string datosFiltro) //Filtro por textbox
+        {
 
-        //        if (datosFiltro == null || datosFiltro == "[]")
-        //        {
-        //            liListarProveedor = _context.Proveedor.Where(p => p.Habilitado == true).ToList();
-        //        }
-        //        else
-        //        {
-        //            //Creacion de la consulta dinamica
-        //            string consultaLike = "SELECT * FROM Proveedor WHERE Habilitado = 1 AND (";
-        //            for (int i = 0; i < asArregloFiltro.Length; i++)
-        //            {
-        //                if (i != asArregloFiltro.Length - 1)
-        //                    consultaLike += asArregloFiltro[i] + " LIKE '%'" + BuscardorProveedor + "'%' OR ";
-        //                else
-        //                    consultaLike += asArregloFiltro[i] + " LIKE '%'" + BuscardorProveedor + "'%')";
-        //            }
-        //            liListarProveedor = _context.Proveedor.FromSqlRaw(consultaLike).ToList();
-        //        }
-        //        return PartialView("_TablaProveedor", liListarProveedor);
-        //    }
-        //    catch (Exception)
-        //    {
+            try
+            {
+                string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
+                List<Proveedorcs> liListarProveedor = new List<Proveedorcs>();
 
-        //        throw;
-        //    }
-        //}
+                if (datosFiltro == null || datosFiltro == "[]")
+                {
+                    liListarProveedor = _context.Proveedor.Where(p => p.Habilitado == true).ToList();
+                }
+                else
+                {
+                    //Creación de la consulta de filtro dinámica
+                    sbConsulta.Remove(0, sbConsulta.Length);
+                    sbConsulta.AppendLine("SELECT * FROM Proveedor WHERE Habilitado = 1 AND (");
+                    string consultaLike = sbConsulta.ToString();
+                    for (int i = 0; i < asArregloFiltro.Length; i++)
+                    {
+                        if (i != asArregloFiltro.Length - 1)
+                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorProveedor + "%' OR ";
+                        else
+                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorProveedor + "%')";
+                    }
 
+
+                    liListarProveedor = _context.Proveedor.FromSqlRaw(consultaLike).ToList();
+                }
+                return PartialView("_TablaProveedor", liListarProveedor);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
 
         //Funcion para agregar o actualizar datos del proveedor
         [HttpPost]
