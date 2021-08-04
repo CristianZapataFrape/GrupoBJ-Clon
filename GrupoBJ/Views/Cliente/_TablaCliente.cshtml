@@ -7,11 +7,11 @@
     @*<td>@Html.DisplayFor(m => item.codigo)</td>
     <td>@Html.DisplayFor(m => item.nombre)</td>*@
         @*<td >@Html.DisplayFor(m => item.codigo)</td>*@
-        <td  class="idCln-id_Cliente">@Html.DisplayFor(m => item.id_Cliente)</td>
-        <td  class="idCln-nombre">@Html.DisplayFor(m => item.Nombre)</td>
-        <td  class="idCln-apPaterno">@Html.DisplayFor(m => item.Telefono)</td>
-        <td  class="idCln-apMaterno">@Html.DisplayFor(m => item.Email)</td>
-        <td  class="idCln-telefono">@Html.DisplayFor(m => item.CP)</td>
+        <td hidden class="Tcln-id_Cliente">@Html.DisplayFor(m => item.id_Cliente)</td>
+        <td hidden class="Tcln-nombre">@Html.DisplayFor(m => item.Nombre)</td>
+        <td hidden class="Tcln-telefono">@Html.DisplayFor(m => item.Telefono)</td>
+        <td hidden class="Tcln-correo">@Html.DisplayFor(m => item.Email)</td>
+        <td hidden class="Tcln-cp">@Html.DisplayFor(m => item.CP)</td>
 </tr>} }
             else
             {

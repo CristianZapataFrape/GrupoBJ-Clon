@@ -3,6 +3,7 @@
             Layout = "~/Views/Shared/_Layout.cshtml";
             List<SelectListItem> listaProveedor = (List<SelectListItem>)ViewBag.listaProveedor;
             List<SelectListItem> listaPais = (List<SelectListItem>)ViewBag.listaPais;
+            List<SelectListItem> listaEstado = (List<SelectListItem>)ViewBag.listaEstado;
             List<SelectListItem> listaCiudad = (List<SelectListItem>)ViewBag.listaCiudad;
             //List<SelectListItem> listarComboP = (List<SelectListItem>)ViewBag.lista;
 
@@ -32,6 +33,7 @@
 
                         <div style="width:100%; height:80px;">
                             @Html.Hidden("idTablaClientes")
+                            @Html.Hidden("datosFiltro")
                             @Html.Label("Buscador")
                             @Html.TextBox("Buscador", null, new { @class = "form-control", @onkeypress = "return check(event)" })
                         </div>
@@ -65,11 +67,11 @@
                                         <th hidden></th>
                                         @*<td>@Html.LabelFor(p => Model[0].codigo)</td>
                             <td>@Html.LabelFor(p => Model[0].nombre)</td>*@
-                                        <th id="idCln-id_Cliente" class="Tcln-codigo" style="width:10%">Código</th>
-                                        <th id="idCln-nombre" class="Tcln-nombre Obligatorio" style="width:30%">Nombre</th>
-                                        <th id="idCln-apPaterno" class="Tcln-apPaterno" style="width:20%">Telefono</th>
-                                        <th id="idCln-apMaterno" class="Tcln-apMaterno" style="width:25%">Correo</th>
-                                        <th id="idCln-telefono" class="Tcln-telefono" style="width:15%">Código postal</th>
+                                        <th hidden id="idCln-id_Cliente" class="Tcln-id_Cliente" style="width:10%">Código</th>
+                                        <th hidden id="idCln-Nombre" class="Tcln-nombre" style="width:30%">Nombre</th>
+                                        <th hidden id="idCln-Telefono" class="Tcln-telefono" style="width:20%">Telefono</th>
+                                        <th hidden id="idCln-Correo" class="Tcln-correo" style="width:25%">Correo</th>
+                                        <th hidden id="idCln-CP" class="Tcln-cp" style="width:15%">Código postal</th>
                                     </tr>
                                 </thead>
                                 <tbody id="ajaxresult">
@@ -139,24 +141,28 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
-                                                    
+
                                                     <div class="form-group">
                                                         @Html.Label("Pais")
-                                                        @Html.DropDownList("fk_id_Pais", listaPais, new { @class = "form-control elementoModal" })
+                                                        @Html.DropDownList("fkPais", listaPais, new { @class = "form-control elementoModal" })
+                                                    </div>
+                                                    <div class="form-group">
+                                                        @Html.Label("Estado*")
+                                                        @Html.DropDownList("fkEstado", listaEstado, new { @class = "form-control elementoModal" })
                                                     </div>
                                                     <div class="form-group">
                                                         @Html.Label("Ciudad")
                                                         @Html.DropDownList("fk_id_Ciudad", listaCiudad, new { @class = "form-control elementoModal" })
                                                     </div>
-                                                    
+
                                                     @*<div class="form-group">
-                                            @Html.CheckBox("nuncaCaduca")
-                                            @Html.Label("Nunca caduca")
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.Label("Fecha de caducidad")
-                                            @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
-                                        </div>*@
+                                                     @Html.CheckBox("nuncaCaduca")
+                                                      @Html.Label("Nunca caduca")
+                                                                </div>
+                                                        <div class="form-group">
+                                                       @Html.Label("Fecha de caducidad")
+                                                           @Html.TextBox("fechaCaducidad", "{0:yyyy-MM-dd}", new { @class = "form-control elementoVista", @type = "date" })
+                                                                 </div>*@
                                                 </div>
                                             </div>
                                         </div>
@@ -301,7 +307,7 @@
                                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                             <div class="modal-body row">
                                                 <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
-                                                    <table class="table table-bordered table-hover" id="tablaEmpresaColumnas">
+                                                    <table class="table table-bordered table-hover" id="tablaClientesColumnas">
                                                         <thead>
                                                             <tr>
                                                                 <th style="width:80%">Columna</th>
@@ -398,7 +404,7 @@
 
                     var indiceInt;
                     var campo;
-                    var idTablaCliente = 0; //Variable para el id de la empresa
+                    var idTablaClientes = 0; //Variable para el id de la empresa
 
 
                     //Función para obtener los permisos de la pantalla
@@ -420,12 +426,14 @@
                         //idTablaProveedor = 0;
                         //$("#tablaEmpresa tbody").siblings().removeClass("seleccionado");
                         if (resultado == "1" || resultado == "0") {
+                            console.log(resultado);
                             $("#frmClientes").trigger("submit");
                             document.getElementById("btnClose").click();
-                            idTablaCliente = 0;
+                            idTablaClientes = 0;
                             $("#tablaClientes tbody").siblings().removeClass("seleccionado");
                         } else {
                             $("#btnGuardarCambios").attr("disabled", false);
+                            console.log(resultado);
                             if (resultado == "-1") { //Campo repetido en BD
                                 indiceInt = 1;
                                 var Guardar = $("#nombre").val();
@@ -440,7 +448,7 @@
                                 let letras = [",", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"];
                                 var posicion = letras.indexOf(indice); //posicion
                                 indiceInt = parseInt(posicion); //Posicion entera para tabs
-                                let campos = [",", "Nombre", "apPaterno", "apMaterno", "Telefono", "Correo", "fk_id_Pais", "fk_Id_Proveedor", "nombreCompania"
+                                let campos = [",", "Nombre", "apPaterno", "apMaterno", "Telefono", "Correo", "fkCiudad", "fk_Id_Proveedor", "nombreCompania"
                                 ];
                                 campo = campos[posicion];//campo
                                 var cadenaCortar = "(" + indice + ")";
@@ -470,7 +478,7 @@
                         document.getElementById("Telefono").value = "";
                         document.getElementById("Email").value = "";
                         document.getElementById("fk_id_Pais").value = "";
-                        document.getElementById("fk_id_Ciudad").value = "";
+                        //document.getElementById("fk_id_Ciudad").value = "";
                         document.getElementById("nombreCompania").value = "";
                         document.getElementById("CP").value = "";
                         document.getElementById("razonSocial").value = "";
@@ -478,10 +486,16 @@
                         document.getElementById("domicilioFacturacion").value = "";
                         document.getElementById("Saldo").value = "";
                         document.getElementById("fk_Id_Proveedor").value = "";
-                        
+                        $('#fkCiudad').empty();
+                        $('#fkEstado').empty();
+                        //$('#fk_id_Pais').empty();
+                        //$('#fk_id_Ciudad').empty();
+                       
 
                         $("#home-tab").trigger("click");
                     }
+
+
 
 
 
@@ -489,12 +503,12 @@
                     $('#tablaClientes tbody').on("click", "tr", function () {
                         if ($(this).hasClass("seleccionado")) {
                             $(this).removeClass("seleccionado");
-                            idTablaCliente = 0;
+                            idTablaClientes = 0;
                             //console.log(idTablaCliente);
                         } else {
                             $(this).siblings().removeClass("seleccionado");
                             $(this).addClass("seleccionado");
-                            idTablaCliente = $(this).children("td:nth-child(1)").text();
+                            idTablaClientes = $(this).children("td:nth-child(1)").text();
                             //console.log(idTablaCliente);
                         }
 
@@ -535,13 +549,14 @@
                         Limpiar();
                         document.getElementById("id").value = id;
                         Datos = await recuperarDatos(id);
+                        var idCiudad;
                         document.getElementById("Nombre").value = Datos.nombre;
                         //document.getElementById("apPaterno").value = Datos.apPaterno;
                         //document.getElementById("apMaterno").value = Datos.apMaterno;
                         document.getElementById("Telefono").value = Datos.telefono;
                         document.getElementById("Email").value = Datos.email;
-                        document.getElementById("fk_id_Pais").value = Datos.fkPais;
-                        document.getElementById("fk_id_Ciudad").value = Datos.fkCiudad;
+                        //document.getElementById("fk_id_Pais").value = Datos.fkPais;
+                        //document.getElementById("fk_id_Ciudad").value = Datos.fk_id_Ciudad;
                         document.getElementById("nombreCompania").value = Datos.nombreCompania;
                         document.getElementById("CP").value = Datos.cp;
                         document.getElementById("razonSocial").value = Datos.razonSocial;
@@ -549,6 +564,11 @@
                         document.getElementById("domicilioFacturacion").value = Datos.domicilioFacturacion;
                         document.getElementById("Saldo").value = Datos.saldo;
                         document.getElementById("fk_Id_Proveedor").value = Datos.fkProveedor;
+
+
+                        idCiudad = Datos.fkCiudad;
+                        console.log("La ciudad es ",idCiudad);
+                        await llenarLocalizacion(idCiudad);
                         //document.getElementById("Calle").value = Datos.calle;
                         //document.getElementById("Ciudad").value = Datos.ciudad;
                         //document.getElementById("Estado").value = Datos.estado;
@@ -562,6 +582,23 @@
 
                     }
 
+                    //Función asíncrona para cargar el pais, estado y ciudad
+                    async function llenarLocalizacion(idCiudad) {
+                        Pais = await cargarPais(idCiudad);
+                        var idPais = Pais.fkPais;
+                        document.getElementById("fkPais").value = idPais;
+                        llenarEstado();
+
+                        Estado = await cargarEstado(idCiudad);
+                        var idEstado = Estado.fkEstado;
+                        document.getElementById("fkEstado").value = idEstado;
+
+
+                        Ciudad = await llenarCiudad();
+                        document.getElementById("fkCiudad").value = idCiudad;
+                        console.log("datos", idPais, idEstado, Ciudad);
+                    }
+
                     //Ajax para recuperar los datos del registro
                     function recuperarDatos(id) {
                         return $.ajax({
@@ -570,9 +607,85 @@
                             url: 'Cliente/recuperarDatos/?id=' + id,
                             dataType: "json"
                         }).done(function (data) {
+                            console.log(data);
+                        })
+                    }
+
+
+
+                    //Ajax para obtener el pais
+                    function cargarPais(idCiudad) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'Cliente/recuperarDatosPais/?id=' + idCiudad,
+                            dataType: "json"
+                        }).done(function (data) {
 
                         })
                     }
+
+                    //Ajax para obtener el estado
+                    function cargarEstado(idCiudad) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'Cliente/recuperarDatosEstado/?id=' + idCiudad,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    //Ajax para obtener la ciudad
+                    function cargarCiudad(idCiudad) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'Cliente/recuperarDatosCiudad/?id=' + idCiudad,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+
+                    //Actualizar estado
+                    var llenarEstado = function () {
+                        var selectedPais = $('#fkPais').val();
+                        $('#fkEstado').empty();
+                        $('#fkCiudad').empty();
+                        $('#fkEstado').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione un estado--</option>");
+                        $.get("Cliente/actualizarEstado/?id=" + selectedPais, function (data) { //Se llama a la accion
+                            data.forEach(function (element, index) {
+
+                                $('#fk_id_Estado').append('<option value="' + element.idEstado + '">' + element.nombre + '</option>');
+                            });
+                        })
+                    }
+                    $('#fkPais').change(llenarEstado);
+                    llenarEstado();
+
+                    //Actualizar Ciudad
+                    var llenarCiudad = function () {
+                        var selectedEstado = $('#fkEstado').val();
+                        $('#fkCiudad').empty();
+                        $('#fkCiudad').prepend("<option selected='true' disabled='disabled' value='0' >--Seleccione una ciudad--</option>");
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'Cliente/actualizarCiudad/?id=' + selectedEstado,
+                            dataType: "json"
+                        }).done(function (data) {
+                            data.forEach(function (element, index) {
+                                $('#fkCiudad').append('<option value="' + element.idCiudad + '">' + element.nombre + '</option>');
+                            });
+                        })
+                    }
+                    $('#fkEstado').change(llenarCiudad);
+                    llenarCiudad();
+
+
 
 
                     //Ajax para verificar las relaciones
@@ -707,7 +820,7 @@
                     });
 
                     //Función para marcar el renglon seleccionado
-                    $('#tablaProveedor tbody').on("click", "tr", function () {
+                    $('#tablaClientes tbody').on("click", "tr", function () {
                         if ($(this).hasClass("seleccionado")) {
                             $(this).removeClass("seleccionado");
                             idTablaProveedor = 0;
@@ -719,6 +832,13 @@
                             //console.log(idTablaEmpresa);
                         }
 
+                    });
+                 
+
+                    //Función para detectar los submit para inhabilitar/habilitar el boton
+                    $("button[type='submit']").on("click", function (e) {
+                        $(this).attr("disabled", true);
+                        $(this).closest("form").submit()
                     });
 
 
@@ -735,6 +855,11 @@
                         if (jqxhr.status === 403)
                             window.location = 'Login';
                     });
+
+                    //Función para Des/habilitar elementos
+                    function habilitarElementos(estatus) {
+                        $(".elemento").prop("disabled", estatus);
+                    }
 
 
                   ///  -------------------Filtro y tablas-----------------------------------
@@ -819,7 +944,6 @@
 
                         }
 
-
                         //Habilitar el ancho de los checkbox en true
                         var checksEncontrados = document.querySelector("#tablaClientesColumnas").querySelectorAll("input[type='checkbox']");
                         checksEncontrados.forEach(C => {
@@ -830,12 +954,11 @@
                         });
 
 
-                        //tablaEmpresaColumnasBody
+                        //tablaProveedorColumnasBody
                         $('#tablaModal').modal('show');
                     }
 
-
-                    //Función para guardar el array con los datos de la tabla Clientes
+                    //Función para guardar el array con los datos de la tabla Columna
                     function crearArrayTabla() {
                         //Crear el array para guardar las columnas
                         var registrosColumnas = [];
@@ -867,14 +990,11 @@
                             registrosColumnas.push(visibilidadColumna);
                         }
 
-                        registrosColumnas.push("tablaEmpresa");
+                        registrosColumnas.push("tablaClientes");
                         cadenaColumnas = "[" + registrosColumnas.join() + "]";
 
                         document.getElementById("validacionColumnas").value = cadenaColumnas;
                     }
-
-
-
 
                     //Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla
                     function Configurar(resultado) {
@@ -883,7 +1003,7 @@
                             document.getElementById("btnCloseTabla").click();
                             $("#Buscador").val("");
                             $("#frmClientes").trigger("submit");
-                            //BuscadorEmpresa
+                            //BuscadorProveedor
                         } else {
                             $("#btnGuardarCambiosTabla").attr("disabled", false);
                             document.getElementById("divmodalErrores").innerHTML = resultado;
@@ -903,8 +1023,265 @@
                         }
                     });
 
+                    //Función para cargar los datos de la tabla Usuario_Tabla_Columna
+                    function cargarDatosTabla(tabla) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'UsuarioTablaColumna/cargarDatosTabla/?tabla=' + tabla,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    async function obtenerConfiguracionTabla(tabla) {
+                        //Mandar las columnas del HTML y el nombre de la tabla para verificar que coincidan con las que se tiene de BD
+                        var columnasTablaHTML = document.querySelector("#" + tabla).querySelectorAll("th");
+                        var arregloTablaHTML = [];
+
+                        for (var i = 1; i < columnasTablaHTML.length; i++) {
+                            arregloTablaHTML.push(columnasTablaHTML[i].innerHTML);
+                        }
+                        arregloTablaHTML.push(tabla);
+                        var cadenaTablaHTML = "[" + arregloTablaHTML.join() + "]";
+                        ValidarTablaHTML = await validarTablaHTML(cadenaTablaHTML);
+
+                        //Verificar que exista por lo menos un registro del usuario
+                        RegistroExistente = await buscarRegistroExistente(tabla);
+                        if (RegistroExistente.length <= 0) {
+                            //Darle la configuración predeterminada y guardarla en un arreglo
+                            var colPredeterminadas = document.querySelector("#" + tabla).querySelectorAll("th");
+                            var arregloConfigInicial = [];
+                            for (var i = 1; i < colPredeterminadas.length; i++) {
+                                arregloConfigInicial.push(colPredeterminadas[i].innerHTML);
+                                arregloConfigInicial.push(colPredeterminadas[i].style.width);
+                                if (colPredeterminadas[i].hidden == true)
+                                    arregloConfigInicial.push("0");
+                                else
+                                    arregloConfigInicial.push("1");
+                            }
+                            arregloConfigInicial.push("tablaClientes");
+                            var columnasPreterminadas = "[" + arregloConfigInicial.join() + "]";
+                            await guardarColPredeterminadas(columnasPreterminadas);
+                        }
+
+                        //Realizar petición para buscar configuración guardada
+                        DatosTablaClientes = await cargarDatosTabla(tabla);
+
+                        //Aplicar configuración
+                        var colActuales = document.querySelector("#" + tabla).querySelectorAll("th");
+                        var encontrado = 0;
+
+                        //Arreglo con los nombres de las columnas y sus nombres de BD
+                        var arregloDatosBD = ["Codigo", "id_Cliente", "Nombre", "Nombre", "Telefono", "Telefono", "Correo", "Email", "Codigó postal", "CP"];
+                        var arregloFiltro = [];
+
+                        for (var i = 1; i < colActuales.length; i++) { //Recorrer las th de la tabla HTML
+
+                            var columnaAct = colActuales[i].innerHTML;
+                            for (var j = 0; j < DatosTablaClientes.length; j++) { //Recorrer las columnas configuradas como visibles
+                                if (columnaAct == DatosTablaClientes[j].columna) { //Aplicar la visibilidad y el ancho configurados
+                                    encontrado = 1;
+                                    //console.log("Encontrada: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id + " ancho: " +DatosTablaClientes[j].ancho); //Obtiene la primera clase
+                                    $("." + colActuales[i].classList[0]).prop("hidden", false);
+                                    $("#" + colActuales[i].id).css("width", DatosTablaClientes[j].ancho + "%");
+                                    for (var k = 0; k < arregloDatosBD.length; k = k + 2) {
+                                        if (arregloDatosBD[k] == columnaAct) {
+                                            arregloFiltro.push(arregloDatosBD[k + 1]);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (encontrado == 0) { //Quitar la visibilidad y el ancho
+                                //console.log("No encontrado: " + colActuales[i].classList[0] + " con id= " + colActuales[i].id);
+                                $("." + colActuales[i].classList[0]).prop("hidden", true);
+                                $("#" + colActuales[i].id).css("width", "0%");
+                            }
+                            encontrado = 0;
+                        }
+
+                        //Si no se encontro ninguna columna visible, dar como visible la principal (Caso de primer inicio del usuario en pantalla)
+                        if (arregloFiltro.length == 0) {
+                            //Hacer todas las columnas visibles
+                            await cambiarColumnasVisibles("tablaClientes");
+                            obtenerConfiguracionTabla("tablaClientes");
+                        }
+
+                        //Conversión del arreglo a string y guardado en variable C#
+                        var stArregloFiltro = "[" + arregloFiltro.join() + "]";
+                        document.getElementById("datosFiltro").value = stArregloFiltro;
 
 
+                        //Mostrar tabla ya configurada
+                        $("#" + tabla).prop("hidden", false);
+                    }
+
+                    //Función para agregar laa columnas predeterminadas
+                    function guardarColPredeterminadas(columnasPreterminadas) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'UsuarioTablaColumna/guardarColPredeterminadas/?columnas=' + columnasPreterminadas,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    //Función para validar los datos de la tabla HTML
+                    function validarTablaHTML(columnas) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'UsuarioTablaColumna/validarTablaHTML/?columnas=' + columnas,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    //Función para verificar un registro existente de la coleccion
+                    function buscarRegistroExistente(tabla) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'UsuarioTablaColumna/buscarRegistroExistente/?tabla=' + tabla,
+                            dataType: "json"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    //Función para hacer todas las columnas visibles si no tiene una configuración
+                    function cambiarColumnasVisibles(tabla) {
+                        return $.ajax({
+                            async: true,
+                            type: "GET",
+                            url: 'UsuarioTablaColumna/cambiarColumnasVisibles/?tabla=' + tabla,
+                            dataType: "text"
+                        }).done(function (data) {
+
+                        })
+                    }
+
+                    //Función para los caracteres permitidos en filtro
+                    function check(e) {
+                        tecla = (document.all) ? e.keyCode : e.which;
+                        //Tecla de retroceso para borrar, siempre la permite
+                        if (tecla == 8) {
+                            return true;
+                        }
+
+                        // Patron de entrada, en este caso solo acepta numeros y letras
+                        patron = /[A-Za-z0-9áéíóúÁÉÍÓÚ.,-;$€£ñÑ ]/;
+                        tecla_final = String.fromCharCode(tecla);
+                        return patron.test(tecla_final);
+                    }
+                    //    //Llenar los datos de la tabla con los de la colección
+                    //    DatosTablaClientes = await cargarDatosTabla('tablaClientes');
+                    //    for (let i = 0; i < DatosTablaClientes.length; i++) {
+                    //        var columnaObtenida = DatosTablaClientes[i].columna;
+                    //        var anchoObtenido = DatosTablaClientes[i].ancho;
+                    //        var inputConClase = document.getElementsByClassName("in" + columnaObtenida);
+                    //        var checkConClase = document.getElementsByClassName("ch" + columnaObtenida);
+
+                    //        if (inputConClase[0] != null && checkConClase[0] != null) {
+                    //            $('#' + inputConClase[0].id).val(anchoObtenido);
+                    //            $("#" + checkConClase[0].id).prop("checked", true);
+                    //        }
+                    //        //console.log(inputConClase[0].id + " " +checkConClase[0].id + " " + anchoObtenido)
+
+                    //    }
+
+
+                    //    //Habilitar el ancho de los checkbox en true
+                    //    var checksEncontrados = document.querySelector("#tablaClientesColumnas").querySelectorAll("input[type='checkbox']");
+                    //    checksEncontrados.forEach(C => {
+                    //        if (C.checked) {
+                    //            var idEncontrado = C.id.substr(8, C.id.length);
+                    //            $("#colAnch-" + idEncontrado).prop("disabled", false);
+                    //        }
+                    //    });
+
+
+                    //    //tablaEmpresaColumnasBody
+                    //    $('#tablaModal').modal('show');
+                    //}
+
+
+                    ////Función para guardar el array con los datos de la tabla Clientes
+                    //function crearArrayTabla() {
+                    //    //Crear el array para guardar las columnas
+                    //    var registrosColumnas = [];
+                    //    var cadenaColumnas = "";
+
+                    //    //Obtener los valores de todas las celdas de la tabla
+                    //    var filas = $("#tablaClientesColumnasBody").find("tr");
+
+                    //    //Guardar los valores de la tabla en el arreglo
+                    //    for (i = 0; i < filas.length; i++) {
+                    //        var celdas = $(filas[i]).find("td");
+                    //        nombreColumna = $($(celdas[0]).children("label")).text();
+                    //        anchoColumna = $($(celdas[2]).children("input")[0]).val();
+
+                    //        //Validar checkbox en checked
+                    //        visibilidadColumna = "0";
+                    //        visibleColumna = $($(celdas[1]).children("input:checkbox:checked")).val();
+                    //        if (visibleColumna == "on") {
+                    //            visibilidadColumna = "1";
+                    //        }
+
+                    //        //Validar ancho de columna
+                    //        if (anchoColumna == "") {
+                    //            anchoColumna = "0";
+                    //        }
+
+                    //        registrosColumnas.push(nombreColumna);
+                    //        registrosColumnas.push(anchoColumna);
+                    //        registrosColumnas.push(visibilidadColumna);
+                    //    }
+
+                    //    registrosColumnas.push("tablaEmpresa");
+                    //    cadenaColumnas = "[" + registrosColumnas.join() + "]";
+
+                    //    document.getElementById("validacionColumnas").value = cadenaColumnas;
+                    //}
+
+
+
+
+                    ////Función que se ejecuta al terminar de guardar los datos de la configuración de la tabla
+                    //function Configurar(resultado) {
+                    //    if (resultado == "1") {
+                    //        obtenerConfiguracionTabla("tablaClientes");
+                    //        document.getElementById("btnCloseTabla").click();
+                    //        $("#Buscador").val("");
+                    //        $("#frmClientes").trigger("submit");
+                    //        //BuscadorEmpresa
+                    //    } else {
+                    //        $("#btnGuardarCambiosTabla").attr("disabled", false);
+                    //        document.getElementById("divmodalErrores").innerHTML = resultado;
+                    //        document.getElementById("btnErrores").click();
+                    //    }
+                    //}
+
+                    ////Detectar cambios en cada renglón de la tabla columnas
+                    //$('#tablaClientesColumnas').on('change', 'input[type="checkbox"]', function () {
+                    //    var checkboxTabla = $(this).prop('id');
+                    //    var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
+                    //    document.getElementById("colAnch-" + idCheck).value = "";
+                    //    if ($(this).is(':checked')) {
+                    //        $("#colAnch-" + idCheck).prop("disabled", false);
+                    //    } else {
+                    //        $("#colAnch-" + idCheck).prop("disabled", true);
+                    //    }
+                    //});
+
+
+////////////////////////////////////tabla filtro
 
 
 
@@ -933,17 +1310,17 @@
 
                         //////////////////////--------------------------------------------------------------//////////////////////////////
                    // Función para Des/habilitar elementos
-                    function habilitarElementos(estatus) {
-                        $(".elemento").prop("disabled", estatus);
-                    }
+                    //function habilitarElementos(estatus) {
+                    //    $(".elemento").prop("disabled", estatus);
+                    //}
 
 
 
-                    //Función para detectar los submit para inhabilitar/habilitar el boton
-                    $("button[type='submit']").on("click", function (e) {
-                        $(this).attr("disabled", true);
-                        $(this).closest("form").submit()
-                    });
+                    ////Función para detectar los submit para inhabilitar/habilitar el boton
+                    //$("button[type='submit']").on("click", function (e) {
+                    //    $(this).attr("disabled", true);
+                    //    $(this).closest("form").submit()
+                    //});
                 </script>
             }
         </body>

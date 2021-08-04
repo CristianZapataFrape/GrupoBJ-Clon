@@ -17,6 +17,7 @@ namespace GrupoBJ.Controllers
     {
         #region "Variables globales"
         private readonly GrupoBJDBContext _context;
+        public string[] asArregloColumnas;
         StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
@@ -33,6 +34,7 @@ namespace GrupoBJ.Controllers
             {
                 listarComboProveedor();
                 listarComboPais();
+                listarComboEstado();
                 listarComboCiudad();
                 //List<Empleado> liListaEmpleado = new List<Empleado>();
                 //liListaEmpleado = _context.Empleado.Include
@@ -59,6 +61,48 @@ namespace GrupoBJ.Controllers
         }
 
         #region "Funciones CRUD"
+        //Funcion para el filtro de busqueda dinamico de proveedor
+        public ActionResult Filtro(string BuscadorClientes, string datosFiltro) //Filtro por textbox
+        {
+
+            try
+            {
+                string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
+                List<ClienteCls> liListarClientes = new List<ClienteCls>();
+
+                if (datosFiltro == null || datosFiltro == "[]")
+                {
+                    liListarClientes = _context.Cliente.Where(p => p.Habilitado == true).ToList();
+                }
+                else
+                {
+                    //Creación de la consulta de filtro dinámica
+                    sbConsulta.Remove(0, sbConsulta.Length);
+                    sbConsulta.AppendLine("SELECT * FROM Cliente WHERE Habilitado = 1 AND (");
+                    string consultaLike = sbConsulta.ToString();
+                    for (int i = 0; i < asArregloFiltro.Length; i++)
+                    {
+                        if (i != asArregloFiltro.Length - 1)
+                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorClientes + "%' OR ";
+                        else
+                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + BuscadorClientes + "%')";
+                    }
+
+
+                    liListarClientes = _context.Cliente.FromSqlRaw(consultaLike).ToList();
+                }
+                return PartialView("_TablaCliente", liListarClientes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+
+
+
         //Funcion para agregar o actualizar datos del Cliente
         [HttpPost]
         public string Guardar(ClienteCls oClienteCls, int? id)
@@ -78,7 +122,7 @@ namespace GrupoBJ.Controllers
                         incantidad = listaCliente.Where(
                            p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
                            //&& p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
-                           && p.fk_id_Pais== oClienteCls.fk_id_Pais
+                           //&& p.fk_id_Pais== oClienteCls.fk_id_Pais
                            && p.fk_id_Ciudad == oClienteCls.fk_id_Ciudad
                            && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
                            && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
@@ -110,7 +154,7 @@ namespace GrupoBJ.Controllers
                         incantidad = listaCliente.Where(
                            p => (p.Nombre.ToUpper() == oClienteCls.Nombre.ToUpper()
                            //&& p.apPaterno.ToUpper() == oClienteCls.apPaterno.ToUpper()
-                           && p.fk_id_Pais == oClienteCls.fk_id_Pais
+                           //&& p.fk_id_Pais == oClienteCls.fk_id_Pais
                            && p.fk_id_Ciudad == oClienteCls.fk_id_Ciudad
                            && p.nombreCompania.ToUpper() == oClienteCls.nombreCompania.ToUpper()
                            && p.CP.ToUpper() == oClienteCls.CP.ToUpper()
@@ -132,7 +176,7 @@ namespace GrupoBJ.Controllers
                             //oCliente.apPaterno = oClienteCls.apPaterno;
                             //oCliente.apMaterno = oClienteCls.apMaterno;
                             oCliente.fk_id_Ciudad = oClienteCls.fk_id_Ciudad;
-                            oCliente.fk_id_Pais = oClienteCls.fk_id_Pais;
+                            //oCliente.fk_id_Pais = oClienteCls.fk_id_Pais;
                             oCliente.CP = oClienteCls.CP;
                             oCliente.Email = oClienteCls.Email;
                             oCliente.nombreCompania = oClienteCls.nombreCompania;
@@ -247,6 +291,26 @@ namespace GrupoBJ.Controllers
 
         }
 
+        //Método para cargar los estados
+        public void listarComboEstado()
+        {
+            try
+            {
+                List<SelectListItem> liLista;
+                liLista = _context.Estado.Where(p => p.Habilitado == true).Select(x =>
+                                      new SelectListItem()
+                                      {
+                                          Text = x.Nombre,
+                                          Value = x.idEstado.ToString()
+                                      }).ToList();
+                ViewBag.listaEstado = liLista;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         //Método para cargar las ciudad
         public void listarComboCiudad()
@@ -332,6 +396,75 @@ namespace GrupoBJ.Controllers
             catch (Exception)
             {
 
+                throw;
+            }
+        }
+
+        public IActionResult recuperarDatosCiudad(int id)
+        {
+            try
+            {
+                var vaCiudad = _context.Ciudad.Find(id);
+                return Ok(vaCiudad);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IActionResult recuperarDatosEstado(int id)
+        {
+            try
+            {
+                var vaCiudad = _context.Ciudad.Find(id);
+                return Ok(vaCiudad);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IActionResult recuperarDatosPais(int id)
+        {
+            try
+            {
+                var vaCiudad = _context.Ciudad.Find(id);
+                var vaEstado = _context.Estado.Find(vaCiudad.fkEstado);
+                return Ok(vaEstado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //------------------------------Cargar los datos de ciudad y estado-----------------------------------------
+        public IActionResult actualizarEstado(int id)
+        {
+            try
+            {
+                var vaEstado = _context.Estado.Where(p => p.fkPais == id && p.Habilitado == true).ToList();
+                return Ok(vaEstado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IActionResult actualizarCiudad(int id)
+        {
+            try
+            {
+                var vaCiudad = _context.Ciudad.Where(p => p.fkEstado == id && p.Habilitado == true).ToList();
+                return Ok(vaCiudad);
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }

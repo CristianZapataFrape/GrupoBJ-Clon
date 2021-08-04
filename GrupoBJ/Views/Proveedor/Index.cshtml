@@ -244,7 +244,7 @@
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     <div class="modal-body row">
                                         <div class="table-responsive" style="padding-left:50px; padding-right:50px;">
-                                            <table class="table table-bordered table-hover" id="tablaProveedorColumnas">
+                                            <table class="table table-bordered table-hover" id="tablaClientesColumnas">
                                                 <thead>
                                                     <tr>
                                                         <th style="width:80%">Columna</th>
@@ -303,6 +303,7 @@
             <button id="btnErrores" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrores" style="display:none;">
                 Errores
             </button>
+
             <!-- Modal de validaciones -->
             <div class="modal fade" id="exampleModalErrores" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
                 <div class="modal-dialog" role="document">
@@ -700,7 +701,7 @@
                 }
 
                 //Habilitar el ancho de los checkbox en true
-                var checksEncontrados = document.querySelector("#tablaProveedorColumnas").querySelectorAll("input[type='checkbox']");
+                var checksEncontrados = document.querySelector("#tablaClientesColumnas").querySelectorAll("input[type='checkbox']");
                 checksEncontrados.forEach(C => {
                     if (C.checked) {
                         var idEncontrado = C.id.substr(8, C.id.length);
@@ -768,7 +769,7 @@
 
 
             //Detectar cambios en cada renglón de la tabla columnas
-            $('#tablaProveedorColumnas').on('change', 'input[type="checkbox"]', function () {
+            $('#tablaClientesColumnas').on('change', 'input[type="checkbox"]', function () {
                 var checkboxTabla = $(this).prop('id');
                 var idCheck = checkboxTabla.substr(8, checkboxTabla.length);
                 document.getElementById("colAnch-" + idCheck).value = "";

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using GrupoBJ.DataBase;
 using GrupoBJ.Filters;
@@ -20,6 +21,7 @@ namespace GrupoBJ.Controllers
         private bool boBanderaPrimerEntrada = false;
         private int inPadre=0;
         private int inPadreSistema = 0;
+        StringBuilder sbConsulta = new StringBuilder();
         #endregion
 
         #region "Constructor"
@@ -189,34 +191,43 @@ namespace GrupoBJ.Controllers
                 string[] asArregloFiltro = datosFiltro.TrimStart('[').TrimEnd(']').Split(',');
                 List<Acceso_Opcion> liListarAccesoOpcion = new List<Acceso_Opcion>();
                 //Creación de la consulta de filtro dinámica sin combo filtro
-                string consultaLike = "SELECT O.idOpcion, O.fkSistema, O.idOpcionPadre, O.Nombre, O.Posicion, O.fkTipoArchivo," +
-                    "O.Controlador, O.fkUsuarioCr, O.fechaCr, O.Habilitado, O.nombrePadre, O.fechaUm, " +
-                    "O.fkUsuarioUm, O.tipoSistema FROM Acceso_Opcion AS O " +
-                    "INNER JOIN Acceso_Sistema AS Sis ON O.fkSistema = Sis.idSistema " +
-                    "INNER JOIN Acceso_Tipo_Archivo AS TA ON TA.idTipoArchivo = O.fkTipoArchivo " +
-                    "WHERE O.Habilitado = 1 AND ";
+                string consultaLike;
+                sbConsulta.Remove(0, sbConsulta.Length);
+                sbConsulta.AppendLine("SELECT O.idOpcion, O.fkSistema, O.idOpcionPadre, O.Nombre, O.Posicion, O.fkTipoArchivo,");
+                sbConsulta.AppendLine("O.Controlador, O.fkUsuarioCr, O.fechaCr, O.Habilitado, O.nombrePadre, O.fechaUm, ");
+                sbConsulta.AppendLine("O.fkUsuarioUm, O.tipoSistema FROM Acceso_Opcion AS O ");
+                sbConsulta.AppendLine("    INNER JOIN Acceso_Sistema AS Sis ON O.fkSistema = Sis.idSistema ");
+                sbConsulta.AppendLine("    INNER JOIN Acceso_Tipo_Archivo AS TA ON TA.idTipoArchivo = O.fkTipoArchivo ");
+                sbConsulta.AppendLine("WHERE O.Habilitado = 1 AND ");
+                consultaLike = sbConsulta.ToString();
+                //string consultaLike = "SELECT O.idOpcion, O.fkSistema, O.idOpcionPadre, O.Nombre, O.Posicion, O.fkTipoArchivo," +
+                //    "O.Controlador, O.fkUsuarioCr, O.fechaCr, O.Habilitado, O.nombrePadre, O.fechaUm, " +
+                //    "O.fkUsuarioUm, O.tipoSistema FROM Acceso_Opcion AS O " +
+                //    "INNER JOIN Acceso_Sistema AS Sis ON O.fkSistema = Sis.idSistema " +
+                //    "INNER JOIN Acceso_Tipo_Archivo AS TA ON TA.idTipoArchivo = O.fkTipoArchivo " +
+                //    "WHERE O.Habilitado = 1 AND ";
 
                 if (filtroCombo == null)
                 {
-                    consultaLike = consultaLike + "(";
+                    consultaLike +=  "(";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
+                            consultaLike +=   asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
+                            consultaLike +=   asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
                     }
                     liListarAccesoOpcion = _context.Acceso_Opcion.FromSqlRaw(consultaLike).Include(c => c.Acceso_Sistema).Include(c => c.Acceso_Tipo_Archivo).ToList();
                 }
                 else
                 {
-                    consultaLike = consultaLike + "O.fkSistema = " + filtroCombo + " AND (";
+                    consultaLike +=   "O.fkSistema = " + filtroCombo + " AND (";
                     for (int i = 0; i < asArregloFiltro.Length; i++)
                     {
                         if (i != asArregloFiltro.Length - 1)
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
+                            consultaLike +=   asArregloFiltro[i] + " LIKE '%" + Buscador + "%' OR ";
                         else
-                            consultaLike = consultaLike + asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
+                            consultaLike +=   asArregloFiltro[i] + " LIKE '%" + Buscador + "%')";
                     }
                     liListarAccesoOpcion = _context.Acceso_Opcion.FromSqlRaw(consultaLike).Include(c => c.Acceso_Sistema).Include(c => c.Acceso_Tipo_Archivo).ToList();
                 }

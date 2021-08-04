@@ -40,11 +40,13 @@ namespace GrupoBJ.Models
         [Display(Name = "Ciudad")]
         public int? fk_id_Ciudad { get; set; }
 
+      
 
-      //  [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
-        [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
-        [Display(Name = "Pais")]
-        public int? fk_id_Pais { get; set; }
+
+        //  [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
+        //[StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]
+        //[Display(Name = "Pais")]
+        //public int? fk_id_Pais { get; set; }
 
        // [Required(ErrorMessage = "(A)El nombre del permiso es obligatorio.")]
         [StringLength(150, ErrorMessage = "(A)La longitud máxima del permiso es 150 caracteres")]

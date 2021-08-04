@@ -634,6 +634,7 @@
                 document.getElementById("fkPuesto").value = Datos.fkPuesto;
                 //Id's para la carga de los datos de los combos
                 idCiudad = Datos.fkCiudad;
+                console.log("La ciudad es ", idCiudad);
                 idSucursal = Datos.fkSucursal;
                 idPuesto = Datos.fkPuesto;
                 await llenarLocalizacion(idCiudad);
@@ -666,6 +667,8 @@
 
                 Ciudad = await llenarCiudad();
                 document.getElementById("fkCiudad").value = idCiudad;
+
+                console.log("datos", idPais, idEstado, Ciudad);
             }
 
             //Función asíncrona para cargar la sucursal y la empresa
